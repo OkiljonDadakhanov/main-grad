@@ -46,7 +46,8 @@ export default function CertificatesPage() {
 
   const handleAddCertificate = (
     newCertData: Omit<CertificateEntry, "id" | "fileUrl" | "fileName"> & {
-      file?: FileList;
+      file?: File[] | FileList; // safe during SSR
+
     }
   ) => {
     const newCert: CertificateEntry = {
