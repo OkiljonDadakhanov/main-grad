@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Graduate in Korea - Find Your Perfect University",
   description: "Discover universities in Korea and Uzbekistan for your academic journey",
-    generator: 'v0.dev'
+    generator: 'akilhan'
 }
 
 export default function RootLayout({
