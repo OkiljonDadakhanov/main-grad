@@ -63,22 +63,22 @@ export function Footer() {
             <h4 className="font-medium text-purple-900 mb-4">Information</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/information/application-process" className="text-gray-600 hover:text-purple-900">
+                <Link href="/application-process" className="text-gray-600 hover:text-purple-900">
                   Application Process
                 </Link>
               </li>
               <li>
-                <Link href="/information/visa-requirements" className="text-gray-600 hover:text-purple-900">
+                <Link href="/visa-requirements" className="text-gray-600 hover:text-purple-900">
                   Visa Requirements
                 </Link>
               </li>
               <li>
-                <Link href="/information/living-costs" className="text-gray-600 hover:text-purple-900">
+                <Link href="/living-costs" className="text-gray-600 hover:text-purple-900">
                   Living Costs
                 </Link>
               </li>
               <li>
-                <Link href="/information/scholarships" className="text-gray-600 hover:text-purple-900">
+                <Link href="/scholarships" className="text-gray-600 hover:text-purple-900">
                   Scholarships
                 </Link>
               </li>

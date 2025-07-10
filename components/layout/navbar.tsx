@@ -49,10 +49,10 @@ const navItems = [
     title: "Information",
     href: "/information",
     subItems: [
-      { title: "Application Process", href: "/information/application-process" },
-      { title: "Visa Requirements", href: "/information/visa-requirements" },
-      { title: "Living in Korea", href: "/information/living-in-korea" },
-      { title: "Scholarships", href: "/information/scholarships" },
+      { title: "Application Process", href: "/application-process" },
+      { title: "Visa Requirements", href: "/visa-requirements" },
+      { title: "Living in Korea", href: "/living-in-korea" },
+      { title: "Scholarships", href: "/scholarships" },
     ],
   },
   {
