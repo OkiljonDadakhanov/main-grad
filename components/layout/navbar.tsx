@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,11 +12,11 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { LanguageSwitcher } from "@/components/layout/language-switcher"
+} from "@/components/ui/navigation-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 
 const navItems = [
   {
@@ -38,11 +38,10 @@ const navItems = [
     title: "Universities",
     href: "/universities",
     subItems: [
-      { title: "Seoul", href: "/universities/seoul" },
-      { title: "Busan", href: "/universities/busan" },
-      { title: "Daegu", href: "/universities/daegu" },
-      { title: "Incheon", href: "/universities/incheon" },
-      { title: "Gwangju", href: "/universities/gwangju" },
+      { title: "SNU", href: "/universities/snu" },
+      { title: "PKNU", href: "/universities/pknu" },
+      { title: "INHA", href: "/universities/inha" },
+      { title: "YONSEI", href: "/universities/yonsei" },
     ],
   },
   {
@@ -54,7 +53,7 @@ const navItems = [
       { title: "Living in Korea", href: "/living-in-korea" },
       { title: "Scholarships", href: "/scholarships" },
     ],
-  },  
+  },
   {
     title: "Partners",
     href: "/partners",
@@ -68,12 +67,11 @@ const navItems = [
     title: "Contact Us",
     href: "/contact",
   },
-
-]
+];
 
 export function Navbar() {
-  const pathname = usePathname()
-  const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
@@ -81,7 +79,10 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Left: Logo and Nav */}
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center text-xl font-bold text-purple-900">
+            <Link
+              href="/"
+              className="flex items-center text-xl font-bold text-purple-900"
+            >
               Study in Korea
             </Link>
 
@@ -91,7 +92,9 @@ export function Navbar() {
                 {navItems.map((item) =>
                   item.subItems ? (
                     <NavigationMenuItem key={item.title}>
-                      <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+                      <NavigationMenuTrigger>
+                        {item.title}
+                      </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <ul className="grid w-[300px] gap-2 p-4 md:grid-cols-2">
                           {item.subItems.map((subItem) => (
@@ -115,7 +118,8 @@ export function Navbar() {
                         <NavigationMenuLink
                           className={cn(
                             navigationMenuTriggerStyle(),
-                            pathname === item.href && "bg-accent text-accent-foreground"
+                            pathname === item.href &&
+                              "bg-accent text-accent-foreground"
                           )}
                         >
                           {item.title}
@@ -191,7 +195,10 @@ export function Navbar() {
                         Log in
                       </Link>
                     </Button>
-                    <Button className="bg-purple-900 hover:bg-purple-800" asChild>
+                    <Button
+                      className="bg-purple-900 hover:bg-purple-800"
+                      asChild
+                    >
                       <Link href="/register" onClick={() => setIsOpen(false)}>
                         Register
                       </Link>
@@ -204,5 +211,5 @@ export function Navbar() {
         </div>
       </div>
     </header>
-  )
+  );
 }
