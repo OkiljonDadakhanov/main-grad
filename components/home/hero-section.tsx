@@ -5,10 +5,10 @@ import { SearchBar } from "@/components/home/search-bar";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden px-6 py-20 md:py-32">
+    <section className="relative flex items-center justify-center min-h-screen overflow-hidden px-6 py-20">
       {/* Background with overlay */}
       <div className="absolute inset-0 z-0 bg-gradient-to-r from-purple-900/90 to-blue-900/90">
-        <div className="absolute inset-0 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center mix-blend-overlay opacity-40" />
+        <div className="absolute inset-0 bg-[url('/./images/main.jpg')] bg-cover bg-center mix-blend-overlay opacity-40" />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto text-center text-white">
@@ -17,7 +17,8 @@ export function HeroSection() {
         </h1>
 
         <p className="text-lg md:text-xl mb-10 text-white/90 max-w-2xl mx-auto">
-          Discover top Korean universities, scholarships, and programs specifically for Uzbek students
+          Discover top Korean universities, scholarships, and programs
+          specifically for Uzbek students
         </p>
 
         {/* Buttons */}
@@ -33,7 +34,7 @@ export function HeroSection() {
           <Button
             size="lg"
             variant="outline"
-            className="text-white border-white hover:bg-white/10 min-w-[180px]"
+            className="bg-white text-purple-900 hover:bg-white/90 min-w-[180px]"
             asChild
           >
             <Link href="/application-process">How to Apply</Link>
