@@ -74,6 +74,10 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
+    <>
+     <div className="bg-yellow-300 text-black text-center text-sm py-2 px-4">
+        ⚠️ This platform is in development. Some features may be incomplete or subject to change.
+      </div>
     <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
       <div className="mx-auto w-full max-w-screen-xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
@@ -211,5 +215,6 @@ export function Navbar() {
         </div>
       </div>
     </header>
+    </>
   );
 }
