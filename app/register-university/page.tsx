@@ -13,7 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 
 interface FormData {
@@ -33,9 +38,6 @@ interface FormData {
   phone_number: string;
   accreditation_number: string;
   accreditation_document: File | null;
-  language: string;
-  translated_name: string;
-  description: string;
 }
 
 export default function UniversityRegisterForm() {
@@ -57,9 +59,6 @@ export default function UniversityRegisterForm() {
     phone_number: "",
     accreditation_number: "",
     accreditation_document: null,
-    language: "en",
-    translated_name: "",
-    description: "",
   });
 
   const handleChange = (key: keyof FormData, value: any) => {
@@ -78,22 +77,17 @@ export default function UniversityRegisterForm() {
     });
 
     try {
-      const response = await fetch(
-        "https://api.gradabroad.net/api/auth/register/university/",
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
+      const response = await fetch("https://api.gradabroad.net/api/auth/register/university/", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
 
       if (!response.ok) throw new Error("Failed to register");
 
-      toast.success(
-        "Registration successful! Check your email for confirmation."
-      );
+      toast.success("Registration successful! Check your email for confirmation.");
     } catch (error) {
       toast.error("Something went wrong. Please try again later.");
     }
@@ -103,12 +97,9 @@ export default function UniversityRegisterForm() {
     <section className="bg-gradient-to-b from-purple-700 to-purple-900 text-white py-16 md:py-24">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold">
-            Register Your University
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold">Register Your University</h2>
           <p className="text-md opacity-80 mt-2">
-            Fill in all necessary information to add your university to our
-            platform
+            Fill in all necessary information to add your university to our platform
           </p>
         </div>
 
@@ -160,9 +151,7 @@ export default function UniversityRegisterForm() {
                     type="text"
                     required
                     value={form.contact_person}
-                    onChange={(e) =>
-                      handleChange("contact_person", e.target.value)
-                    }
+                    onChange={(e) => handleChange("contact_person", e.target.value)}
                   />
                 </div>
                 <div>
@@ -171,9 +160,7 @@ export default function UniversityRegisterForm() {
                     type="email"
                     required
                     value={form.contact_email}
-                    onChange={(e) =>
-                      handleChange("contact_email", e.target.value)
-                    }
+                    onChange={(e) => handleChange("contact_email", e.target.value)}
                   />
                 </div>
               </div>
@@ -194,9 +181,7 @@ export default function UniversityRegisterForm() {
                   <Input
                     type="text"
                     value={form.classification}
-                    onChange={(e) =>
-                      handleChange("classification", e.target.value)
-                    }
+                    onChange={(e) => handleChange("classification", e.target.value)}
                   />
                 </div>
                 <div>
@@ -228,9 +213,23 @@ export default function UniversityRegisterForm() {
                   <Input
                     type="text"
                     value={form.phone_number}
-                    onChange={(e) =>
-                      handleChange("phone_number", e.target.value)
-                    }
+                    onChange={(e) => handleChange("phone_number", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Latitude</Label>
+                  <Input
+                    type="text"
+                    value={form.latitude}
+                    onChange={(e) => handleChange("latitude", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Longitude</Label>
+                  <Input
+                    type="text"
+                    value={form.longitude}
+                    onChange={(e) => handleChange("longitude", e.target.value)}
                   />
                 </div>
               </div>
@@ -243,50 +242,17 @@ export default function UniversityRegisterForm() {
                   <Input
                     type="text"
                     value={form.accreditation_number}
-                    onChange={(e) =>
-                      handleChange("accreditation_number", e.target.value)
-                    }
+                    onChange={(e) => handleChange("accreditation_number", e.target.value)}
                   />
                 </div>
                 <div>
                   <Label>Upload Accreditation Document</Label>
                   <Input
                     type="file"
-                    onChange={(e) =>
-                      handleChange(
-                        "accreditation_document",
-                        e.target.files?.[0] || null
-                      )
-                    }
+                    onChange={(e) => handleChange("accreditation_document", e.target.files?.[0] || null)}
                   />
                 </div>
-                <div>
-                  <Label>Language</Label>
-                  <Input
-                    type="text"
-                    value={form.language}
-                    onChange={(e) => handleChange("language", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Translated Name</Label>
-                  <Input
-                    type="text"
-                    value={form.translated_name}
-                    onChange={(e) =>
-                      handleChange("translated_name", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label>Description</Label>
-                  <Textarea
-                    value={form.description}
-                    onChange={(e) =>
-                      handleChange("description", e.target.value)
-                    }
-                  />
-                </div>
+               
               </div>
             )}
 
@@ -295,9 +261,7 @@ export default function UniversityRegisterForm() {
               {step < 3 ? (
                 <Button onClick={nextStep}>Next</Button>
               ) : (
-                <Button type="submit" onClick={handleSubmit}>
-                  Submit
-                </Button>
+                <Button type="button" onClick={handleSubmit}>Submit</Button>
               )}
             </div>
           </CardContent>
