@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin } from "lucide-react"
 
 export function ContactHero() {
   return (
-    <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-16">
+    <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-16 ">
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-6">Get in Touch</h1>
         <p className="text-xl mb-8 max-w-3xl mx-auto">
