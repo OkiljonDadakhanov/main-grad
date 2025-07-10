@@ -54,11 +54,21 @@ const navItems = [
       { title: "Living in Korea", href: "/living-in-korea" },
       { title: "Scholarships", href: "/scholarships" },
     ],
+  },  
+  {
+    title: "Partners",
+    href: "/partners",
   },
+
   {
     title: "FAQs",
     href: "/faqs",
   },
+  {
+    title: "Contact Us",
+    href: "/contact",
+  },
+
 ]
 
 export function Navbar() {
