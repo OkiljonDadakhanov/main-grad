@@ -1,24 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
 interface FormData {
@@ -41,7 +28,8 @@ interface FormData {
 }
 
 export default function UniversityRegisterForm() {
-  const [step, setStep] = useState<number>(1);
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState<FormData>({
     email: "",
     password: "",
@@ -61,35 +49,95 @@ export default function UniversityRegisterForm() {
     accreditation_document: null,
   });
 
+  // ✅ Track error state
+  const [emailError, setEmailError] = useState("");
+
   const handleChange = (key: keyof FormData, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+
+    // clear email error when user types again
+    if (key === "email") setEmailError("");
   };
 
-  const nextStep = () => setStep((s) => s + 1);
-  const prevStep = () => setStep((s) => s - 1);
+  const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+  const isValidForm = () => {
+    if (!form.email || !isValidEmail(form.email)) {
+      setEmailError("Please enter a valid email.");
+      return false;
+    }
+    if (!form.password || form.password.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return false;
+    }
+    if (!form.contact_person || !form.contact_email || !form.phone_number) {
+      toast.error("Please fill in all required fields.");
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async () => {
+    if (!isValidForm()) return;
+
+    setIsSubmitting(true);
+
     const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) => {
-      if (value !== null) {
-        formData.append(key, value as any);
+    formData.append("email", form.email);
+    formData.append("password", form.password);
+
+    const profileFields: (keyof FormData)[] = [
+      "logo",
+      "website",
+      "contact_person",
+      "contact_email",
+      "type",
+      "classification",
+      "address",
+      "city",
+      "zip_code",
+      "latitude",
+      "longitude",
+      "phone_number",
+      "accreditation_number",
+      "accreditation_document",
+    ];
+
+    profileFields.forEach((key) => {
+      const value = form[key];
+      if (value !== null && value !== undefined) {
+        formData.append(`university_profile.${key}`, value as any);
       }
     });
 
     try {
-      const response = await fetch("https://api.gradabroad.net/api/auth/register/university/", {
-        method: "POST",
-        body: formData,
-        headers: {
-          Accept: "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://api.gradabroad.net/api/auth/register/university/",
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
 
-      if (!response.ok) throw new Error("Failed to register");
+      const data = await response.json();
 
-      toast.success("Registration successful! Check your email for confirmation.");
+      if (!response.ok) {
+        if (data.email && Array.isArray(data.email)) {
+          setEmailError(data.email[0]);
+        } else {
+          toast.error("Something went wrong. Please check your inputs.");
+        }
+        return;
+      }
+
+      toast.success("Registration successful! Redirecting...");
+      router.push("/success");
     } catch (error) {
-      toast.error("Something went wrong. Please try again later.");
+      toast.error("Server error. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -97,172 +145,204 @@ export default function UniversityRegisterForm() {
     <section className="bg-gradient-to-b from-purple-700 to-purple-900 text-white py-16 md:py-24">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold">Register Your University</h2>
+          <h2 className="text-3xl md:text-4xl font-bold">
+            Register Your University
+          </h2>
           <p className="text-md opacity-80 mt-2">
-            Fill in all necessary information to add your university to our platform
+            Fill in all necessary information to add your university to our
+            platform
           </p>
         </div>
 
         <Card className="bg-white text-black">
           <CardHeader>
-            <CardTitle>Step {step} of 3</CardTitle>
+            <CardTitle>Registration Form</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {step === 1 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Email</Label>
-                  <Input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Password</Label>
-                  <Input
-                    type="password"
-                    required
-                    value={form.password}
-                    onChange={(e) => handleChange("password", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>University Website</Label>
-                  <Input
-                    type="text"
-                    required
-                    value={form.website}
-                    onChange={(e) => handleChange("website", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Logo URL</Label>
-                  <Input
-                    type="text"
-                    value={form.logo}
-                    onChange={(e) => handleChange("logo", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Contact Person</Label>
-                  <Input
-                    type="text"
-                    required
-                    value={form.contact_person}
-                    onChange={(e) => handleChange("contact_person", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Contact Email</Label>
-                  <Input
-                    type="email"
-                    required
-                    value={form.contact_email}
-                    onChange={(e) => handleChange("contact_email", e.target.value)}
-                  />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>
+                  Email<span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  required
+                  className={emailError ? "border-red-500" : ""}
+                />
+                {emailError && (
+                  <p className="text-sm text-red-600 mt-1">{emailError}</p>
+                )}
               </div>
-            )}
 
-            {step === 2 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Type</Label>
-                  <Input
-                    type="text"
-                    value={form.type}
-                    onChange={(e) => handleChange("type", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Classification</Label>
-                  <Input
-                    type="text"
-                    value={form.classification}
-                    onChange={(e) => handleChange("classification", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Address</Label>
-                  <Input
-                    type="text"
-                    value={form.address}
-                    onChange={(e) => handleChange("address", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>City</Label>
-                  <Input
-                    type="text"
-                    value={form.city}
-                    onChange={(e) => handleChange("city", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Zip Code</Label>
-                  <Input
-                    type="text"
-                    value={form.zip_code}
-                    onChange={(e) => handleChange("zip_code", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Phone Number</Label>
-                  <Input
-                    type="text"
-                    value={form.phone_number}
-                    onChange={(e) => handleChange("phone_number", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Latitude</Label>
-                  <Input
-                    type="text"
-                    value={form.latitude}
-                    onChange={(e) => handleChange("latitude", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Longitude</Label>
-                  <Input
-                    type="text"
-                    value={form.longitude}
-                    onChange={(e) => handleChange("longitude", e.target.value)}
-                  />
-                </div>
+              <div>
+                <Label>
+                  Password<span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  type="password"
+                  value={form.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  required
+                />
               </div>
-            )}
 
-            {step === 3 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Accreditation Number</Label>
-                  <Input
-                    type="text"
-                    value={form.accreditation_number}
-                    onChange={(e) => handleChange("accreditation_number", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Upload Accreditation Document</Label>
-                  <Input
-                    type="file"
-                    onChange={(e) => handleChange("accreditation_document", e.target.files?.[0] || null)}
-                  />
-                </div>
-               
+              <div>
+                <Label>University Website*</Label>
+                <Input
+                  type="text"
+                  value={form.website}
+                  onChange={(e) => handleChange("website", e.target.value)}
+                  required
+                />
               </div>
-            )}
 
-            <div className="flex justify-between pt-6">
-              {step > 1 && <Button onClick={prevStep}>Back</Button>}
-              {step < 3 ? (
-                <Button onClick={nextStep}>Next</Button>
-              ) : (
-                <Button type="button" onClick={handleSubmit}>Submit</Button>
-              )}
+              <div>
+                <Label>Logo URL</Label>
+                <Input
+                  type="text"
+                  value={form.logo}
+                  onChange={(e) => handleChange("logo", e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>Contact Person*</Label>
+                <Input
+                  type="text"
+                  value={form.contact_person}
+                  onChange={(e) =>
+                    handleChange("contact_person", e.target.value)
+                  }
+                  required
+                />
+              </div>
+
+              <div>
+                <Label>Contact Email*</Label>
+                <Input
+                  type="email"
+                  value={form.contact_email}
+                  onChange={(e) =>
+                    handleChange("contact_email", e.target.value)
+                  }
+                  required
+                />
+              </div>
+
+              <div>
+                <Label>Classification</Label>
+                <Input
+                  type="text"
+                  value={form.classification}
+                  onChange={(e) =>
+                    handleChange("classification", e.target.value)
+                  }
+                />
+              </div>
+
+              <div>
+                <Label>Address</Label>
+                <Input
+                  type="text"
+                  value={form.address}
+                  onChange={(e) => handleChange("address", e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>City</Label>
+                <Input
+                  type="text"
+                  value={form.city}
+                  onChange={(e) => handleChange("city", e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>Zip Code</Label>
+                <Input
+                  type="text"
+                  value={form.zip_code}
+                  onChange={(e) => handleChange("zip_code", e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>Phone Number*</Label>
+                <Input
+                  type="text"
+                  value={form.phone_number}
+                  onChange={(e) => handleChange("phone_number", e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label>Latitude</Label>
+                <Input
+                  type="text"
+                  value={form.latitude}
+                  onChange={(e) => handleChange("latitude", e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>Longitude</Label>
+                <Input
+                  type="text"
+                  value={form.longitude}
+                  onChange={(e) => handleChange("longitude", e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>Accreditation Number</Label>
+                <Input
+                  type="text"
+                  value={form.accreditation_number}
+                  onChange={(e) =>
+                    handleChange("accreditation_number", e.target.value)
+                  }
+                />
+              </div>
+
+              <div>
+                <Label>Type</Label>
+                <select
+                  value={form.type}
+                  onChange={(e) => handleChange("type", e.target.value)}
+                  className="w-full border rounded px-3 py-2"
+                >
+                  <option value="">Select</option>
+                  <option value="Public">Public</option>
+                  <option value="Private">Private</option>
+                </select>
+              </div>
+
+              <div>
+                <Label>Upload Accreditation Document</Label>
+                <Input
+                  type="file"
+                  onChange={(e) =>
+                    handleChange(
+                      "accreditation_document",
+                      e.target.files?.[0] || null
+                    )
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-6">
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </Button>
             </div>
           </CardContent>
         </Card>
