@@ -51,6 +51,9 @@ export default function UniversityRegisterForm() {
 
   // ✅ Track error state
   const [emailError, setEmailError] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [termsError, setTermsError] = useState("");
+
 
   const handleChange = (key: keyof FormData, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -77,7 +80,16 @@ export default function UniversityRegisterForm() {
   };
 
   const handleSubmit = async () => {
+     setTermsError(""); 
+
     if (!isValidForm()) return;
+
+    if (!agreed) {
+      toast.error(
+        "You must accept the Terms and Conditions before submitting."
+      );
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -335,6 +347,35 @@ export default function UniversityRegisterForm() {
               </div>
             </div>
 
+            {/* Terms & Conditions checkbox */}
+            <div className="pt-4 text-sm text-gray-700">
+              <div className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => {
+                    setAgreed(e.target.checked);
+                    setTermsError(""); // clear on change
+                  }}
+                  className="mt-1"
+                />
+                <label>
+                 
+                  <a
+                    href="/terms-and-conditions"
+                    className="text-purple-700 font-semibold hover:underline"
+                    target="_blank"
+                  >
+                     I agree to the
+                    Terms and Conditions
+                  </a>
+                </label>
+              </div>
+              {termsError && (
+                <p className="text-sm text-red-600 mt-1">{termsError}</p>
+              )}
+            </div>
+
             <div className="flex justify-end pt-6">
               <Button
                 type="button"
@@ -343,6 +384,15 @@ export default function UniversityRegisterForm() {
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
+            </div>
+            <div className="pt-4 text-center text-sm text-gray-600">
+              Already have a university profile?{" "}
+              <a
+                href="/login"
+                className="text-purple-700 font-semibold hover:underline"
+              >
+                Log in here
+              </a>
             </div>
           </CardContent>
         </Card>
