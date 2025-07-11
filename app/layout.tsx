@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
 
-  const hideLayoutOn = ["/register-university"];
+  const hideLayoutOn = ["/register-university", "/success", "/login", "/register-university/terms", ];
   const hideLayout = hideLayoutOn.includes(pathname);
   return (
     <html lang="en" suppressHydrationWarning>

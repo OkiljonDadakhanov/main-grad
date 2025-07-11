@@ -375,7 +375,7 @@ export default function UniversityRegisterForm() {
                 />
                 <label>
                   <a
-                    href="/terms-and-conditions"
+                    href="/register-university/terms"
                     className="text-purple-700 font-semibold hover:underline"
                     target="_blank"
                   >
