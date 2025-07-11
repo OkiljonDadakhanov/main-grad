@@ -87,7 +87,7 @@ export function Navbar() {
               href="/"
               className="flex items-center text-xl font-bold text-purple-900"
             >
-              Study in Korea
+              Graduate in Korea
             </Link>
 
             {/* Desktop Navigation */}

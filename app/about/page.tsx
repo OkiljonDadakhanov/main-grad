@@ -8,7 +8,7 @@ import { WhyChooseUs } from "@/components/about/why-choose-us"
 import { AboutCTA } from "@/components/about/about-cta"
 
 export const metadata: Metadata = {
-  title: "About Us - Study in Korea",
+  title: "About Us - Graduate in Korea",
   description:
     "Learn about our mission to connect Uzbek students with top Korean universities and educational opportunities.",
 }

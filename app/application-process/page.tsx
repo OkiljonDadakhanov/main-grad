@@ -9,7 +9,7 @@ import SupportResources from '@/components/application-process/support-resources
 import ApplicationFaq from '@/components/application-process/application-faq'
 
 export const metadata: Metadata = {
-  title: 'Application Process | Study in Korea',
+  title: 'Application Process | Graduate in Korea',
   description: 'Complete guide to applying to Korean universities for Uzbek students - step by step process, required documents, timeline, and expert tips.',
 }
 

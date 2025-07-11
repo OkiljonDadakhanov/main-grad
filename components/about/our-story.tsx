@@ -9,7 +9,7 @@ export function OurStory() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Our Story</h2>
             <div className="space-y-4 text-gray-600">
               <p className="text-lg">
-                Founded in 2020, Study in Korea began as a small initiative to help Uzbek students navigate the complex
+                Founded in 2020, Graduate in Korea began as a small initiative to help Uzbek students navigate the complex
                 process of applying to Korean universities. What started as a passion project has grown into the leading
                 platform connecting Uzbekistan and Korea's educational excellence.
               </p>
