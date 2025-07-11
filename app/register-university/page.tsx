@@ -54,7 +54,6 @@ export default function UniversityRegisterForm() {
   const [agreed, setAgreed] = useState(false);
   const [termsError, setTermsError] = useState("");
 
-
   const handleChange = (key: keyof FormData, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
 
@@ -80,7 +79,7 @@ export default function UniversityRegisterForm() {
   };
 
   const handleSubmit = async () => {
-     setTermsError(""); 
+    setTermsError("");
 
     if (!isValidForm()) return;
 
@@ -201,6 +200,32 @@ export default function UniversityRegisterForm() {
               </div>
 
               <div>
+                <Label>Classification</Label>
+                <select
+                  value={form.classification}
+                  onChange={(e) =>
+                    handleChange("classification", e.target.value)
+                  }
+                  className="w-full border rounded px-3 py-2"
+                >
+                  <option value="">Select Classification</option>
+                  <option value="University">University</option>
+                  <option value="College">College</option>
+                  <option value="Institute">Institute</option>
+                  <option value="Polytechnic">Polytechnic</option>
+                  <option value="Academy">Academy</option>
+                  <option value="Junior College">Junior College</option>
+                  <option value="Graduate School">Graduate School</option>
+                  <option value="Research Center/Institute">
+                    Research Center/Institute
+                  </option>
+                  <option value="Vocational School / Technical School">
+                    Vocational School / Technical School
+                  </option>
+                </select>
+              </div>
+
+              <div>
                 <Label>University Website*</Label>
                 <Input
                   type="text"
@@ -240,17 +265,6 @@ export default function UniversityRegisterForm() {
                     handleChange("contact_email", e.target.value)
                   }
                   required
-                />
-              </div>
-
-              <div>
-                <Label>Classification</Label>
-                <Input
-                  type="text"
-                  value={form.classification}
-                  onChange={(e) =>
-                    handleChange("classification", e.target.value)
-                  }
                 />
               </div>
 
@@ -360,14 +374,12 @@ export default function UniversityRegisterForm() {
                   className="mt-1"
                 />
                 <label>
-                 
                   <a
                     href="/terms-and-conditions"
                     className="text-purple-700 font-semibold hover:underline"
                     target="_blank"
                   >
-                     I agree to the
-                    Terms and Conditions
+                    I agree to the Terms and Conditions
                   </a>
                 </label>
               </div>
