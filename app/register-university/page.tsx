@@ -1,3 +1,5 @@
+// UniversityRegisterForm.tsx
+
 "use client";
 
 import { useState } from "react";
@@ -5,13 +7,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Mail, Lock, MapPin, FileUp } from "lucide-react";
 
 interface FormData {
+  name: string;
   email: string;
   password: string;
-  logo: string;
   website: string;
   contact_person: string;
   contact_email: string;
@@ -31,9 +34,9 @@ export default function UniversityRegisterForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState<FormData>({
+    name: "",
     email: "",
     password: "",
-    logo: "",
     website: "",
     contact_person: "",
     contact_email: "",
@@ -49,19 +52,17 @@ export default function UniversityRegisterForm() {
     accreditation_document: null,
   });
 
-  // ✅ Track error state
   const [emailError, setEmailError] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [termsError, setTermsError] = useState("");
 
   const handleChange = (key: keyof FormData, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-
-    // clear email error when user types again
     if (key === "email") setEmailError("");
   };
 
   const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+
   const isValidForm = () => {
     if (!form.email || !isValidEmail(form.email)) {
       setEmailError("Please enter a valid email.");
@@ -80,9 +81,7 @@ export default function UniversityRegisterForm() {
 
   const handleSubmit = async () => {
     setTermsError("");
-
     if (!isValidForm()) return;
-
     if (!agreed) {
       toast.error(
         "You must accept the Terms and Conditions before submitting."
@@ -91,13 +90,12 @@ export default function UniversityRegisterForm() {
     }
 
     setIsSubmitting(true);
-
     const formData = new FormData();
     formData.append("email", form.email);
     formData.append("password", form.password);
 
     const profileFields: (keyof FormData)[] = [
-      "logo",
+      "name",
       "website",
       "contact_person",
       "contact_email",
@@ -133,7 +131,6 @@ export default function UniversityRegisterForm() {
       );
 
       const data = await response.json();
-
       if (!response.ok) {
         if (data.email && Array.isArray(data.email)) {
           setEmailError(data.email[0]);
@@ -145,7 +142,7 @@ export default function UniversityRegisterForm() {
 
       toast.success("Registration successful! Redirecting...");
       router.push("/success");
-    } catch (error) {
+    } catch {
       toast.error("Server error. Please try again later.");
     } finally {
       setIsSubmitting(false);
@@ -153,125 +150,67 @@ export default function UniversityRegisterForm() {
   };
 
   return (
-    <section className="bg-gradient-to-b from-purple-700 to-purple-900 text-white py-16 md:py-24">
+    <section className="bg-gradient-to-b from-purple-700 to-purple-900 text-white py-16">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold">
             Register Your University
           </h2>
-          <p className="text-md opacity-80 mt-2">
-            Fill in all necessary information to add your university to our
-            platform
+          <p className="opacity-80 mt-2">
+            Fill in all necessary information to add your university
           </p>
         </div>
 
-        <Card className="bg-white text-black">
+        <Card className="bg-white text-black shadow-xl">
           <CardHeader>
             <CardTitle>Registration Form</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>
-                  Email<span className="text-red-600">*</span>
-                </Label>
-                <Input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  required
-                  className={emailError ? "border-red-500" : ""}
-                />
-                {emailError && (
-                  <p className="text-sm text-red-600 mt-1">{emailError}</p>
-                )}
+              <div className="col-span-2">
+                <Label>University Name *</Label>
+                <div className="relative">
+                  <Input
+                    className="pl-10"
+                    value={form.name}
+                    onChange={(e) => handleChange("name", e.target.value)}
+                  />
+                </div>
               </div>
 
               <div>
-                <Label>
-                  Password<span className="text-red-600">*</span>
-                </Label>
-                <Input
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => handleChange("password", e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label>Classification</Label>
+                <Label>Type *</Label>
                 <select
+                  className="w-full border rounded px-3 py-2"
+                  value={form.type}
+                  onChange={(e) => handleChange("type", e.target.value)}
+                >
+                  <option value="">Select Type</option>
+                  <option value="Public">Public</option>
+                  <option value="Private">Private</option>
+                </select>
+              </div>
+
+              <div>
+                <Label>Classification *</Label>
+                <select
+                  className="w-full border rounded px-3 py-2"
                   value={form.classification}
                   onChange={(e) =>
                     handleChange("classification", e.target.value)
                   }
-                  className="w-full border rounded px-3 py-2"
                 >
                   <option value="">Select Classification</option>
                   <option value="University">University</option>
                   <option value="College">College</option>
                   <option value="Institute">Institute</option>
-                  <option value="Polytechnic">Polytechnic</option>
                   <option value="Academy">Academy</option>
-                  <option value="Junior College">Junior College</option>
-                  <option value="Graduate School">Graduate School</option>
-                  <option value="Research Center/Institute">
-                    Research Center/Institute
-                  </option>
-                  <option value="Vocational School / Technical School">
-                    Vocational School / Technical School
-                  </option>
                 </select>
               </div>
 
-              <div>
-                <Label>University Website*</Label>
+              <div className="col-span-2">
+                <Label>Address *</Label>
                 <Input
-                  type="text"
-                  value={form.website}
-                  onChange={(e) => handleChange("website", e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label>Logo URL</Label>
-                <Input
-                  type="text"
-                  value={form.logo}
-                  onChange={(e) => handleChange("logo", e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label>Contact Person*</Label>
-                <Input
-                  type="text"
-                  value={form.contact_person}
-                  onChange={(e) =>
-                    handleChange("contact_person", e.target.value)
-                  }
-                  required
-                />
-              </div>
-
-              <div>
-                <Label>Contact Email*</Label>
-                <Input
-                  type="email"
-                  value={form.contact_email}
-                  onChange={(e) =>
-                    handleChange("contact_email", e.target.value)
-                  }
-                  required
-                />
-              </div>
-
-              <div>
-                <Label>Address</Label>
-                <Input
-                  type="text"
                   value={form.address}
                   onChange={(e) => handleChange("address", e.target.value)}
                 />
@@ -280,7 +219,6 @@ export default function UniversityRegisterForm() {
               <div>
                 <Label>City</Label>
                 <Input
-                  type="text"
                   value={form.city}
                   onChange={(e) => handleChange("city", e.target.value)}
                 />
@@ -289,44 +227,108 @@ export default function UniversityRegisterForm() {
               <div>
                 <Label>Zip Code</Label>
                 <Input
-                  type="text"
                   value={form.zip_code}
                   onChange={(e) => handleChange("zip_code", e.target.value)}
                 />
               </div>
 
               <div>
-                <Label>Phone Number*</Label>
+                <Label>Latitude *</Label>
                 <Input
-                  type="text"
-                  value={form.phone_number}
-                  onChange={(e) => handleChange("phone_number", e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label>Latitude</Label>
-                <Input
-                  type="text"
                   value={form.latitude}
                   onChange={(e) => handleChange("latitude", e.target.value)}
                 />
               </div>
 
               <div>
-                <Label>Longitude</Label>
+                <Label>Longitude *</Label>
                 <Input
-                  type="text"
                   value={form.longitude}
                   onChange={(e) => handleChange("longitude", e.target.value)}
                 />
               </div>
 
               <div>
-                <Label>Accreditation Number</Label>
+                <Label> University email address *</Label>
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                 <Input
-                  type="text"
+                  type="email"
+                  value={form.contact_email}
+                  onChange={(e) =>
+                    handleChange("contact_email", e.target.value)
+                  }
+                />
+              </div>
+
+              <div>
+                <Label>University office phone *</Label>
+                <div className="relative">
+                  <Input
+                    className="pl-10"
+                    value={form.phone_number}
+                    onChange={(e) =>
+                      handleChange("phone_number", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>University Website *</Label>
+                <div className="relative">
+                  <Input
+                    className="pl-10"
+                    value={form.website}
+                    onChange={(e) => handleChange("website", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>University representetive name *</Label>
+                <div className="relative">
+                  <Input
+                    className="pl-10"
+                    value={form.contact_person}
+                    onChange={(e) =>
+                      handleChange("contact_person", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Email *</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                  <Input
+                    className="pl-10"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                  />
+                </div>
+                {emailError && (
+                  <p className="text-sm text-red-600">{emailError}</p>
+                )}
+              </div>
+
+              <div>
+                <Label>Password *</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                  <Input
+                    className="pl-10"
+                    type="password"
+                    value={form.password}
+                    onChange={(e) => handleChange("password", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="col-span-2">
+                <Label>Accreditation Number *</Label>
+                <Input
                   value={form.accreditation_number}
                   onChange={(e) =>
                     handleChange("accreditation_number", e.target.value)
@@ -334,34 +336,23 @@ export default function UniversityRegisterForm() {
                 />
               </div>
 
-              <div>
-                <Label>Type</Label>
-                <select
-                  value={form.type}
-                  onChange={(e) => handleChange("type", e.target.value)}
-                  className="w-full border rounded px-3 py-2"
-                >
-                  <option value="">Select</option>
-                  <option value="Public">Public</option>
-                  <option value="Private">Private</option>
-                </select>
-              </div>
-
-              <div>
-                <Label>Upload Accreditation Document</Label>
-                <Input
-                  type="file"
-                  onChange={(e) =>
-                    handleChange(
-                      "accreditation_document",
-                      e.target.files?.[0] || null
-                    )
-                  }
-                />
+              <div className="col-span-2">
+                <Label>Upload Accreditation Document *</Label>
+                <div className="flex items-center gap-2">
+                  <FileUp className="text-gray-500" />
+                  <Input
+                    type="file"
+                    onChange={(e) =>
+                      handleChange(
+                        "accreditation_document",
+                        e.target.files?.[0] || null
+                      )
+                    }
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Terms & Conditions checkbox */}
             <div className="pt-4 text-sm text-gray-700">
               <div className="flex items-start gap-2">
                 <input
@@ -369,17 +360,17 @@ export default function UniversityRegisterForm() {
                   checked={agreed}
                   onChange={(e) => {
                     setAgreed(e.target.checked);
-                    setTermsError(""); // clear on change
+                    setTermsError("");
                   }}
                   className="mt-1"
                 />
                 <label>
                   <a
                     href="/register-university/terms"
-                    className="text-purple-700 font-semibold hover:underline"
                     target="_blank"
+                    className="text-purple-700 font-semibold hover:underline"
                   >
-                    I agree to the Terms and Conditions
+                    I accept all terms and conditions
                   </a>
                 </label>
               </div>
@@ -396,15 +387,6 @@ export default function UniversityRegisterForm() {
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
-            </div>
-            <div className="pt-4 text-center text-sm text-gray-600">
-              Already have a university profile?{" "}
-              <a
-                href="/login"
-                className="text-purple-700 font-semibold hover:underline"
-              >
-                Log in here
-              </a>
             </div>
           </CardContent>
         </Card>
