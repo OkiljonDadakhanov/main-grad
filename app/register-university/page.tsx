@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import Link from "next/link";
 import {
   Mail,
   Lock,
@@ -493,6 +494,16 @@ export default function UniversityRegisterForm() {
                 {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </div>
+
+            <p className="text-center text-gray-600 mt-4">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="text-blue-600 font-medium hover:underline hover:text-blue-800 transition"
+              >
+                Login
+              </Link>
+            </p>
           </CardContent>
         </Card>
       </div>
