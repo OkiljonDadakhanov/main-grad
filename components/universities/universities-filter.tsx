@@ -1,36 +1,63 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 
 interface UniversitiesFilterProps {
-  onFilterChange: (filters: { city: string; type: string; ranking: string }) => void
-  selectedCity: string
-  selectedType: string
-  selectedRanking: string
+  onFilterChange: (filters: {
+    city: string;
+    type: string;
+    programFeatures: string[];
+  }) => void;
+  selectedCity: string;
+  selectedType: string;
 }
 
 export function UniversitiesFilter({
   onFilterChange,
   selectedCity,
   selectedType,
-  selectedRanking,
 }: UniversitiesFilterProps) {
+  const [programFeatures, setProgramFeatures] = useState<string[]>([]);
+
   const handleFilterChange = (key: string, value: string) => {
-    const newFilters = {
+    const filters = {
       city: key === "city" ? value : selectedCity,
       type: key === "type" ? value : selectedType,
-      ranking: key === "ranking" ? value : selectedRanking,
-    }
-    onFilterChange(newFilters)
-  }
+      programFeatures,
+    };
+    onFilterChange(filters);
+  };
+
+  const handleFeatureToggle = (feature: string) => {
+    const updatedFeatures = programFeatures.includes(feature)
+      ? programFeatures.filter((f) => f !== feature)
+      : [...programFeatures, feature];
+
+    setProgramFeatures(updatedFeatures);
+
+    // Trigger filter update
+    onFilterChange({
+      city: selectedCity,
+      type: selectedType,
+      programFeatures: updatedFeatures,
+    });
+  };
 
   const clearFilters = () => {
-    onFilterChange({ city: "", type: "", ranking: "" })
-  }
+    setProgramFeatures([]);
+    onFilterChange({ city: "", type: "", programFeatures: [] });
+  };
 
   return (
     <Card>
@@ -46,7 +73,10 @@ export function UniversitiesFilter({
         {/* City Filter */}
         <div>
           <Label className="text-sm font-medium mb-2 block">City</Label>
-          <Select value={selectedCity} onValueChange={(value) => handleFilterChange("city", value)}>
+          <Select
+            value={selectedCity}
+            onValueChange={(value) => handleFilterChange("city", value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select city" />
             </SelectTrigger>
@@ -65,67 +95,61 @@ export function UniversitiesFilter({
 
         {/* University Type */}
         <div>
-          <Label className="text-sm font-medium mb-2 block">University Type</Label>
-          <Select value={selectedType} onValueChange={(value) => handleFilterChange("type", value)}>
+          <Label className="text-sm font-medium mb-2 block">
+            Types of Schools
+          </Label>
+          <Select
+            value={selectedType}
+            onValueChange={(value) => handleFilterChange("type", value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="national">National University</SelectItem>
-              <SelectItem value="private">Private University</SelectItem>
-              <SelectItem value="research">Research University</SelectItem>
-              <SelectItem value="technical">Technical University</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Ranking */}
-        <div>
-          <Label className="text-sm font-medium mb-2 block">World Ranking</Label>
-          <Select value={selectedRanking} onValueChange={(value) => handleFilterChange("ranking", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select ranking" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="top100">Top 100</SelectItem>
-              <SelectItem value="top200">Top 200</SelectItem>
-              <SelectItem value="top500">Top 500</SelectItem>
-              <SelectItem value="top1000">Top 1000</SelectItem>
+              <SelectItem value="__placeholder__" disabled>
+                Select Type
+              </SelectItem>
+              <SelectItem value="University">University</SelectItem>
+              <SelectItem value="College">College</SelectItem>
+              <SelectItem value="Institute">Institute</SelectItem>
+              <SelectItem value="Academy">Academy</SelectItem>
+              <SelectItem value="Graduate School">Graduate School</SelectItem>
+              <SelectItem value="Foreign Branch Campus">
+                Foreign Branch Campus
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {/* Program Features */}
         <div>
-          <Label className="text-sm font-medium mb-3 block">Program Features</Label>
+          <Label className="text-sm font-medium mb-3 block">
+            Program Features
+          </Label>
           <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox id="english" />
-              <Label htmlFor="english" className="text-sm">
-                English Programs
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox id="scholarship" />
-              <Label htmlFor="scholarship" className="text-sm">
-                Scholarships Available
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox id="dormitory" />
-              <Label htmlFor="dormitory" className="text-sm">
-                Dormitory Available
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox id="exchange" />
-              <Label htmlFor="exchange" className="text-sm">
-                Exchange Programs
-              </Label>
-            </div>
+            {["english", "scholarship", "dormitory", "exchange"].map(
+              (feature) => (
+                <div key={feature} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={feature}
+                    checked={programFeatures.includes(feature)}
+                    onCheckedChange={() => handleFeatureToggle(feature)}
+                  />
+                  <Label htmlFor={feature} className="text-sm capitalize">
+                    {feature === "english"
+                      ? "English Programs"
+                      : feature === "scholarship"
+                      ? "Scholarships Available"
+                      : feature === "dormitory"
+                      ? "Dormitory Available"
+                      : "Exchange Programs"}
+                  </Label>
+                </div>
+              )
+            )}
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
