@@ -11,6 +11,38 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Mail, Lock, MapPin, FileUp } from "lucide-react";
 
+const provinceCityData: Record<string, string[]> = {
+  "Gyeonggi-do": [
+    "Suwon",
+    "Seongnam",
+    "Anyang",
+    "Ansan",
+    "Anseong",
+    "Yongin",
+    "Pyeongtaek",
+    "Goyang",
+    "Uijeongbu",
+    "Icheon",
+    "Hwaseong",
+    "Namyangju",
+  ],
+  "Gangwon-do": ["Chuncheon", "Gangneung", "Wonju", "Samcheok"],
+  "North Chungcheong": ["Cheongju", "Chungju", "Jecheon"],
+  "South Chungcheong": ["Cheonan", "Gongju", "Nonsan", "Dangjin", "Asan"],
+  "North Jeolla": ["Jeonju", "Iksan", "Gunsan"],
+  "South Jeolla": ["Mokpo", "Yeosu", "Suncheon", "Naju"],
+  "North Gyeongsang": ["Gyeongsan", "Andong", "Pohang", "Gumi", "Sangju"],
+  "South Gyeongsang": ["Jinju", "Changwon", "Gimhae", "Miryang", "Tongyeong"],
+  Jeju: ["Jeju"],
+  Seoul: ["Seoul"],
+  Busan: ["Busan"],
+  Daegu: ["Daegu"],
+  Incheon: ["Incheon"],
+  Gwangju: ["Gwangju"],
+  Daejeon: ["Daejeon"],
+  Ulsan: ["Ulsan"],
+};
+
 interface FormData {
   name: string;
   email: string;
@@ -21,6 +53,7 @@ interface FormData {
   type: string;
   classification: string;
   address: string;
+  province: string;
   city: string;
   zip_code: string;
   latitude: string;
@@ -43,6 +76,7 @@ export default function UniversityRegisterForm() {
     type: "",
     classification: "",
     address: "",
+    province: "",
     city: "",
     zip_code: "",
     latitude: "",
@@ -102,6 +136,7 @@ export default function UniversityRegisterForm() {
       "type",
       "classification",
       "address",
+      "province",
       "city",
       "zip_code",
       "latitude",
@@ -179,16 +214,27 @@ export default function UniversityRegisterForm() {
               </div>
 
               <div>
-                <Label>Type *</Label>
+                <Label>Types of Schools *</Label>
                 <select
                   className="w-full border rounded px-3 py-2"
                   value={form.type}
                   onChange={(e) => handleChange("type", e.target.value)}
                 >
                   <option value="">Select Type</option>
-                  <option value="Public">Public</option>
-                  <option value="Private">Private</option>
+                  <option value="University">University</option>
+                  <option value="College">College</option>
+                  <option value="Institute">Institute</option>
+                  <option value="Academy">Academy</option>
+                  <option value="Graduate School">Graduate School</option>
+                  <option value="Foreign Branch Campus">
+                    Foreign Branch Campus
+                  </option>
                 </select>
+
+                {/* Explanation note */}
+                <p className="text-sm text-gray-500 mt-1">
+                  According to HIGHER EDUCATION ACT Article 2.
+                </p>
               </div>
 
               <div>
@@ -201,11 +247,15 @@ export default function UniversityRegisterForm() {
                   }
                 >
                   <option value="">Select Classification</option>
-                  <option value="University">University</option>
-                  <option value="College">College</option>
-                  <option value="Institute">Institute</option>
-                  <option value="Academy">Academy</option>
+                  <option value="National">National</option>
+                  <option value="Public">Public</option>
+                  <option value="Private">Private</option>
                 </select>
+
+                {/* Explanatory note */}
+                <p className="text-sm text-gray-500 mt-1">
+                  According to HIGHER EDUCATION ACT Article 3.
+                </p>
               </div>
 
               <div className="col-span-2">
@@ -217,11 +267,39 @@ export default function UniversityRegisterForm() {
               </div>
 
               <div>
-                <Label>City</Label>
-                <Input
+                <Label>Province *</Label>
+                <select
+                  className="w-full border rounded px-3 py-2"
+                  value={form.province}
+                  onChange={(e) => {
+                    handleChange("province", e.target.value);
+                    handleChange("city", "");
+                  }}
+                >
+                  <option value="">Select Province</option>
+                  {Object.keys(provinceCityData).map((province) => (
+                    <option key={province} value={province}>
+                      {province}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <Label>City *</Label>
+                <select
+                  className="w-full border rounded px-3 py-2"
                   value={form.city}
                   onChange={(e) => handleChange("city", e.target.value)}
-                />
+                  disabled={!form.province}
+                >
+                  <option value="">Select City</option>
+                  {(provinceCityData[form.province] || []).map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -250,7 +328,6 @@ export default function UniversityRegisterForm() {
 
               <div>
                 <Label> University email address *</Label>
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                 <Input
                   type="email"
                   value={form.contact_email}
