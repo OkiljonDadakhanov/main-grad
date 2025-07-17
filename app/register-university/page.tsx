@@ -330,99 +330,105 @@ export default function UniversityRegisterForm() {
                 </div>
               </div>
 
-              <div>
-                <Label>University admission email address *</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    type="email"
-                    className="pl-10"
-                    value={form.university_admission_email_address}
-                    onChange={(e) =>
-                      handleChange(
-                        "university_admission_email_address",
-                        e.target.value
-                      )
-                    }
-                  />
+              {/* Email + Password */}
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>University admission email address *</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                    <Input
+                      type="email"
+                      className="pl-10"
+                      value={form.university_admission_email_address}
+                      onChange={(e) =>
+                        handleChange(
+                          "university_admission_email_address",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                  {emailError && (
+                    <p className="text-sm text-red-600">{emailError}</p>
+                  )}
                 </div>
-              </div>
 
-              <div>
-                <Label>University office phone *</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    className="pl-10"
-                    placeholder="+82 10 1234 5678"
-                    value={form.university_office_phone}
-                    onChange={(e) =>
-                      handleChange("university_office_phone", e.target.value)
-                    }
-                  />
+                <div>
+                  <Label>Password *</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                    <Input
+                      className="pl-10"
+                      type="password"
+                      value={form.password}
+                      onChange={(e) => handleChange("password", e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <Label>University Website *</Label>
-                <div className="relative">
-                  <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    className="pl-10"
-                    value={form.website}
-                    onChange={(e) => handleChange("website", e.target.value)}
-                  />
+                <div>
+                  <Label>University office phone *</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                    <Input
+                      className="pl-10"
+                      placeholder="+82 10 1234 5678"
+                      value={form.university_office_phone}
+                      onChange={(e) =>
+                        handleChange("university_office_phone", e.target.value)
+                      }
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <Label>University admission representetive name *</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    className="pl-10"
-                    value={form.university_admission_representetive_name}
-                    onChange={(e) =>
-                      handleChange(
-                        "university_admission_representetive_name",
-                        e.target.value
-                      )
-                    }
-                  />
+                <div>
+                  <Label>University Website *</Label>
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                    <Input
+                      className="pl-10"
+                      value={form.website}
+                      onChange={(e) => handleChange("website", e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <Label>University admission representetive’s email *</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    className="pl-10"
-                    type="email"
-                    value={form.university_admission_representetive_email}
-                    onChange={(e) =>
-                      handleChange(
-                        "university_admission_representetive_email",
-                        e.target.value
-                      )
-                    }
-                  />
+                <div>
+                  <Label>University admission representetive name *</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                    <Input
+                      className="pl-10"
+                      value={form.university_admission_representetive_name}
+                      onChange={(e) =>
+                        handleChange(
+                          "university_admission_representetive_name",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
                 </div>
-                {emailError && (
-                  <p className="text-sm text-red-600">{emailError}</p>
-                )}
-              </div>
 
-              <div>
-                <Label>Password *</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    className="pl-10"
-                    type="password"
-                    value={form.password}
-                    onChange={(e) => handleChange("password", e.target.value)}
-                  />
+                <div>
+                  <Label>University admission representetive’s email *</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                    <Input
+                      className="pl-10"
+                      type="email"
+                      value={form.university_admission_representetive_email}
+                      onChange={(e) =>
+                        handleChange(
+                          "university_admission_representetive_email",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </div>
+                  {emailError && (
+                    <p className="text-sm text-red-600">{emailError}</p>
+                  )}
                 </div>
               </div>
 
@@ -451,6 +457,41 @@ export default function UniversityRegisterForm() {
                   />
                 </div>
               </div>
+            </div>
+            <div className="pt-4 text-sm text-gray-700">
+              <div className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => {
+                    setAgreed(e.target.checked);
+                    setTermsError("");
+                  }}
+                  className="mt-1"
+                />
+                <label>
+                  <a
+                    href="/register-university/terms"
+                    target="_blank"
+                    className="text-purple-700 font-semibold hover:underline"
+                  >
+                    I accept all terms and conditions
+                  </a>
+                </label>
+              </div>
+              {termsError && (
+                <p className="text-sm text-red-600 mt-1">{termsError}</p>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-6">
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </Button>
             </div>
           </CardContent>
         </Card>
