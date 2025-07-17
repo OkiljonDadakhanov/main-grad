@@ -44,21 +44,19 @@ const provinceCityData: Record<string, string[]> = {
 };
 
 interface FormData {
-  name: string;
-  email: string;
+  university_name: string;
+  university_admission_email_address: string;
   password: string;
   website: string;
-  contact_person: string;
-  contact_email: string;
-  type: string;
+  university_admission_representetive_name: string;
+  university_admission_representetive_email: string;
+  types_of_schools: string;
   classification: string;
   address: string;
   province: string;
   city: string;
   zip_code: string;
-  latitude: string;
-  longitude: string;
-  phone_number: string;
+  university_office_phone: string;
   accreditation_number: string;
   accreditation_document: File | null;
 }
@@ -67,21 +65,19 @@ export default function UniversityRegisterForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState<FormData>({
-    name: "",
-    email: "",
+    university_name: "",
+    university_admission_email_address: "",
     password: "",
     website: "",
-    contact_person: "",
-    contact_email: "",
-    type: "",
+    university_admission_representetive_name: "",
+    university_admission_representetive_email: "",
+    types_of_schools: "",
     classification: "",
     address: "",
     province: "",
     city: "",
     zip_code: "",
-    latitude: "",
-    longitude: "",
-    phone_number: "",
+    university_office_phone: "",
     accreditation_number: "",
     accreditation_document: null,
   });
@@ -92,13 +88,16 @@ export default function UniversityRegisterForm() {
 
   const handleChange = (key: keyof FormData, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (key === "email") setEmailError("");
+    if (key === "university_admission_email_address") setEmailError("");
   };
 
   const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
   const isValidForm = () => {
-    if (!form.email || !isValidEmail(form.email)) {
+    if (
+      !form.university_admission_email_address ||
+      !isValidEmail(form.university_admission_email_address)
+    ) {
       setEmailError("Please enter a valid email.");
       return false;
     }
@@ -106,7 +105,11 @@ export default function UniversityRegisterForm() {
       toast.error("Password must be at least 6 characters.");
       return false;
     }
-    if (!form.contact_person || !form.contact_email || !form.phone_number) {
+    if (
+      !form.university_admission_representetive_name ||
+      !form.university_admission_representetive_email ||
+      !form.university_office_phone
+    ) {
       toast.error("Please fill in all required fields.");
       return false;
     }
@@ -125,23 +128,21 @@ export default function UniversityRegisterForm() {
 
     setIsSubmitting(true);
     const formData = new FormData();
-    formData.append("email", form.email);
+    formData.append("email", form.university_admission_email_address);
     formData.append("password", form.password);
 
     const profileFields: (keyof FormData)[] = [
-      "name",
+      "university_name",
       "website",
-      "contact_person",
-      "contact_email",
-      "type",
+      "university_admission_representetive_name",
+      "university_admission_representetive_email",
+      "types_of_schools",
       "classification",
-      "address",
+      "university_admission_email_address",
       "province",
       "city",
       "zip_code",
-      "latitude",
-      "longitude",
-      "phone_number",
+      "university_office_phone",
       "accreditation_number",
       "accreditation_document",
     ];
@@ -207,8 +208,10 @@ export default function UniversityRegisterForm() {
                 <div className="relative">
                   <Input
                     className="pl-10"
-                    value={form.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
+                    value={form.university_name}
+                    onChange={(e) =>
+                      handleChange("university_name", e.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -217,8 +220,10 @@ export default function UniversityRegisterForm() {
                 <Label>Types of Schools *</Label>
                 <select
                   className="w-full border rounded px-3 py-2"
-                  value={form.type}
-                  onChange={(e) => handleChange("type", e.target.value)}
+                  value={form.types_of_schools}
+                  onChange={(e) =>
+                    handleChange("types_of_schools", e.target.value)
+                  }
                 >
                   <option value="">Select Type</option>
                   <option value="University">University</option>
@@ -311,28 +316,15 @@ export default function UniversityRegisterForm() {
               </div>
 
               <div>
-                <Label>Latitude *</Label>
-                <Input
-                  value={form.latitude}
-                  onChange={(e) => handleChange("latitude", e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label>Longitude *</Label>
-                <Input
-                  value={form.longitude}
-                  onChange={(e) => handleChange("longitude", e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label> University email address *</Label>
+                <Label> University admission email address *</Label>
                 <Input
                   type="email"
-                  value={form.contact_email}
+                  value={form.university_admission_email_address}
                   onChange={(e) =>
-                    handleChange("contact_email", e.target.value)
+                    handleChange(
+                      "university_admission_representetive_email",
+                      e.target.value
+                    )
                   }
                 />
               </div>
@@ -342,9 +334,9 @@ export default function UniversityRegisterForm() {
                 <div className="relative">
                   <Input
                     className="pl-10"
-                    value={form.phone_number}
+                    value={form.university_office_phone}
                     onChange={(e) =>
-                      handleChange("phone_number", e.target.value)
+                      handleChange("university_office_phone", e.target.value)
                     }
                   />
                 </div>
@@ -362,27 +354,35 @@ export default function UniversityRegisterForm() {
               </div>
 
               <div>
-                <Label>University representetive name *</Label>
+                <Label>University admission representetive name *</Label>
                 <div className="relative">
                   <Input
                     className="pl-10"
-                    value={form.contact_person}
+                    value={form.university_admission_representetive_name}
                     onChange={(e) =>
-                      handleChange("contact_person", e.target.value)
+                      handleChange(
+                        "university_admission_representetive_name",
+                        e.target.value
+                      )
                     }
                   />
                 </div>
               </div>
 
               <div>
-                <Label>Email *</Label>
+                <Label>University admission representetive’s email *</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                   <Input
                     className="pl-10"
                     type="email"
-                    value={form.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
+                    value={form.university_admission_email_address}
+                    onChange={(e) =>
+                      handleChange(
+                        "university_admission_representetive_email",
+                        e.target.value
+                      )
+                    }
                   />
                 </div>
                 {emailError && (
