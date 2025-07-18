@@ -31,7 +31,7 @@ export default function ResetPasswordPage() {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://api.gradabroad.net/api/auth/password/reset/confirm/",
+        "https://api.gradabroad.net/api/auth/password-reset/confirm/",
         {
           method: "POST",
           headers: {
