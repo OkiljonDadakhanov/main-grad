@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/home/search-bar";
+import { TashkentSeoulClock } from "./tashkent-seoul-clock";
 
 export function HeroSection() {
   return (
@@ -12,6 +13,8 @@ export function HeroSection() {
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto text-center text-white">
+        <TashkentSeoulClock />
+
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
           Your Path from Uzbekistan to Korean Universities
         </h1>

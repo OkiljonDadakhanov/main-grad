@@ -94,12 +94,14 @@ export default function UniversityRegisterForm() {
   });
 
   const [emailError, setEmailError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [agreed, setAgreed] = useState(false);
   const [termsError, setTermsError] = useState("");
 
   const handleChange = (key: keyof FormData, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (key === "university_admission_email_address") setEmailError("");
+    setFieldErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
   const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
@@ -171,15 +173,23 @@ export default function UniversityRegisterForm() {
         {
           method: "POST",
           body: formData,
-          headers: {
-            Accept: "application/json",
-          },
+          headers: { Accept: "application/json" },
         }
       );
 
       const data = await response.json();
       if (!response.ok) {
-        if (data.email && Array.isArray(data.email)) {
+        if (data.university_profile) {
+          const serverErrors: Record<string, string> = {};
+          Object.entries(data.university_profile).forEach(
+            ([field, messages]) => {
+              if (Array.isArray(messages)) {
+                serverErrors[field] = messages[0];
+              }
+            }
+          );
+          setFieldErrors(serverErrors);
+        } else if (data.email && Array.isArray(data.email)) {
           setEmailError(data.email[0]);
         } else {
           toast.error("Something went wrong. Please check your inputs.");
