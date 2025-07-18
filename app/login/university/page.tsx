@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
@@ -14,12 +15,13 @@ import {
 } from "@/components/ui/dialog";
 
 export default function UniversityLoginPage() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetEmail, setResetEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [resetting, setResetting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -74,7 +76,8 @@ export default function UniversityLoginPage() {
         return;
       }
 
-      setShowSuccess(true);
+      // ✅ Redirect to confirmation page
+      router.push("/login/reset-confirm");
     } catch (error) {
       console.error("Reset error:", error);
       alert("An unexpected error occurred");
@@ -140,11 +143,6 @@ export default function UniversityLoginPage() {
                     >
                       {resetting ? "Sending..." : "Send Reset Link"}
                     </Button>
-                    {showSuccess && (
-                      <p className="text-green-600 text-sm text-center">
-                        Reset link sent! Please check your email.
-                      </p>
-                    )}
                   </div>
                 </DialogContent>
               </Dialog>
