@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const params = useParams();
 
-  const uid = searchParams.get("uid");
-  const token = searchParams.get("token");
+  const uid = params?.uid as string;
+  const token = params?.token as string;
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,7 +40,8 @@ export default function ResetPasswordPage() {
           body: JSON.stringify({
             uid,
             token,
-            new_password: newPassword,
+            new_password1: newPassword,
+            new_password2: confirmPassword,
           }),
         }
       );
@@ -51,7 +52,6 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      // On success, redirect to /login
       router.push("/login");
     } catch (error) {
       console.error("Reset error:", error);
