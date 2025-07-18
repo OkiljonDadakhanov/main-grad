@@ -4,11 +4,22 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export default function UniversityLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -20,10 +31,7 @@ export default function UniversityLoginPage() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
+          body: JSON.stringify({ email, password }),
         }
       );
 
@@ -35,18 +43,43 @@ export default function UniversityLoginPage() {
       }
 
       const data = await response.json();
-
-      // Store tokens in localStorage
       localStorage.setItem("accessToken", data.access);
       localStorage.setItem("refreshToken", data.refresh);
-
-      // Redirect to the university dashboard
       window.location.href = "https://gradabroad-university.vercel.app/";
     } catch (error) {
       console.error("Login error:", error);
       alert("An unexpected error occurred");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    setResetting(true);
+    try {
+      const response = await fetch(
+        "https://api.gradabroad.net/api/auth/password-reset/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: resetEmail }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.detail || "Reset failed");
+        return;
+      }
+
+      setShowSuccess(true);
+    } catch (error) {
+      console.error("Reset error:", error);
+      alert("An unexpected error occurred");
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -77,6 +110,45 @@ export default function UniversityLoginPage() {
             <Button onClick={handleLogin} className="w-full" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </Button>
+
+            <div className="text-center mt-2">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="text-sm text-blue-600 hover:underline">
+                    Forgot password?
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Reset Password</DialogTitle>
+                    <DialogDescription>
+                      Enter your email and we’ll send you a reset link.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <Input
+                      placeholder="Enter your email"
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      disabled={resetting}
+                    />
+                    <Button
+                      onClick={handleResetPassword}
+                      disabled={resetting || !resetEmail}
+                      className="w-full"
+                    >
+                      {resetting ? "Sending..." : "Send Reset Link"}
+                    </Button>
+                    {showSuccess && (
+                      <p className="text-green-600 text-sm text-center">
+                        Reset link sent! Please check your email.
+                      </p>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardContent>
         </Card>
       </div>
