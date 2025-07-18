@@ -8,9 +8,46 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 export default function UniversityLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    // Implement login logic
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        "https://api.gradabroad.net/api/auth/login/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.detail || "Login failed");
+        setLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+
+      // Store tokens in localStorage
+      localStorage.setItem("accessToken", data.access);
+      localStorage.setItem("refreshToken", data.refresh);
+
+      // Redirect to the university dashboard
+      window.location.href = "https://gradabroad-university.vercel.app/";
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,15 +65,17 @@ export default function UniversityLoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
             <Input
               placeholder="Password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
             />
-            <Button onClick={handleLogin} className="w-full">
-              Login
+            <Button onClick={handleLogin} className="w-full" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </CardContent>
         </Card>
