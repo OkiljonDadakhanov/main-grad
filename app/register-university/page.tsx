@@ -154,6 +154,7 @@ export default function UniversityRegisterForm() {
       "university_admission_email_address",
       "province",
       "city",
+      "address",
       "zip_code",
       "university_office_phone",
       "accreditation_number",
