@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export default function UniversityLoginPage() {
   const router = useRouter();
@@ -39,7 +40,15 @@ export default function UniversityLoginPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(errorData.detail || "Login failed");
+        if (errorData.non_field_errors?.includes("University not verified")) {
+          toast.error(
+            "Your university account is not verified yet. Please contact support."
+          );
+        } else if (errorData.detail) {
+          alert(errorData.detail);
+        } else {
+          alert("Login failed. Please check your credentials.");
+        }
         setLoading(false);
         return;
       }
@@ -47,7 +56,8 @@ export default function UniversityLoginPage() {
       const data = await response.json();
       localStorage.setItem("accessToken", data.access);
       localStorage.setItem("refreshToken", data.refresh);
-      window.location.href = "https://gradabroad-university.vercel.app/";
+      window.location.href = `https://university.gradabroad.net/profile?token=${data.access}`;
+      // Redirect to university dashboard
     } catch (error) {
       console.error("Login error:", error);
       alert("An unexpected error occurred");
