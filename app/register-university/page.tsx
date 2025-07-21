@@ -227,250 +227,265 @@ export default function UniversityRegisterForm() {
   };
 
   return (
-    <section className="bg-gradient-to-b from-purple-700 to-purple-900 text-white py-16">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold">
+    <section className="bg-gradient-to-b from-purple-700 to-purple-900 text-white py-12 sm:py-16">
+      <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+        <div className="text-center mb-8 sm:mb-10">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
             Register Your University
           </h2>
-          <p className="opacity-80 mt-2">
+          <p className="opacity-80 mt-2 text-sm sm:text-base">
             Fill in all necessary information to add your university
           </p>
         </div>
 
-        <Card className="bg-white text-black shadow-xl">
+        <Card className="bg-white text-black shadow-xl w-full max-w-full sm:rounded-lg">
           <CardHeader>
-            <CardTitle>Registration Form</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">
+              Registration Form
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <Label>University Name *</Label>
+          <CardContent className="space-y-4 text-sm sm:text-base">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* University Name */}
+              <div className="w-full">
+                <Label className="block text-sm sm:text-base mb-2">
+                  University Name *
+                </Label>
                 <div className="relative">
-                  <School className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                  <School className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                   <Input
-                    className="pl-10"
+                    className="w-full pl-10 pr-3 py-2 text-sm sm:text-base"
                     value={form.university_name}
                     onChange={(e) =>
                       handleChange("university_name", e.target.value)
                     }
                   />
                 </div>
-              </div>
 
-              <div>
-                <Label>Types of Schools *</Label>
-                <select
-                  className="w-full border rounded px-3 py-2"
-                  value={form.types_of_schools}
-                  onChange={(e) =>
-                    handleChange("types_of_schools", e.target.value)
-                  }
-                >
-                  <option value="">Select Type</option>
-                  <option value="University">University</option>
-                  <option value="College">College</option>
-                  <option value="Institute">Institute</option>
-                  <option value="Academy">Academy</option>
-                  <option value="Graduate School">Graduate School</option>
-                  <option value="Foreign Branch Campus">
-                    Foreign Branch Campus
-                  </option>
-                </select>
-                <p className="text-sm text-gray-500 mt-1">
-                  According to HIGHER EDUCATION ACT Article 2.
-                </p>
-              </div>
+                {/* Types of Schools */}
+                <div>
+                  <Label className="block text-sm sm:text-base mb-2">
+                    Types of Schools *
+                  </Label>
+                  <select
+                    className="w-full border rounded px-3 py-2 text-sm sm:text-base"
+                    value={form.types_of_schools}
+                    onChange={(e) =>
+                      handleChange("types_of_schools", e.target.value)
+                    }
+                  >
+                    <option value="">Select Type</option>
+                    <option value="University">University</option>
+                    <option value="College">College</option>
+                    <option value="Institute">Institute</option>
+                    <option value="Academy">Academy</option>
+                    <option value="Graduate School">Graduate School</option>
+                    <option value="Foreign Branch Campus">
+                      Foreign Branch Campus
+                    </option>
+                  </select>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                    According to HIGHER EDUCATION ACT Article 2.
+                  </p>
+                </div>
 
-              <div>
-                <Label>Classification *</Label>
-                <select
-                  className="w-full border rounded px-3 py-2"
-                  value={form.classification}
-                  onChange={(e) =>
-                    handleChange("classification", e.target.value)
-                  }
-                >
-                  <option value="">Select Classification</option>
-                  <option value="National">National</option>
-                  <option value="Public">Public</option>
-                  <option value="Private">Private</option>
-                </select>
-                <p className="text-sm text-gray-500 mt-1">
-                  According to HIGHER EDUCATION ACT Article 3.
-                </p>
-              </div>
+                <div>
+                  <Label>Classification *</Label>
+                  <select
+                    className="w-full border rounded px-3 py-2"
+                    value={form.classification}
+                    onChange={(e) =>
+                      handleChange("classification", e.target.value)
+                    }
+                  >
+                    <option value="">Select Classification</option>
+                    <option value="National">National</option>
+                    <option value="Public">Public</option>
+                    <option value="Private">Private</option>
+                  </select>
+                  <p className="text-sm text-gray-500 mt-1">
+                    According to HIGHER EDUCATION ACT Article 3.
+                  </p>
+                </div>
 
-              <div className="col-span-2">
-                <Label>Address *</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                <div className="col-span-2">
+                  <Label>Address *</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                    <Input
+                      className="pl-10"
+                      value={form.address}
+                      onChange={(e) => handleChange("address", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Province *</Label>
+                  <select
+                    className="w-full border rounded px-3 py-2"
+                    value={form.province}
+                    onChange={(e) => {
+                      handleChange("province", e.target.value);
+                      handleChange("city", "");
+                    }}
+                  >
+                    <option value="">Select Province</option>
+                    {Object.keys(provinceCityData).map((province) => (
+                      <option key={province} value={province}>
+                        {province}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <Label>City *</Label>
+                  <select
+                    className="w-full border rounded px-3 py-2"
+                    value={form.city}
+                    onChange={(e) => handleChange("city", e.target.value)}
+                    disabled={!form.province}
+                  >
+                    <option value="">Select City</option>
+                    {(provinceCityData[form.province] || []).map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <Label>Zip Code</Label>
+                  <div className="relative">
+                    <Map className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                    <Input
+                      className="pl-10"
+                      value={form.zip_code}
+                      onChange={(e) => handleChange("zip_code", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Email + Password */}
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>University admission email address *</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input
+                        type="email"
+                        className="pl-10"
+                        value={form.university_admission_email_address}
+                        onChange={(e) =>
+                          handleChange(
+                            "university_admission_email_address",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+                    {emailError && (
+                      <p className="text-sm text-red-600">{emailError}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label>Password *</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input
+                        className="pl-10"
+                        type="password"
+                        value={form.password}
+                        onChange={(e) =>
+                          handleChange("password", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>University office phone *</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input
+                        className="pl-10"
+                        placeholder="+82 10 1234 5678"
+                        value={form.university_office_phone}
+                        onChange={(e) =>
+                          handleChange(
+                            "university_office_phone",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>University Website *</Label>
+                    <div className="relative">
+                      <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input
+                        className="pl-10"
+                        value={form.website}
+                        onChange={(e) =>
+                          handleChange("website", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>University admission representetive name *</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input
+                        className="pl-10"
+                        value={form.university_admission_representetive_name}
+                        onChange={(e) =>
+                          handleChange(
+                            "university_admission_representetive_name",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>University admission representetive’s email *</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <Input
+                        className="pl-10"
+                        type="email"
+                        value={form.university_admission_representetive_email}
+                        onChange={(e) =>
+                          handleChange(
+                            "university_admission_representetive_email",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+                    {emailError && (
+                      <p className="text-sm text-red-600">{emailError}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-span-2">
+                  <Label>Accreditation Number *</Label>
                   <Input
-                    className="pl-10"
-                    value={form.address}
-                    onChange={(e) => handleChange("address", e.target.value)}
+                    value={form.accreditation_number}
+                    onChange={(e) =>
+                      handleChange("accreditation_number", e.target.value)
+                    }
                   />
                 </div>
-              </div>
-
-              <div>
-                <Label>Province *</Label>
-                <select
-                  className="w-full border rounded px-3 py-2"
-                  value={form.province}
-                  onChange={(e) => {
-                    handleChange("province", e.target.value);
-                    handleChange("city", "");
-                  }}
-                >
-                  <option value="">Select Province</option>
-                  {Object.keys(provinceCityData).map((province) => (
-                    <option key={province} value={province}>
-                      {province}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <Label>City *</Label>
-                <select
-                  className="w-full border rounded px-3 py-2"
-                  value={form.city}
-                  onChange={(e) => handleChange("city", e.target.value)}
-                  disabled={!form.province}
-                >
-                  <option value="">Select City</option>
-                  {(provinceCityData[form.province] || []).map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <Label>Zip Code</Label>
-                <div className="relative">
-                  <Map className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                  <Input
-                    className="pl-10"
-                    value={form.zip_code}
-                    onChange={(e) => handleChange("zip_code", e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Email + Password */}
-              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>University admission email address *</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                    <Input
-                      type="email"
-                      className="pl-10"
-                      value={form.university_admission_email_address}
-                      onChange={(e) =>
-                        handleChange(
-                          "university_admission_email_address",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                  {emailError && (
-                    <p className="text-sm text-red-600">{emailError}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Label>Password *</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                    <Input
-                      className="pl-10"
-                      type="password"
-                      value={form.password}
-                      onChange={(e) => handleChange("password", e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label>University office phone *</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                    <Input
-                      className="pl-10"
-                      placeholder="+82 10 1234 5678"
-                      value={form.university_office_phone}
-                      onChange={(e) =>
-                        handleChange("university_office_phone", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label>University Website *</Label>
-                  <div className="relative">
-                    <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                    <Input
-                      className="pl-10"
-                      value={form.website}
-                      onChange={(e) => handleChange("website", e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label>University admission representetive name *</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                    <Input
-                      className="pl-10"
-                      value={form.university_admission_representetive_name}
-                      onChange={(e) =>
-                        handleChange(
-                          "university_admission_representetive_name",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label>University admission representetive’s email *</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
-                    <Input
-                      className="pl-10"
-                      type="email"
-                      value={form.university_admission_representetive_email}
-                      onChange={(e) =>
-                        handleChange(
-                          "university_admission_representetive_email",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                  {emailError && (
-                    <p className="text-sm text-red-600">{emailError}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-span-2">
-                <Label>Accreditation Number *</Label>
-                <Input
-                  value={form.accreditation_number}
-                  onChange={(e) =>
-                    handleChange("accreditation_number", e.target.value)
-                  }
-                />
               </div>
 
               <div className="col-span-2">
