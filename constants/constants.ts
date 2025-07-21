@@ -1,0 +1,41 @@
+export const provinceCityData: Record<string, string[]> = {
+  "Gyeonggi-do": [
+    "Suwon",
+    "Seongnam",
+    "Anyang",
+    "Ansan",
+    "Anseong",
+    "Yongin",
+    "Pyeongtaek",
+    "Goyang",
+    "Uijeongbu",
+    "Icheon",
+    "Hwaseong",
+    "Namyangju",
+  ],
+  "Gangwon-do": ["Chuncheon", "Gangneung", "Wonju", "Samcheok"],
+  "North Chungcheong": ["Cheongju", "Chungju", "Jecheon"],
+  "South Chungcheong": ["Cheonan", "Gongju", "Nonsan", "Dangjin", "Asan"],
+  "North Jeolla": ["Jeonju", "Iksan", "Gunsan"],
+  "South Jeolla": ["Mokpo", "Yeosu", "Suncheon", "Naju"],
+  "North Gyeongsang": ["Gyeongsan", "Andong", "Pohang", "Gumi", "Sangju"],
+  "South Gyeongsang": ["Jinju", "Changwon", "Gimhae", "Miryang", "Tongyeong"],
+  Jeju: ["Jeju"],
+  Seoul: ["Seoul"],
+  Busan: ["Busan"],
+  Daegu: ["Daegu"],
+  Incheon: ["Incheon"],
+  Gwangju: ["Gwangju"],
+  Daejeon: ["Daejeon"],
+  Ulsan: ["Ulsan"],
+};
+
+export const typeOptions = [
+  "University",
+  "College",
+  "Institute",
+  "Academy",
+  "Graduate School",
+  "Foreign Branch Campus",
+];
+export const classificationOptions = ["National", "Public", "Private"];
