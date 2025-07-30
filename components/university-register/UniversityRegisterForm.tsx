@@ -115,6 +115,11 @@ export default function UniversityRegisterForm() {
     formData.append("email", form.university_admission_email_address);
     formData.append("password", form.password);
 
+    let normalizedWebsite = form.website.trim();
+    if (normalizedWebsite && !/^https?:\/\//i.test(normalizedWebsite)) {
+      normalizedWebsite = `https://${normalizedWebsite}`;
+    }
+
     const profileFields: (keyof FormData)[] = [
       "university_name",
       "website",
@@ -135,7 +140,11 @@ export default function UniversityRegisterForm() {
     profileFields.forEach((key) => {
       const value = form[key];
       if (value !== null && value !== undefined) {
-        formData.append(`university_profile.${key}`, value as any);
+        if (key === "website") {
+          formData.append(`university_profile.website`, normalizedWebsite);
+        } else {
+          formData.append(`university_profile.${key}`, value as any);
+        }
       }
     });
 

@@ -251,7 +251,7 @@ export function FormSection({
 
       {/* Accreditation Number */}
       <div className="md:col-span-2">
-        <Label>Accreditation Number *</Label>
+        <Label>Accreditation Number </Label>
         <Input
           value={form.accreditation_number}
           onChange={(e) => handleChange("accreditation_number", e.target.value)}
@@ -260,7 +260,7 @@ export function FormSection({
 
       {/* Accreditation Document Upload */}
       <div className="md:col-span-2">
-        <Label>Upload Accreditation Document *</Label>
+        <Label>Upload Accreditation Document </Label>
         <div className="flex items-center gap-2">
           <FileUp className="text-gray-500" />
           <Input
