@@ -56,8 +56,8 @@ export default function UniversityLoginPage() {
       const data = await response.json();
       localStorage.setItem("accessToken", data.access);
       localStorage.setItem("refreshToken", data.refresh);
-      // window.location.href = `https://university.gradabroad.net/profile?token=${data.access}`;
-      window.location.href = `http://localhost:3001/profile?token=${data.access}`;
+      window.location.href = `https://university.gradabroad.net/profile?token=${data.access}`;
+      // window.location.href = `http://localhost:3001/profile?token=${data.access}`;
       // Redirect to university dashboard
     } catch (error) {
       console.error("Login error:", error);

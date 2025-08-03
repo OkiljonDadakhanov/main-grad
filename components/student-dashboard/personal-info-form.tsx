@@ -36,7 +36,7 @@ const mockStudentData = {
   dateOfBirth: "1998-05-15",
   gender: "Male",
   nationality: "Uzbek",
-  passportNumber: "AC2947014",
+  passportNumber: "AC222222",
   passportExpiry: "2028-10-20",
   email: "shoxbek.s@example.com",
   phone: "+998901234567",
