@@ -1,71 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, X } from "lucide-react"
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
-// Mock data - in a real app, this would come from an API
-const galleryImages = [
-  {
-    id: 1,
-    title: "Main Campus Building",
-    description: "The main administrative and academic building of the university",
-    image: "/placeholder.svg?height=600&width=800",
-  },
-  {
-    id: 2,
-    title: "Library",
-    description: "Modern library with extensive collection of books and digital resources",
-    image: "/placeholder.svg?height=600&width=800",
-  },
-  {
-    id: 3,
-    title: "Student Center",
-    description: "A hub for student activities and social gatherings",
-    image: "/placeholder.svg?height=600&width=800",
-  },
-  {
-    id: 4,
-    title: "Science Laboratory",
-    description: "State-of-the-art laboratory for scientific research and experiments",
-    image: "/placeholder.svg?height=600&width=800",
-  },
-  {
-    id: 5,
-    title: "Sports Complex",
-    description: "Modern sports facilities for various athletic activities",
-    image: "/placeholder.svg?height=600&width=800",
-  },
-  {
-    id: 6,
-    title: "Dormitories",
-    description: "Comfortable student housing facilities on campus",
-    image: "/placeholder.svg?height=600&width=800",
-  },
-]
-
-interface UniversityGalleryProps {
-  universityId: string
+interface Image {
+  id: number;
+  image_url: string;
+  description: string;
+  uploaded_at: string;
+  category?: string;
 }
 
-export function UniversityGallery({ universityId }: UniversityGalleryProps) {
-  const [selectedImage, setSelectedImage] = useState<(typeof galleryImages)[0] | null>(null)
+interface Category {
+  id: number;
+  name: string;
+  images: Image[];
+}
+
+interface UniversityGalleryProps {
+  gallery_categories?: Category[]; // optional to handle undefined safely
+}
+
+export function UniversityGallery({
+  gallery_categories = [],
+}: UniversityGalleryProps) {
+  const [selectedImage, setSelectedImage] = useState<Image | null>(null);
+
+  const allImages = gallery_categories.flatMap((category) =>
+    category.images.map((img) => ({ ...img, category: category.name }))
+  );
 
   const handlePrevious = () => {
-    if (!selectedImage) return
-    const currentIndex = galleryImages.findIndex((img) => img.id === selectedImage.id)
-    const prevIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length
-    setSelectedImage(galleryImages[prevIndex])
-  }
+    if (!selectedImage) return;
+    const index = allImages.findIndex((img) => img.id === selectedImage.id);
+    const prev = (index - 1 + allImages.length) % allImages.length;
+    setSelectedImage(allImages[prev]);
+  };
 
   const handleNext = () => {
-    if (!selectedImage) return
-    const currentIndex = galleryImages.findIndex((img) => img.id === selectedImage.id)
-    const nextIndex = (currentIndex + 1) % galleryImages.length
-    setSelectedImage(galleryImages[nextIndex])
-  }
+    if (!selectedImage) return;
+    const index = allImages.findIndex((img) => img.id === selectedImage.id);
+    const next = (index + 1) % allImages.length;
+    setSelectedImage(allImages[next]);
+  };
+
+  if (!allImages.length) return null;
 
   return (
     <div className="space-y-8">
@@ -74,7 +56,7 @@ export function UniversityGallery({ universityId }: UniversityGalleryProps) {
           <h2 className="text-2xl font-bold text-purple-900 mb-6">Gallery</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {galleryImages.map((image) => (
+            {allImages.map((image) => (
               <div
                 key={image.id}
                 className="overflow-hidden rounded-md border cursor-pointer hover:shadow-md transition-all"
@@ -82,13 +64,18 @@ export function UniversityGallery({ universityId }: UniversityGalleryProps) {
               >
                 <div className="aspect-video relative">
                   <img
-                    src={image.image || "/placeholder.svg"}
-                    alt={image.title}
+                    src={image.image_url || "/placeholder.svg"}
+                    alt={image.description || "Gallery Image"}
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="p-3">
-                  <h3 className="font-medium text-purple-900">{image.title}</h3>
+                  <h3 className="font-medium text-purple-900">
+                    {image.category}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {image.description || "No description"}
+                  </p>
                 </div>
               </div>
             ))}
@@ -96,8 +83,10 @@ export function UniversityGallery({ universityId }: UniversityGalleryProps) {
         </CardContent>
       </Card>
 
-      {/* Image Viewer Dialog */}
-      <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
+      <Dialog
+        open={!!selectedImage}
+        onOpenChange={(open) => !open && setSelectedImage(null)}
+      >
         <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black/90">
           <div className="relative">
             <Button
@@ -112,8 +101,8 @@ export function UniversityGallery({ universityId }: UniversityGalleryProps) {
             <div className="flex items-center justify-center p-4 h-[80vh]">
               {selectedImage && (
                 <img
-                  src={selectedImage.image || "/placeholder.svg"}
-                  alt={selectedImage.title}
+                  src={selectedImage.image_url || "/placeholder.svg"}
+                  alt={selectedImage.description || "Selected"}
                   className="max-h-full max-w-full object-contain"
                 />
               )}
@@ -140,12 +129,16 @@ export function UniversityGallery({ universityId }: UniversityGalleryProps) {
 
           {selectedImage && (
             <div className="bg-white p-4">
-              <h3 className="text-xl font-bold text-purple-900">{selectedImage.title}</h3>
-              <p className="text-gray-600">{selectedImage.description}</p>
+              <h3 className="text-xl font-bold text-purple-900">
+                {selectedImage.category}
+              </h3>
+              <p className="text-gray-600">
+                {selectedImage.description || "No description"}
+              </p>
             </div>
           )}
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

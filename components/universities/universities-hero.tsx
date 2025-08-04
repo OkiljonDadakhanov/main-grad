@@ -1,27 +1,31 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search, MapPin, GraduationCap } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, MapPin, GraduationCap } from "lucide-react";
 
 interface UniversitiesHeroProps {
-  onSearch: (query: string) => void
+  onSearch: (query: string) => void;
 }
 
 export function UniversitiesHero({ onSearch }: UniversitiesHeroProps) {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = () => {
-    onSearch(searchQuery)
-  }
+    onSearch(searchQuery);
+    setSearchQuery("");
+  };
 
   return (
     <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-16">
       <div className="container mx-auto px-4 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6">Korean Universities</h1>
+        <h1 className="text-4xl md:text-5xl font-bold mb-6">
+          Korean Universities
+        </h1>
         <p className="text-xl mb-8 max-w-3xl mx-auto">
-          Explore over 50 top Korean universities offering world-class education and opportunities for Uzbek students
+          Explore over 50 top Korean universities offering world-class education
+          and opportunities for Uzbek students
         </p>
 
         {/* Search Bar */}
@@ -35,10 +39,14 @@ export function UniversitiesHero({ onSearch }: UniversitiesHeroProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 py-3 text-gray-900"
-                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                onKeyPress={(e) => e.key === "Search " && handleSearch()}
               />
             </div>
-            <Button onClick={handleSearch} size="lg" className="bg-white text-purple-600 hover:bg-gray-100">
+            <Button
+              onClick={handleSearch}
+              size="lg"
+              className="bg-white text-purple-600 hover:bg-gray-100"
+            >
               Search
             </Button>
           </div>
@@ -64,5 +72,5 @@ export function UniversitiesHero({ onSearch }: UniversitiesHeroProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
