@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Calendar, DollarSign, Award } from "lucide-react";
+import clsx from "clsx";
 
 interface Scholarship {
   id: number;
@@ -29,6 +30,7 @@ export function UniversityScholarships({
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [expandedMap, setExpandedMap] = useState<Record<number, boolean>>({}); // ✅
 
   useEffect(() => {
     async function fetchScholarships() {
@@ -36,10 +38,7 @@ export function UniversityScholarships({
         const res = await fetch(
           `https://api.gradabroad.net/api/auth/universities/${universityId}`
         );
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch university data");
-        }
+        if (!res.ok) throw new Error("Failed to fetch university data");
 
         const data = await res.json();
         setScholarships(data.scholarships || []);
@@ -59,6 +58,13 @@ export function UniversityScholarships({
   );
 
   const hasScholarships = scholarships.length > 0;
+
+  const toggleExpanded = (id: number) => {
+    setExpandedMap((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   return (
     <div className="space-y-8">
@@ -84,57 +90,89 @@ export function UniversityScholarships({
 
               <div className="space-y-6">
                 {filteredScholarships.length > 0 ? (
-                  filteredScholarships.map((scholarship) => (
-                    <Card
-                      key={scholarship.id}
-                      className="overflow-hidden border hover:shadow-md transition-shadow"
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                          <div className="flex-1">
-                            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200 mb-2">
-                              Program: {scholarship.programme_name}
-                            </Badge>
-                            <h3 className="text-xl font-bold text-purple-900 mb-2">
-                              {scholarship.name}
-                            </h3>
-                            <p className="text-gray-600 mb-4">
-                              {scholarship.eligibility_criteria}
-                            </p>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                              <div className="flex items-center">
-                                <DollarSign className="h-4 w-4 text-purple-600 mr-2" />
-                                <span className="text-sm">
-                                  <strong>Coverage:</strong>{" "}
-                                  {scholarship.coverage}
-                                </span>
+                  filteredScholarships.map((scholarship) => {
+                    const expanded = expandedMap[scholarship.id] || false;
+                    const shouldClamp =
+                      scholarship.eligibility_criteria.length > 300;
+
+                    return (
+                      <Card
+                        key={scholarship.id}
+                        className="overflow-hidden border hover:shadow-md transition-shadow"
+                      >
+                        <CardContent className="p-6">
+                          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                            <div className="flex-1">
+                              <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200 mb-2">
+                                Program: {scholarship.programme_name}
+                              </Badge>
+                              <h3 className="text-xl font-bold text-purple-900 mb-2">
+                                {scholarship.name}
+                              </h3>
+
+                              {/* Eligibility Description */}
+                              <div
+                                className={clsx(
+                                  "text-sm text-gray-700 whitespace-pre-line leading-7 relative",
+                                  !expanded &&
+                                    shouldClamp &&
+                                    "max-h-[200px] overflow-hidden"
+                                )}
+                              >
+                                {scholarship.eligibility_criteria}
+                                {!expanded && shouldClamp && (
+                                  <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" />
+                                )}
                               </div>
-                              <div className="flex items-center">
-                                <Award className="h-4 w-4 text-purple-600 mr-2" />
-                                <span className="text-sm">
-                                  <strong>Eligibility:</strong>{" "}
-                                  {scholarship.eligibility_criteria}
-                                </span>
-                              </div>
-                              <div className="flex items-center">
-                                <Calendar className="h-4 w-4 text-purple-600 mr-2" />
-                                <span className="text-sm">
-                                  <strong>Deadline:</strong>{" "}
-                                  {scholarship.application_deadline || "TBA"}
-                                </span>
+
+                              {shouldClamp && (
+                                <button
+                                  onClick={() => toggleExpanded(scholarship.id)}
+                                  className="text-purple-700 mt-2 text-sm font-medium hover:underline"
+                                >
+                                  {expanded ? "Show Less" : "Show More"}
+                                </button>
+                              )}
+
+                              {/* Metadata */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                                <div className="flex items-center">
+                                  <DollarSign className="h-4 w-4 text-purple-600 mr-2" />
+                                  <span className="text-sm">
+                                    <strong>Coverage:</strong>{" "}
+                                    {scholarship.coverage}
+                                  </span>
+                                </div>
+                                <div className="flex items-center">
+                                  <Award className="h-4 w-4 text-purple-600 mr-2" />
+                                  <span className="text-sm">
+                                    <strong>Status:</strong>{" "}
+                                    {scholarship.is_active
+                                      ? "Active"
+                                      : "Inactive"}
+                                  </span>
+                                </div>
+                                <div className="flex items-center">
+                                  <Calendar className="h-4 w-4 text-purple-600 mr-2" />
+                                  <span className="text-sm">
+                                    <strong>Deadline:</strong>{" "}
+                                    {scholarship.application_deadline || "TBA"}
+                                  </span>
+                                </div>
                               </div>
                             </div>
+
+                            <div className="flex flex-col gap-2 min-w-[120px] mt-4 md:mt-0">
+                              <Button className="bg-purple-900 hover:bg-purple-800">
+                                Apply Now
+                              </Button>
+                              <Button variant="outline">Details</Button>
+                            </div>
                           </div>
-                          <div className="flex flex-col gap-2 min-w-[120px]">
-                            <Button className="bg-purple-900 hover:bg-purple-800">
-                              Apply Now
-                            </Button>
-                            <Button variant="outline">Details</Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
+                        </CardContent>
+                      </Card>
+                    );
+                  })
                 ) : (
                   <div className="text-center py-8">
                     <p className="text-gray-500">
