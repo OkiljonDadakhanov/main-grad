@@ -21,28 +21,6 @@ interface LocationData {
   programs: number;
 }
 
-const cityData: Record<
-  string,
-  Omit<LocationData, "universities" | "programs">
-> = {
-  Seoul: {
-    id: "seoul",
-    name: "Seoul",
-    country: "South Korea",
-    description:
-      "Discover top universities in Seoul, South Korea's vibrant capital city blending tradition and innovation with world-class education.",
-    image: "/images/cities/seuol.jpg",
-  },
-  Busan: {
-    id: "busan",
-    name: "Busan",
-    country: "South Korea",
-    description:
-      "Explore educational opportunities in Busan, South Korea's second-largest city with beautiful beaches, mountains, and excellent universities.",
-    image: "/images/cities/busan.jpg",
-  },
-};
-
 export function FeaturedLocations() {
   const [locations, setLocations] = useState<LocationData[]>([]);
 
@@ -56,12 +34,16 @@ export function FeaturedLocations() {
       const map = new Map<string, LocationData>();
 
       data.forEach((uni: University) => {
-        const city = uni.city;
-        if (!cityData[city]) return; // skip unknown cities
+        const city = uni.city?.trim() || "Unknown";
+        const id = city.toLowerCase().replace(/\s+/g, "-");
 
         if (!map.has(city)) {
           map.set(city, {
-            ...cityData[city],
+            id,
+            name: city,
+            country: "South Korea", // Assume all are in Korea
+            description: `Discover universities in ${city}, a vibrant hub of education in Korea.`,
+            image: `/images/cities/${id}.jpg`, // Optional: Match city images dynamically if they exist
             universities: 1,
             programs: uni.programmes?.length || 0,
           });
@@ -102,6 +84,9 @@ export function FeaturedLocations() {
                   src={location.image}
                   alt={location.name}
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                  onError={(e) =>
+                    (e.currentTarget.src = "/images/cities/default.jpg")
+                  }
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6 text-white">
