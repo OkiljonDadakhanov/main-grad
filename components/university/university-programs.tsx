@@ -30,6 +30,9 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedDegree, setSelectedDegree] = useState("All");
+  const [expandedProgramId, setExpandedProgramId] = useState<number | null>(
+    null
+  );
 
   const safePrograms = programs.filter((p) => p && p.name);
 
@@ -39,6 +42,7 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
       new Set(safePrograms.map((p) => p.field_of_study).filter(Boolean))
     ),
   ];
+
   const degrees = [
     "All",
     ...Array.from(
@@ -48,12 +52,15 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
 
   const filteredPrograms = safePrograms.filter((program) => {
     const matchesSearch = program.name
-      .toLowerCase()
+      ?.toLowerCase()
       .includes(searchQuery.toLowerCase());
+
     const matchesCategory =
       selectedCategory === "All" || program.field_of_study === selectedCategory;
+
     const matchesDegree =
       selectedDegree === "All" || program.degreeType === selectedDegree;
+
     return matchesSearch && matchesCategory && matchesDegree;
   });
 
@@ -122,7 +129,7 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
               </div>
             ) : filteredPrograms.length > 0 ? (
               filteredPrograms.map((program) => {
-                const [expanded, setExpanded] = useState(false);
+                const isExpanded = expandedProgramId === program.id;
 
                 return (
                   <Card
@@ -144,28 +151,30 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
                             {program.name}
                           </h3>
 
-                          {/* About Program Text */}
                           <div
                             className={clsx(
                               "relative text-gray-700 text-sm whitespace-pre-line leading-7",
-                              !expanded && "max-h-[240px] overflow-hidden"
+                              !isExpanded && "max-h-[240px] overflow-hidden"
                             )}
                           >
                             {program.about_program}
-                            {!expanded && (
+                            {!isExpanded && (
                               <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" />
                             )}
                           </div>
-                          {program.about_program.length > 400 && (
+                          {program.about_program?.length > 400 && (
                             <button
-                              onClick={() => setExpanded((prev) => !prev)}
+                              onClick={() =>
+                                setExpandedProgramId((prev) =>
+                                  prev === program.id ? null : program.id
+                                )
+                              }
                               className="text-purple-700 mt-2 text-sm font-medium hover:underline"
                             >
-                              {expanded ? "Show Less" : "Show More"}
+                              {isExpanded ? "Show Less" : "Show More"}
                             </button>
                           )}
 
-                          {/* Metadata */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                             <div className="flex items-center">
                               <Clock className="h-4 w-4 text-purple-600 mr-2" />
@@ -197,7 +206,6 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
                           </div>
                         </div>
 
-                        {/* Buttons */}
                         <div className="flex flex-col gap-2 min-w-[120px] mt-4 md:mt-0">
                           <Button className="bg-purple-900 hover:bg-purple-800">
                             Apply Now
