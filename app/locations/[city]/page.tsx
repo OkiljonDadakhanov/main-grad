@@ -1,16 +1,21 @@
 // app/locations/[city]/page.tsx
+
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
+// Allow dynamic rendering in production
+export const dynamic = "force-dynamic";
+
 export default async function CityPage({
   params,
 }: {
-  params: { city: string };
+  params: Promise<{ city: string }>;
 }) {
-  const cityName = params.city.toLowerCase();
+  const { city } = await params;
+  const cityName = city.toLowerCase();
 
   const res = await fetch("https://api.gradabroad.net/api/auth/universities/", {
     next: { revalidate: 60 },
@@ -18,8 +23,9 @@ export default async function CityPage({
 
   const allUniversities = await res.json();
 
+  const normalized = (s: string) => s?.trim().toLowerCase();
   const filtered = allUniversities.filter(
-    (uni: any) => uni.city?.toLowerCase() === cityName
+    (uni: any) => normalized(uni.city) === cityName
   );
 
   if (filtered.length === 0) return notFound();
@@ -28,7 +34,7 @@ export default async function CityPage({
     <section className="py-16 bg-white">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl font-bold text-purple-900 mb-6 capitalize">
-          {params.city} Universities
+          {city} Universities
         </h1>
         <div className="grid md:grid-cols-2 gap-8">
           {filtered.map((uni: any) => (

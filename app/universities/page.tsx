@@ -1,34 +1,88 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { AppLayout } from "@/components/layout/app-layout"
-import { UniversitiesHero } from "@/components/universities/universities-hero"
-import { UniversitiesFilter } from "@/components/universities/universities-filter"
-import { UniversitiesGrid } from "@/components/universities/universities-grid"
-import { UniversitiesPagination } from "@/components/universities/universities-pagination"
+import { useEffect, useState } from "react";
+import { AppLayout } from "@/components/layout/app-layout";
+import { UniversitiesHero } from "@/components/universities/universities-hero";
+import { UniversitiesFilter } from "@/components/universities/universities-filter";
+import { UniversitiesGrid } from "@/components/universities/universities-grid";
+import { UniversitiesPagination } from "@/components/universities/universities-pagination";
 
 export default function UniversitiesPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCity, setSelectedCity] = useState("")
-  const [selectedType, setSelectedType] = useState("")
-  const [selectedRanking, setSelectedRanking] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  const [programFeatures, setProgramFeatures] = useState<string[]>([]);
+  const [universities, setUniversities] = useState<any[]>([]);
+  const [filteredUniversities, setFilteredUniversities] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Fetch all universities
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch(
+        "https://api.gradabroad.net/api/auth/universities/"
+      );
+      const data = await res.json();
+      setUniversities(data);
+      setFilteredUniversities(data);
+    };
+    fetchData();
+  }, []);
+
+  // Apply filtering logic
+  useEffect(() => {
+    const filtered = universities.filter((uni) => {
+      const matchesCity =
+        !selectedCity || uni.city?.toLowerCase() === selectedCity.toLowerCase();
+      const matchesType =
+        !selectedType ||
+        uni.types_of_schools?.toLowerCase() === selectedType.toLowerCase();
+      const matchesSearch =
+        !searchQuery ||
+        uni.university_name.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesFeatures = programFeatures.every((feature) => {
+        if (feature === "english") {
+          return uni.programmes?.some((p) =>
+            p.requirements?.some((r) => r.requirementType === "english")
+          );
+        }
+        if (feature === "scholarship") {
+          return uni.scholarships?.length > 0;
+        }
+        if (feature === "dormitory") {
+          return (
+            uni.campus_information?.dormitory_available?.toLowerCase() === "yes"
+          );
+        }
+        if (feature === "exchange") {
+          return uni.programmes?.length > 1;
+        }
+        return true;
+      });
+
+      return matchesCity && matchesType && matchesSearch && matchesFeatures;
+    });
+
+    setFilteredUniversities(filtered);
+    setCurrentPage(1);
+  }, [universities, selectedCity, selectedType, searchQuery, programFeatures]);
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query)
-    setCurrentPage(1)
-  }
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
 
   const handleFilterChange = (filters: {
-    city: string
-    type: string
-    ranking: string
+    city: string;
+    type: string;
+    programFeatures: string[];
   }) => {
-    setSelectedCity(filters.city)
-    setSelectedType(filters.type)
-    setSelectedRanking(filters.ranking)
-    setCurrentPage(1)
-  }
+    setSelectedCity(filters.city);
+    setSelectedType(filters.type);
+    setProgramFeatures(filters.programFeatures);
+    setCurrentPage(1);
+  };
 
   return (
     <AppLayout>
@@ -43,25 +97,25 @@ export default function UniversitiesPage() {
                 onFilterChange={handleFilterChange}
                 selectedCity={selectedCity}
                 selectedType={selectedType}
-                selectedRanking={selectedRanking}
               />
             </div>
 
             {/* Universities Grid */}
             <div className="lg:w-3/4">
               <UniversitiesGrid
-                searchQuery={searchQuery}
-                selectedCity={selectedCity}
-                selectedType={selectedType}
-                selectedRanking={selectedRanking}
+                universities={filteredUniversities}
                 currentPage={currentPage}
               />
 
-              <UniversitiesPagination currentPage={currentPage} totalPages={12} onPageChange={setCurrentPage} />
+              <UniversitiesPagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(filteredUniversities.length / 6)}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
         </div>
       </div>
     </AppLayout>
-  )
+  );
 }
