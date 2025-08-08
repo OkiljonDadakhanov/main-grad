@@ -18,6 +18,7 @@ import {
   DollarSign,
   Clock,
   GraduationCap,
+  FileText,
 } from "lucide-react";
 import clsx from "clsx";
 import type { AcademicProgram } from "@/types/academic";
@@ -54,13 +55,10 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
     const matchesSearch = program.name
       ?.toLowerCase()
       .includes(searchQuery.toLowerCase());
-
     const matchesCategory =
       selectedCategory === "All" || program.field_of_study === selectedCategory;
-
     const matchesDegree =
       selectedDegree === "All" || program.degreeType === selectedDegree;
-
     return matchesSearch && matchesCategory && matchesDegree;
   });
 
@@ -130,6 +128,14 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
             ) : filteredPrograms.length > 0 ? (
               filteredPrograms.map((program) => {
                 const isExpanded = expandedProgramId === program.id;
+                const englishRequirements =
+                  program.requirements?.filter(
+                    (r) => r.requirementType === "english"
+                  ) || [];
+                const documentRequirements =
+                  program.requirements?.filter(
+                    (r) => r.requirementType === "document"
+                  ) || [];
 
                 return (
                   <Card
@@ -137,9 +143,9 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
                     className="overflow-hidden border hover:shadow-md transition-shadow"
                   >
                     <CardContent className="p-6">
-                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">
                               {program.field_of_study}
                             </Badge>
@@ -150,7 +156,6 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
                           <h3 className="text-xl font-bold text-purple-900 mb-2">
                             {program.name}
                           </h3>
-
                           <div
                             className={clsx(
                               "relative text-gray-700 text-sm whitespace-pre-line leading-7",
@@ -174,36 +179,66 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
                               {isExpanded ? "Show Less" : "Show More"}
                             </button>
                           )}
-
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                            <div className="flex items-center">
-                              <Clock className="h-4 w-4 text-purple-600 mr-2" />
+                            <div className="flex items-start gap-2">
+                              <Clock className="h-4 w-4 text-purple-600 mt-1" />
                               <span className="text-sm">
+                                <strong>Application Period:</strong>
+                                <br />
                                 {program.start_date} – {program.end_date}
                               </span>
                             </div>
-                            <div className="flex items-center">
-                              <GraduationCap className="h-4 w-4 text-purple-600 mr-2" />
+                            <div className="flex items-start gap-2">
+                              <GraduationCap className="h-4 w-4 text-purple-600 mt-1" />
                               <span className="text-sm">
-                                {program.requirements?.find(
-                                  (r) => r.requirementType === "english"
-                                )?.label ?? "N/A"}
+                                <strong>Language Requirements:</strong>
+                                <br />
+                                {englishRequirements.length > 0 ? (
+                                  <ul className="list-disc ml-4">
+                                    {englishRequirements.map((e, idx) => (
+                                      <li key={idx}>
+                                        {e.label}
+                                        {e.note ? `: ${e.note}` : ""}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  "N/A"
+                                )}
                               </span>
                             </div>
-                            <div className="flex items-center">
-                              <DollarSign className="h-4 w-4 text-purple-600 mr-2" />
+                            <div className="flex items-start gap-2">
+                              <DollarSign className="h-4 w-4 text-purple-600 mt-1" />
                               <span className="text-sm">
-                                ${program.contractPrice}
+                                <strong>Tuition Fee:</strong>
+                                <br />${program.contractPrice}
                               </span>
                             </div>
-                            <div className="flex items-center">
-                              <Calendar className="h-4 w-4 text-purple-600 mr-2" />
+                            <div className="flex items-start gap-2">
+                              <Calendar className="h-4 w-4 text-purple-600 mt-1" />
                               <span className="text-sm">
-                                Results:{" "}
+                                <strong>Result announcement:</strong>
+                                <br />
                                 {program.results_announcement_date || "TBA"}
                               </span>
                             </div>
                           </div>
+
+                          {documentRequirements.length > 0 && (
+                            <div className="mt-4">
+                              <div className="flex items-center gap-2 mb-2">
+                                <FileText className="w-4 h-4 text-purple-600" />
+                                <span className="font-semibold text-sm text-purple-900">
+                                  Required Documents:
+                                </span>
+                              </div>
+                              <ul className="list-disc ml-6 text-sm text-gray-700 space-y-1">
+                                {documentRequirements.map((doc, idx) => (
+                                  <li key={idx}>{doc.label}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex flex-col gap-2 min-w-[120px] mt-4 md:mt-0">
