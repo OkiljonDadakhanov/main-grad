@@ -31,24 +31,26 @@ export function FeaturedLocations() {
       );
       const data = await res.json();
 
+      // Map kaliti sifatida lowercase shahar nomi ishlatiladi
       const map = new Map<string, LocationData>();
 
       data.forEach((uni: University) => {
-        const city = uni.city?.trim() || "Unknown";
-        const id = city.toLowerCase().replace(/\s+/g, "-");
+        const rawCity = uni.city?.trim() || "Unknown";
+        const cityKey = rawCity.toLowerCase(); // case-insensitive kalit
+        const id = cityKey.replace(/\s+/g, "-"); // id ham lowercase bo'ladi
 
-        if (!map.has(city)) {
-          map.set(city, {
+        if (!map.has(cityKey)) {
+          map.set(cityKey, {
             id,
-            name: city,
-            country: "South Korea", // Assume all are in Korea
-            description: `Discover universities in ${city}, a vibrant hub of education in Korea.`,
-            image: `/images/cities/${id}.jpg`, // Optional: Match city images dynamically if they exist
+            name: rawCity, // original nom, UI’da chiroyli chiqishi uchun
+            country: "South Korea",
+            description: `Discover universities in ${rawCity}, a vibrant hub of education in Korea.`,
+            image: `/images/cities/${id}.jpg`, // barcha rasm nomlari lowercase bo'lishi kerak
             universities: 1,
             programs: uni.programmes?.length || 0,
           });
         } else {
-          const existing = map.get(city)!;
+          const existing = map.get(cityKey)!;
           existing.universities += 1;
           existing.programs += uni.programmes?.length || 0;
         }
