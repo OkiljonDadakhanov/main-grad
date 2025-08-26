@@ -21,7 +21,7 @@ interface LocationData {
   programs: number;
 }
 
-// Robust slugger for file names (Linux/Vercel safe)
+// Robust slugger for URLs (Linux/Vercel safe)
 function slugCity(input: string) {
   return input
     .normalize("NFKD")               // split accents
@@ -32,6 +32,18 @@ function slugCity(input: string) {
     .replace(/[^a-z0-9\s-]/g, "")    // remove punctuation
     .replace(/\s+/g, "-")            // spaces -> dash
     .replace(/-+/g, "-");            // collapse dashes
+}
+
+// Function to get the correct image filename (preserving original casing)
+function getImageFilename(cityName: string) {
+  return cityName
+    .normalize("NFKD")               // split accents
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-zA-Z0-9\s-]/g, "") // keep original case for letters
+    .replace(/\s+/g, "")             // remove spaces (no dashes in filenames)
+    .replace(/-+/g, "");             // remove dashes
 }
 
 export function FeaturedLocations() {
@@ -48,16 +60,16 @@ export function FeaturedLocations() {
 
         data.forEach((uni: University) => {
           const rawCity = (uni.city || "Unknown").trim();
-          const cityKey = slugCity(rawCity);         // slug as map key
-          const id = cityKey;                        // use the same slug for routing & image
+          const cityKey = slugCity(rawCity);         // slug as map key for URLs
+          const imageFilename = getImageFilename(rawCity); // preserve casing for image
 
           if (!map.has(cityKey)) {
             map.set(cityKey, {
-              id,
+              id: cityKey,  // lowercase slug for URLs
               name: rawCity, // pretty label
               country: "South Korea",
               description: `Discover universities in ${rawCity}, a vibrant hub of education in Korea.`,
-              image: `/images/cities/${id}.jpg`, // file must exist with this exact slug
+              image: `/images/cities/${imageFilename}.jpg`, // use original casing for image
               universities: 1,
               programs: uni.programmes?.length || 0,
             });
