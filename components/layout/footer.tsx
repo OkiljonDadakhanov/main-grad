@@ -88,10 +88,9 @@ export function Footer() {
           <div>
             <h4 className="font-medium text-purple-900 mb-4">Contact</h4>
             <address className="not-italic text-sm space-y-2 text-gray-600">
-              <p>123 Education Street</p>
-              <p>Seoul, South Korea</p>
-              <p>Email: info@graduateinkorea.com</p>
-              <p>Phone: +82 2 123 4567</p>
+              <p>100011, Ўзбекистон, Тошкент, Шайхонтоҳур тумани, Навоий кўчаси, 2A-уй</p>
+              <p>Email: gradabroadltd@gmail.com</p>
+              <p>Phone: (71) 202 09 09</p>
             </address>
           </div>
         </div>
