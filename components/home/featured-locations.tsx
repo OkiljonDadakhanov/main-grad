@@ -24,26 +24,37 @@ interface LocationData {
 // Robust slugger for URLs (Linux/Vercel safe)
 function slugCity(input: string) {
   return input
-    .normalize("NFKD")               // split accents
+    .normalize("NFKD") // split accents
     .replace(/[\u0300-\u036f]/g, "") // remove accents
     .toLowerCase()
     .trim()
     .replace(/&/g, "and")
-    .replace(/[^a-z0-9\s-]/g, "")    // remove punctuation
-    .replace(/\s+/g, "-")            // spaces -> dash
-    .replace(/-+/g, "-");            // collapse dashes
+    .replace(/[^a-z0-9\s-]/g, "") // remove punctuation
+    .replace(/\s+/g, "-") // spaces -> dash
+    .replace(/-+/g, "-"); // collapse dashes
 }
 
-// Function to get the correct image filename (preserving original casing)
+// Function to get the correct image filename with better matching
 function getImageFilename(cityName: string) {
-  return cityName
-    .normalize("NFKD")               // split accents
+  // Clean the city name
+  const cleaned = cityName
+    .normalize("NFKD") // split accents
     .replace(/[\u0300-\u036f]/g, "") // remove accents
     .trim()
     .replace(/&/g, "and")
     .replace(/[^a-zA-Z0-9\s-]/g, "") // keep original case for letters
-    .replace(/\s+/g, "")             // remove spaces (no dashes in filenames)
-    .replace(/-+/g, "");             // remove dashes
+    .replace(/\s+/g, "") // remove spaces (no dashes in filenames)
+    .replace(/-+/g, ""); // remove dashes
+
+  // Create a proper case version that matches your file structure
+  const properCase =
+    cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
+
+  // Debug log to see what filename is being generated
+  console.log(
+    `City: "${cityName}" → Cleaned: "${cleaned}" → ProperCase: "${properCase}.jpg"`
+  );
+  return properCase;
 }
 
 export function FeaturedLocations() {
@@ -52,7 +63,9 @@ export function FeaturedLocations() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("https://api.gradabroad.net/api/auth/universities/");
+        const res = await fetch(
+          "https://api.gradabroad.net/api/auth/universities/"
+        );
         if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
         const data = await res.json();
 
@@ -60,12 +73,12 @@ export function FeaturedLocations() {
 
         data.forEach((uni: University) => {
           const rawCity = (uni.city || "Unknown").trim();
-          const cityKey = slugCity(rawCity);         // slug as map key for URLs
+          const cityKey = slugCity(rawCity); // slug as map key for URLs
           const imageFilename = getImageFilename(rawCity); // preserve casing for image
 
           if (!map.has(cityKey)) {
             map.set(cityKey, {
-              id: cityKey,  // lowercase slug for URLs
+              id: cityKey, // lowercase slug for URLs
               name: rawCity, // pretty label
               country: "South Korea",
               description: `Discover universities in ${rawCity}, a vibrant hub of education in Korea.`,
@@ -80,15 +93,36 @@ export function FeaturedLocations() {
           }
         });
 
-        setLocations(Array.from(map.values()));
+        const locationsArray = Array.from(map.values());
+        console.log(
+          "Generated locations:",
+          locationsArray.map((loc) => ({
+            name: loc.name,
+            image: loc.image,
+          }))
+        );
+
+        setLocations(locationsArray);
       } catch (e) {
-        console.error(e);
+        console.error("Error fetching data:", e);
         setLocations([]);
       }
     };
 
     fetchData();
   }, []);
+
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>,
+    locationName: string
+  ) => {
+    console.error(
+      `Failed to load image for ${locationName}:`,
+      e.currentTarget.src
+    );
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = "/images/cities/default.jpg";
+  };
 
   return (
     <section className="py-16 bg-gray-50">
@@ -105,16 +139,21 @@ export function FeaturedLocations() {
 
         <div className="grid md:grid-cols-2 gap-8">
           {locations.map((location) => (
-            <Card key={location.id} className="overflow-hidden border-0 shadow-lg">
+            <Card
+              key={location.id}
+              className="overflow-hidden border-0 shadow-lg"
+            >
               <div className="relative h-64 overflow-hidden">
                 <img
                   src={location.image}
                   alt={location.name}
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = "/images/cities/default.jpg";
-                  }}
+                  onLoad={() =>
+                    console.log(
+                      `Successfully loaded image for ${location.name}: ${location.image}`
+                    )
+                  }
+                  onError={(e) => handleImageError(e, location.name)}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6 text-white">
@@ -138,7 +177,10 @@ export function FeaturedLocations() {
                     </p>
                   </div>
                 </div>
-                <Button className="w-full bg-purple-900 hover:bg-purple-800" asChild>
+                <Button
+                  className="w-full bg-purple-900 hover:bg-purple-800"
+                  asChild
+                >
                   <Link href={`/locations/${location.id}`}>
                     Explore Universities <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
