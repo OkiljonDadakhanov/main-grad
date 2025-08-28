@@ -28,7 +28,7 @@ const navItems = [
       { title: "Application Process", href: "/application-process" },
       { title: "Visa Requirements", href: "/visa-requirements" },
       { title: "Living in Korea", href: "/living-in-korea" },
-      { title: "Scholarships", href: "/scholarships" },
+      // { title: "Scholarships", href: "/scholarships" },
     ],
   },
   { title: "Partners", href: "/partners" },
@@ -66,7 +66,9 @@ export function Navbar() {
                 {navItems.map((item) =>
                   item.subItems ? (
                     <NavigationMenuItem key={item.title}>
-                      <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+                      <NavigationMenuTrigger>
+                        {item.title}
+                      </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <ul className="grid w-[300px] gap-2 p-4 md:grid-cols-2">
                           {item.subItems.map((subItem) => (
@@ -91,7 +93,7 @@ export function Navbar() {
                           className={cn(
                             navigationMenuTriggerStyle(),
                             pathname === item.href &&
-                            "bg-accent text-accent-foreground"
+                              "bg-accent text-accent-foreground"
                           )}
                         >
                           {item.title}
@@ -171,10 +173,7 @@ export function Navbar() {
                       className="bg-purple-900 hover:bg-purple-800"
                       asChild
                     >
-                      <Link
-                        href="/register"
-                        onClick={() => setIsOpen(false)}
-                      >
+                      <Link href="/register" onClick={() => setIsOpen(false)}>
                         Register
                       </Link>
                     </Button>

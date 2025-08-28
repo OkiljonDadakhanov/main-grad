@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -21,6 +19,13 @@ import {
   Mail,
   Phone,
 } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Visa requirements - Graduate in Korea",
+  description:
+    "Step-by-step guide to D-2 student visa for Uzbek students applying to Korean universities: required documents, processing time, where to apply, and tips.",
+};
 
 export default function VisaRequirementsPage() {
   const agencies = [
