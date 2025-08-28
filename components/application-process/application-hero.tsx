@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function ApplicationHero() {
   return (
@@ -10,23 +10,30 @@ export default function ApplicationHero() {
             Your Complete Guide to Korean University Applications
           </h1>
           <p className="text-lg md:text-xl max-w-3xl mx-auto opacity-90">
-            Follow our proven 8-step process designed specifically for Uzbek students to successfully apply and get accepted to top Korean universities.
+            Follow our proven 8-step process designed specifically for Uzbek
+            students to successfully apply and get accepted to top Korean
+            universities.
           </p>
         </div>
-        
+
         <div className="flex flex-wrap justify-center gap-4 mb-12">
-          <Button asChild size="lg" className="bg-white text-purple-800 hover:bg-gray-100">
-            <Link href="#application-steps">
-              View Application Steps
-            </Link>
+          <Button
+            asChild
+            size="lg"
+            className="bg-white text-purple-800 hover:bg-gray-100"
+          >
+            <Link href="#application-steps">View Application Steps</Link>
           </Button>
-          <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-            <Link href="#support-resources">
-              Get Application Support
-            </Link>
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="border-white text-white hover:bg-white/10"
+          >
+            <Link href="#support-resources">Get Application Support</Link>
           </Button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center">
             <div className="text-3xl font-bold mb-2">95%</div>
@@ -43,5 +50,5 @@ export default function ApplicationHero() {
         </div>
       </div>
     </section>
-  )
+  );
 }
