@@ -147,6 +147,7 @@ export function FeaturedLocations() {
                 <img
                   src={location.image}
                   alt={location.name}
+                  loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                   onLoad={() =>
                     console.log(
