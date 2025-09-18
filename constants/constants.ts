@@ -14,6 +14,7 @@ export const provinceCityData: Record<string, string[]> = {
     "Namyangju",
   ],
   Chungnam: ["Sejong City"],
+  Sejong: ["Sejong City"],
   "Gangwon-do": ["Chuncheon", "Gangneung", "Wonju", "Samcheok"],
   "North Chungcheong": ["Cheongju", "Chungju", "Jecheon"],
   "South Chungcheong": ["Cheonan", "Gongju", "Nonsan", "Dangjin", "Asan"],
