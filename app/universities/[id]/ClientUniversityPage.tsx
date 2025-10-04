@@ -37,7 +37,7 @@ export function ClientUniversityPage({
         if (!res.ok) throw new Error("Failed to fetch university");
         const data = await res.json();
         setUniversity(data);
-        console.log("Fetched university:", data); // ✅ Debug output
+        // ✅ Debug output
       } catch (error) {
         console.error(error);
         setUniversity(null);
