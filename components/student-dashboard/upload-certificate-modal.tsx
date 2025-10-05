@@ -15,13 +15,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import type { CertificateEntry } from "@/app/student/certificates/page" // Adjust path
+import type { CertificateEntry, NewCertificateData } from "@/app/student/certificates/page" // Adjust path
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface UploadCertificateModalProps {
   isOpen: boolean
   onClose: () => void
-  onAddCertificate: (data: Omit<CertificateEntry, "id" | "fileUrl" | "fileName"> & { file?: FileList }) => void
+  onAddCertificateAction: (data: NewCertificateData) => void
 }
 
 const certificateSchema = z.object({
@@ -49,7 +49,7 @@ const certificateTypes = [
   "Other",
 ]
 
-export default function UploadCertificateModal({ isOpen, onClose, onAddCertificate }: UploadCertificateModalProps) {
+export default function UploadCertificateModal({ isOpen, onClose, onAddCertificateAction }: UploadCertificateModalProps) {
   const {
     register,
     handleSubmit,
@@ -61,16 +61,16 @@ export default function UploadCertificateModal({ isOpen, onClose, onAddCertifica
   })
 
   const onSubmit = (data: CertificateFormData) => {
-    const submissionData: Omit<CertificateEntry, "id" | "fileUrl" | "fileName"> & { file?: FileList } = {
+    const submissionData: NewCertificateData = {
       name: data.name,
       type: data.type,
       issueDate: data.issueDate,
       description: data.description,
     }
     if (data.file && data.file.length > 0) {
-      submissionData.file = data.file
+      submissionData.file = Array.from(data.file)
     }
-    onAddCertificate(submissionData)
+    onAddCertificateAction(submissionData)
     reset()
     onClose()
   }

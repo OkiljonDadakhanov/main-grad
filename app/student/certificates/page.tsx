@@ -2,7 +2,7 @@
 
 import CertificateItem from "@/components/student-dashboard/certificate-item"
 import UploadCertificateModal from "@/components/student-dashboard/upload-certificate-modal"
-import EditCertificateModal from "@/components/student-dashboard/edit-certificate-modal" // New import
+import EditCertificateModal from "@/components/student-dashboard/edit-certificate-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { PlusCircle } from "lucide-react"
@@ -16,6 +16,11 @@ export interface CertificateEntry {
   fileUrl?: string // Placeholder for actual file URL
   fileName?: string
   description?: string
+}
+
+// Type for the file parameter - using File[] instead of FileList for SSR compatibility
+export interface NewCertificateData extends Omit<CertificateEntry, "id" | "fileUrl" | "fileName"> {
+  file?: File[]
 }
 
 const mockCertificates: CertificateEntry[] = [
@@ -39,12 +44,10 @@ const mockCertificates: CertificateEntry[] = [
 export default function CertificatesPage() {
   const [certificates, setCertificates] = useState<CertificateEntry[]>(mockCertificates)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false) // New state
-  const [editingCertificate, setEditingCertificate] = useState<CertificateEntry | null>(null) // New state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingCertificate, setEditingCertificate] = useState<CertificateEntry | null>(null)
 
-  const handleAddCertificate = (
-    newCertData: Omit<CertificateEntry, "id" | "fileUrl" | "fileName"> & { file?: FileList },
-  ) => {
+  const handleAddCertificate = (newCertData: NewCertificateData) => {
     const newCert: CertificateEntry = {
       ...newCertData,
       id: `cert${Date.now()}`,
@@ -59,13 +62,11 @@ export default function CertificatesPage() {
   }
 
   const handleOpenEditModal = (certificate: CertificateEntry) => {
-    // New handler
     setEditingCertificate(certificate)
     setIsEditModalOpen(true)
   }
 
   const handleUpdateCertificate = (updatedCertificate: CertificateEntry) => {
-    // New handler
     setCertificates((prev) => prev.map((cert) => (cert.id === updatedCertificate.id ? updatedCertificate : cert)))
     setEditingCertificate(null)
     setIsEditModalOpen(false)
@@ -90,7 +91,7 @@ export default function CertificatesPage() {
               key={cert.id}
               certificate={cert}
               onDelete={handleDeleteCertificate}
-              onEdit={handleOpenEditModal} // Pass edit handler
+              onEdit={handleOpenEditModal}
             />
           ))}
         </div>
@@ -107,7 +108,7 @@ export default function CertificatesPage() {
       <UploadCertificateModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onAddCertificate={handleAddCertificate}
+        onAddCertificateAction={handleAddCertificate}
       />
       {editingCertificate && (
         <EditCertificateModal
