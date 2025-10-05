@@ -6,20 +6,23 @@ import EditCertificateModal from "@/components/student-dashboard/edit-certificat
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { PlusCircle } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export interface CertificateEntry {
   id: string
   name: string
-  type: string // e.g., Language Proficiency, Academic Transcript, Award
+  type: string
   issueDate: string
-  fileUrl?: string // Placeholder for actual file URL
+  fileUrl?: string
   fileName?: string
   description?: string
 }
 
-// Type for the file parameter - using File[] instead of FileList for SSR compatibility
-export interface NewCertificateData extends Omit<CertificateEntry, "id" | "fileUrl" | "fileName"> {
+export interface NewCertificateData {
+  name: string
+  type: string
+  issueDate: string
+  description?: string
   file?: File[]
 }
 
@@ -46,13 +49,20 @@ export default function CertificatesPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editingCertificate, setEditingCertificate] = useState<CertificateEntry | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleAddCertificate = (newCertData: NewCertificateData) => {
     const newCert: CertificateEntry = {
-      ...newCertData,
       id: `cert${Date.now()}`,
+      name: newCertData.name,
+      type: newCertData.type,
+      issueDate: newCertData.issueDate,
+      description: newCertData.description,
       fileName: newCertData.file?.[0]?.name,
-      // fileUrl would be set after actual upload in a real app
     }
     setCertificates((prev) => [...prev, newCert])
   }
@@ -70,6 +80,10 @@ export default function CertificatesPage() {
     setCertificates((prev) => prev.map((cert) => (cert.id === updatedCertificate.id ? updatedCertificate : cert)))
     setEditingCertificate(null)
     setIsEditModalOpen(false)
+  }
+
+  if (!mounted) {
+    return null
   }
 
   return (
