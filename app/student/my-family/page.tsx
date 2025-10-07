@@ -9,6 +9,7 @@ import { PlusCircle } from "lucide-react";
 import { useState } from "react";
 
 export interface FamilyMember {
+  passportCopyUrl(passportCopyUrl: any): unknown;
   id: string;
   fullName: string;
   relationship: string;
