@@ -1,27 +1,37 @@
 "use client"
-import type React from "react";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
-import { Toaster } from "@/components/ui/toaster";
-import { ThemeProvider } from "@/components/theme-provider";
-import { usePathname } from "next/navigation";
-import SplashScreen from "@/components/layout/splash-screen-loading";
+import type React from "react"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { Navbar } from "@/components/layout/navbar"
+import { Footer } from "@/components/layout/footer"
+import { Toaster } from "@/components/ui/toaster"
+import { ThemeProvider } from "@/components/theme-provider"
+import { usePathname } from "next/navigation"
+import SplashScreen from "@/components/layout/splash-screen-loading"
 
-const inter = Inter({ subsets: ["latin"] });
-
+const inter = Inter({ subsets: ["latin"] })
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const pathname = usePathname();
+}: Readonly<{ children: React.ReactNode }>) {
+  const pathname = usePathname()
 
-  const hideLayoutOn = ["/register-university", "/success", "/login", "/login/student", "/login/university", "/register-university/terms", "/login/reset-password", "/login/reset-confirm"  ];
-  const hideLayout = hideLayoutOn.includes(pathname);
+  // 🔥 Hide layout for certain pages or route groups
+  const hideLayoutOnExact = [
+    "/register-university",
+    "/success",
+    "/login",
+    "/login/student",
+    "/login/university",
+    "/register-university/terms",
+    "/login/reset-password",
+    "/login/reset-confirm",
+  ]
+
+  // ✅ Check if current path is exactly in list OR starts with /student
+  const hideLayout =
+    hideLayoutOnExact.includes(pathname) || pathname.startsWith("/student")
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -36,5 +46,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }
