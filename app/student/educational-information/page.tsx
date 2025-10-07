@@ -1,7 +1,7 @@
 "use client"
 
 import AddEducationModal from "@/components/student-dashboard/add-education-modal"
-import EditEducationModal from "@/components/student-dashboard/edit-education-modal" // New import
+import EditEducationModal from "@/components/student-dashboard/edit-education-modal"
 import EducationItem from "@/components/student-dashboard/education-item"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -17,6 +17,8 @@ export interface EducationEntry {
   endDate: string
   gpa?: string
   description?: string
+  diplomaUrl?: string
+  apostilleUrl?: string
 }
 
 const mockEducationData: EducationEntry[] = [
@@ -29,6 +31,8 @@ const mockEducationData: EducationEntry[] = [
     endDate: "2020-06-30",
     gpa: "3.8/4.0",
     description: "Graduated with honors, specialized in software development.",
+    diplomaUrl: "/documents/diploma_tuit.pdf",
+    apostilleUrl: "/documents/apostille_tuit.pdf",
   },
   {
     id: "edu2",
@@ -38,17 +42,18 @@ const mockEducationData: EducationEntry[] = [
     startDate: "2013-09-01",
     endDate: "2016-06-30",
     description: "Focused on Mathematics and Physics.",
+    diplomaUrl: "/documents/attestat_lyceum.pdf",
   },
 ]
 
 export default function EducationalInformationPage() {
   const [educationEntries, setEducationEntries] = useState<EducationEntry[]>(mockEducationData)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false) // New state
-  const [editingEducationEntry, setEditingEducationEntry] = useState<EducationEntry | null>(null) // New state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingEducationEntry, setEditingEducationEntry] = useState<EducationEntry | null>(null)
 
   const handleAddEducation = (newEntry: Omit<EducationEntry, "id">) => {
-    setEducationEntries((prev) => [...prev, { ...newEntry, id: `edu${Date.now()}` }]) // Use Date.now() for unique ID
+    setEducationEntries((prev) => [...prev, { ...newEntry, id: `edu${Date.now()}` }])
   }
 
   const handleDeleteEducation = (id: string) => {
@@ -56,13 +61,11 @@ export default function EducationalInformationPage() {
   }
 
   const handleOpenEditModal = (entry: EducationEntry) => {
-    // New handler
     setEditingEducationEntry(entry)
     setIsEditModalOpen(true)
   }
 
   const handleUpdateEducation = (updatedEntry: EducationEntry) => {
-    // New handler
     setEducationEntries((prev) => prev.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry)))
     setEditingEducationEntry(null)
     setIsEditModalOpen(false)
@@ -73,7 +76,9 @@ export default function EducationalInformationPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">Educational Information</h1>
-          <p className="text-sm text-gray-500">Manage your academic background and qualifications.</p>
+          <p className="text-sm text-gray-500">
+            Manage your academic background and upload diploma/attestat and apostille translation documents.
+          </p>
         </div>
         <Button onClick={() => setIsAddModalOpen(true)} className="bg-purple-600 hover:bg-purple-700">
           <PlusCircle className="mr-2 h-4 w-4" /> Add New Education
@@ -83,19 +88,53 @@ export default function EducationalInformationPage() {
       {educationEntries.length > 0 ? (
         <div className="space-y-4">
           {educationEntries.map((entry) => (
-            <EducationItem
-              key={entry.id}
-              entry={entry}
-              onDelete={handleDeleteEducation}
-              onEdit={handleOpenEditModal} // Pass edit handler
-            />
+            <Card key={entry.id} className="border border-gray-200 shadow-sm">
+              <CardContent className="pt-6 space-y-3">
+                <EducationItem
+                  entry={entry}
+                  onDelete={handleDeleteEducation}
+                  onEdit={handleOpenEditModal}
+                />
+
+                {/* 🎓 Educational Documents Section */}
+                <div className="mt-4 border-t pt-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Educational Documents</h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    {entry.diplomaUrl ? (
+                      <a
+                        href={entry.diplomaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-purple-600 hover:underline"
+                      >
+                        📄 View Diploma / Attestat
+                      </a>
+                    ) : (
+                      <p className="text-xs text-gray-400">No diploma uploaded.</p>
+                    )}
+                    {entry.apostilleUrl ? (
+                      <a
+                        href={entry.apostilleUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-purple-600 hover:underline"
+                      >
+                        🌐 View Apostille (with translation)
+                      </a>
+                    ) : (
+                      <p className="text-xs text-gray-400">No apostille uploaded.</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       ) : (
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-gray-500">
-              No educational information added yet. Click "Add New Education" to get started.
+              No educational information added yet. Click “Add New Education” to get started.
             </p>
           </CardContent>
         </Card>
@@ -106,7 +145,7 @@ export default function EducationalInformationPage() {
         onClose={() => setIsAddModalOpen(false)}
         onAddEducation={handleAddEducation}
       />
-      {editingEducationEntry && ( // Conditionally render Edit Modal
+      {editingEducationEntry && (
         <EditEducationModal
           isOpen={isEditModalOpen}
           onClose={() => {
