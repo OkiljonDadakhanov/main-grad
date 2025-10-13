@@ -14,6 +14,7 @@ import {
   Users,
   FolderOpen,
   DollarSign,
+  Search
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -25,6 +26,7 @@ const navigationLinks = [
   { href: "/student/certificates", label: "Certificates", icon: Award },
   { href: "/student/financial-documents", label: "Financial documents", icon: DollarSign },
   { href: "/student/my-family", label: "My family", icon: Users },
+  { label: "Browse Universities", href: "/student/browse-universities", icon: Search },
   { href: "/student/my-applications", label: "My applications", icon: CreditCard },
 ]
 
