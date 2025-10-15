@@ -4,13 +4,42 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
 
 export default function StudentLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleEmailLogin = () => {
-    // Implement login logic
+  const handleEmailLogin = async () => {
+    if (!email || !password) {
+      toast.error("Email va parolni kiriting.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/auth/login/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        const msg = typeof data?.detail === "string" ? data.detail : "Kirishda xatolik.";
+        toast.error(msg);
+        return;
+      }
+      saveAuthToStorage(data);
+      toast.success("Muvaffaqiyatli kirdingiz.");
+      router.push("/student/profile");
+    } catch {
+      toast.error("Server xatosi. Keyinroq urinib ko'ring.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOneIdLogin = () => {
@@ -46,8 +75,8 @@ export default function StudentLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <Button onClick={handleEmailLogin} className="w-full">
-              Login with Email
+            <Button onClick={handleEmailLogin} className="w-full" disabled={loading}>
+              {loading ? "Kirilmoqda..." : "Email bilan kirish"}
             </Button>
             <div className="text-center text-gray-600 text-sm">or</div>
             <Button

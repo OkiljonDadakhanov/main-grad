@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import HelpCenter from "./help-center"
@@ -17,6 +18,7 @@ import {
   Search
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { BASE_URL, authFetch, clearAuthStorage, getAccessTokenFromStorage, getUserFromStorage } from "@/lib/auth"
 
 const navigationLinks = [
   { href: "/student/profile", label: "My profile", icon: Home },
@@ -33,11 +35,31 @@ const navigationLinks = [
 export default function StudentSidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [fullName, setFullName] = useState<string>("")
 
   const handleLogout = () => {
-    console.log("Logging out...")
+    clearAuthStorage()
     router.push("/")
   }
+
+  useEffect(() => {
+    const token = getAccessTokenFromStorage()
+    // Try fast path from stored user
+    const storedUser = getUserFromStorage<any>()
+    if (storedUser && typeof storedUser.full_name === "string" && storedUser.full_name) {
+      setFullName(storedUser.full_name)
+    }
+    if (!token) return
+    const load = async () => {
+      try {
+        const res = await authFetch(`${BASE_URL}/api/me/profile/`)
+        if (!res.ok) return
+        const data = await res.json()
+        if (typeof data?.full_name === "string") setFullName(data.full_name)
+      } catch {}
+    }
+    load()
+  }, [])
 
   return (
     <aside className="fixed top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 shadow-sm flex flex-col z-50">
@@ -47,7 +69,7 @@ export default function StudentSidebar() {
           <Home className="h-8 w-8 text-purple-700" />
         </div>
         <h2 className="font-semibold text-gray-900 text-sm uppercase tracking-wide leading-tight">
-          SHOXBEK SHUKURULLOYEV
+          {fullName ? fullName.toUpperCase() : "STUDENT"}
         </h2>
         <p className="text-xs text-gray-500 mt-1">Student Dashboard</p>
       </div>

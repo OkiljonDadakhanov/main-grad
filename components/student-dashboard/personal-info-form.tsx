@@ -9,47 +9,50 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Upload, FileText, CheckCircle } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import { BASE_URL, authFetch, getAccessTokenFromStorage } from "@/lib/auth"
 
 const personalInfoSchema = z.object({
-  fullName: z.string().min(1, "Full name is required"),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
-  gender: z.string().min(1, "Gender is required"),
-  nationality: z.string().min(1, "Nationality is required"),
-  passportNumber: z.string().min(1, "Passport number is required"),
-  passportExpiry: z.string().min(1, "Passport expiry date is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(1, "Phone number is required"),
-  addressLine1: z.string().min(1, "Address is required"),
-  addressLine2: z.string().optional(),
-  city: z.string().min(1, "City is required"),
-  stateProvince: z.string().min(1, "State/Province is required"),
-  postalCode: z.string().min(1, "Postal code is required"),
-  country: z.string().min(1, "Country is required"),
-  emergencyContactName: z.string().min(1, "Emergency contact name is required"),
-  emergencyContactRelationship: z.string().min(1, "Emergency contact relationship is required"),
-  emergencyContactPhone: z.string().min(1, "Emergency contact phone is required"),
+  full_name: z.string().min(1, "Full name is required"),
+  date_of_birth: z.string().optional().nullable(),
+  gender: z.string().optional(),
+  nationality: z.string().optional(),
+  passport_number: z.string().optional().nullable(),
+  passport_expiry_date: z.string().optional().nullable(),
+  email_contact: z.string().email("Invalid email address").optional().nullable(),
+  phone_number: z.string().optional().nullable(),
+  address_line1: z.string().optional().nullable(),
+  address_line2: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  state_province: z.string().optional().nullable(),
+  postal_code: z.string().optional().nullable(),
+  country: z.string().optional().nullable(),
+  emergency_full_name: z.string().optional().nullable(),
+  emergency_relationship: z.string().optional().nullable(),
+  emergency_phone: z.string().optional().nullable(),
 })
 
 type PersonalInfoFormData = z.infer<typeof personalInfoSchema>
 
-const mockStudentData = {
-  fullName: "Shoxbek Shukurulloyev",
-  dateOfBirth: "1998-05-15",
-  gender: "Male",
-  nationality: "Uzbek",
-  passportNumber: "AC2223314",
-  passportExpiry: "2028-10-20",
-  email: "shoxbek.s@example.com",
-  phone: "+998901234567",
-  addressLine1: "123 Tashkent Street",
-  city: "Tashkent",
-  stateProvince: "Tashkent Region",
-  postalCode: "100000",
-  country: "Uzbekistan",
-  emergencyContactName: "Kamola Shukurulloyeva",
-  emergencyContactRelationship: "Sister",
-  emergencyContactPhone: "+998907654321",
+const emptyData: PersonalInfoFormData = {
+  full_name: "",
+  date_of_birth: null,
+  gender: "",
+  nationality: "",
+  passport_number: null,
+  passport_expiry_date: null,
+  email_contact: "",
+  phone_number: "",
+  address_line1: "",
+  address_line2: "",
+  city: "",
+  state_province: "",
+  postal_code: "",
+  country: "",
+  emergency_full_name: "",
+  emergency_relationship: "",
+  emergency_phone: "",
 }
 
 interface UploadedDocument {
@@ -66,7 +69,7 @@ export default function PersonalInfoForm() {
     setValue,
   } = useForm<PersonalInfoFormData>({
     resolver: zodResolver(personalInfoSchema),
-    defaultValues: mockStudentData,
+    defaultValues: emptyData,
   })
 
   const [documents, setDocuments] = useState<Record<string, UploadedDocument>>({
@@ -86,9 +89,42 @@ export default function PersonalInfoForm() {
     }
   }
 
-  const onSubmit = (data: PersonalInfoFormData) => {
-    console.log("Personal Info Submitted:", data)
-    console.log("Documents:", documents)
+  useEffect(() => {
+    const token = getAccessTokenFromStorage();
+    if (!token) {
+      window.location.replace("/login/student");
+      return;
+    }
+    const load = async () => {
+      try {
+        const res = await authFetch(`${BASE_URL}/api/personal-information/`);
+        if (!res.ok) return;
+        const data = await res.json();
+        // fill form with existing data keys if present
+        Object.keys(emptyData).forEach((key) => {
+          const k = key as keyof PersonalInfoFormData;
+          if (data[k] !== undefined) setValue(k, data[k] as any);
+        });
+      } catch {}
+    };
+    load();
+  }, [setValue]);
+
+  const onSubmit = async (data: PersonalInfoFormData) => {
+    try {
+      const res = await authFetch(`${BASE_URL}/api/personal-information/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        toast.error("Saqlashda xatolik.");
+        return;
+      }
+      toast.success("Ma'lumotlar saqlandi.");
+    } catch {
+      toast.error("Server xatosi.");
+    }
   }
 
   return (
@@ -101,18 +137,18 @@ export default function PersonalInfoForm() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input id="fullName" {...register("fullName")} />
-            {errors.fullName && <p className="text-sm text-red-500">{errors.fullName.message}</p>}
+            <Label htmlFor="full_name">Full Name</Label>
+            <Input id="full_name" {...register("full_name")} />
+            {errors.full_name && <p className="text-sm text-red-500">{errors.full_name.message}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="dateOfBirth">Date of Birth</Label>
-            <Input id="dateOfBirth" type="date" {...register("dateOfBirth")} />
-            {errors.dateOfBirth && <p className="text-sm text-red-500">{errors.dateOfBirth.message}</p>}
+            <Label htmlFor="date_of_birth">Date of Birth</Label>
+            <Input id="date_of_birth" type="date" {...register("date_of_birth")} />
+            {errors.date_of_birth && <p className="text-sm text-red-500">{String(errors.date_of_birth.message)}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="gender">Gender</Label>
-            <Select onValueChange={(value) => setValue("gender", value)} defaultValue={mockStudentData.gender}>
+            <Select onValueChange={(value) => setValue("gender", value)}>
               <SelectTrigger id="gender">
                 <SelectValue placeholder="Select gender" />
               </SelectTrigger>
@@ -127,17 +163,17 @@ export default function PersonalInfoForm() {
           <div className="space-y-2">
             <Label htmlFor="nationality">Nationality</Label>
             <Input id="nationality" {...register("nationality")} />
-            {errors.nationality && <p className="text-sm text-red-500">{errors.nationality.message}</p>}
+            {errors.nationality && <p className="text-sm text-red-500">{String(errors.nationality.message)}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="passportNumber">Passport Number</Label>
-            <Input id="passportNumber" {...register("passportNumber")} />
-            {errors.passportNumber && <p className="text-sm text-red-500">{errors.passportNumber.message}</p>}
+            <Label htmlFor="passport_number">Passport Number</Label>
+            <Input id="passport_number" {...register("passport_number")} />
+            {errors.passport_number && <p className="text-sm text-red-500">{String(errors.passport_number.message)}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="passportExpiry">Passport Expiry Date</Label>
-            <Input id="passportExpiry" type="date" {...register("passportExpiry")} />
-            {errors.passportExpiry && <p className="text-sm text-red-500">{errors.passportExpiry.message}</p>}
+            <Label htmlFor="passport_expiry_date">Passport Expiry Date</Label>
+            <Input id="passport_expiry_date" type="date" {...register("passport_expiry_date")} />
+            {errors.passport_expiry_date && <p className="text-sm text-red-500">{String(errors.passport_expiry_date.message)}</p>}
           </div>
         </CardContent>
       </Card>
@@ -190,45 +226,45 @@ export default function PersonalInfoForm() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" {...register("email")} />
-              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+              <Label htmlFor="email_contact">Email Address</Label>
+              <Input id="email_contact" type="email" {...register("email_contact")} />
+              {errors.email_contact && <p className="text-sm text-red-500">{String(errors.email_contact.message)}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" {...register("phone")} />
-              {errors.phone && <p className="text-sm text-red-500">{errors.phone.message}</p>}
+              <Label htmlFor="phone_number">Phone Number</Label>
+              <Input id="phone_number" {...register("phone_number")} />
+              {errors.phone_number && <p className="text-sm text-red-500">{String(errors.phone_number.message)}</p>}
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="addressLine1">Address Line 1</Label>
-            <Input id="addressLine1" {...register("addressLine1")} />
-            {errors.addressLine1 && <p className="text-sm text-red-500">{errors.addressLine1.message}</p>}
+            <Label htmlFor="address_line1">Address Line 1</Label>
+            <Input id="address_line1" {...register("address_line1")} />
+            {errors.address_line1 && <p className="text-sm text-red-500">{String(errors.address_line1.message)}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="addressLine2">Address Line 2 (Optional)</Label>
-            <Input id="addressLine2" {...register("addressLine2")} />
+            <Label htmlFor="address_line2">Address Line 2 (Optional)</Label>
+            <Input id="address_line2" {...register("address_line2")} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="space-y-2">
               <Label htmlFor="city">City</Label>
               <Input id="city" {...register("city")} />
-              {errors.city && <p className="text-sm text-red-500">{errors.city.message}</p>}
+              {errors.city && <p className="text-sm text-red-500">{String(errors.city.message)}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="stateProvince">State/Province</Label>
-              <Input id="stateProvince" {...register("stateProvince")} />
-              {errors.stateProvince && <p className="text-sm text-red-500">{errors.stateProvince.message}</p>}
+              <Label htmlFor="state_province">State/Province</Label>
+              <Input id="state_province" {...register("state_province")} />
+              {errors.state_province && <p className="text-sm text-red-500">{String(errors.state_province.message)}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="postalCode">Postal Code</Label>
-              <Input id="postalCode" {...register("postalCode")} />
-              {errors.postalCode && <p className="text-sm text-red-500">{errors.postalCode.message}</p>}
+              <Label htmlFor="postal_code">Postal Code</Label>
+              <Input id="postal_code" {...register("postal_code")} />
+              {errors.postal_code && <p className="text-sm text-red-500">{String(errors.postal_code.message)}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="country">Country</Label>
               <Input id="country" {...register("country")} />
-              {errors.country && <p className="text-sm text-red-500">{errors.country.message}</p>}
+              {errors.country && <p className="text-sm text-red-500">{String(errors.country.message)}</p>}
             </div>
           </div>
         </CardContent>
@@ -242,24 +278,24 @@ export default function PersonalInfoForm() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="emergencyContactName">Full Name</Label>
-              <Input id="emergencyContactName" {...register("emergencyContactName")} />
-              {errors.emergencyContactName && (
-                <p className="text-sm text-red-500">{errors.emergencyContactName.message}</p>
+              <Label htmlFor="emergency_full_name">Full Name</Label>
+              <Input id="emergency_full_name" {...register("emergency_full_name")} />
+              {errors.emergency_full_name && (
+                <p className="text-sm text-red-500">{String(errors.emergency_full_name.message)}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="emergencyContactRelationship">Relationship</Label>
-              <Input id="emergencyContactRelationship" {...register("emergencyContactRelationship")} />
-              {errors.emergencyContactRelationship && (
-                <p className="text-sm text-red-500">{errors.emergencyContactRelationship.message}</p>
+              <Label htmlFor="emergency_relationship">Relationship</Label>
+              <Input id="emergency_relationship" {...register("emergency_relationship")} />
+              {errors.emergency_relationship && (
+                <p className="text-sm text-red-500">{String(errors.emergency_relationship.message)}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="emergencyContactPhone">Phone Number</Label>
-              <Input id="emergencyContactPhone" {...register("emergencyContactPhone")} />
-              {errors.emergencyContactPhone && (
-                <p className="text-sm text-red-500">{errors.emergencyContactPhone.message}</p>
+              <Label htmlFor="emergency_phone">Phone Number</Label>
+              <Input id="emergency_phone" {...register("emergency_phone")} />
+              {errors.emergency_phone && (
+                <p className="text-sm text-red-500">{String(errors.emergency_phone.message)}</p>
               )}
             </div>
           </div>
