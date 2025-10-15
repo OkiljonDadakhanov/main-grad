@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,7 @@ export default function RegisterStudentPage() {
       toast.error("Email noto'g'ri formatda.");
       return;
     }
+
     setLoading(true);
     try {
       const res = await fetch(`${BASE_URL}/api/auth/register/student/`, {
@@ -54,7 +56,7 @@ export default function RegisterStudentPage() {
         return;
       }
 
-      // Ba'zi backendlar ro'yxatdan o'tganda token ham yuborishi mumkin
+      // Token saqlash (agar backend yuborsa)
       saveAuthToStorage(data);
       toast.success("Muvaffaqiyatli ro'yxatdan o'tdingiz. Kirish sahifasiga yo'naltirilmoqda...");
       router.push("/login/student");
@@ -68,7 +70,7 @@ export default function RegisterStudentPage() {
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-700 to-purple-900 text-white px-4 py-16">
       <div className="max-w-md w-full">
-        <Card className="bg-white text-black">
+        <Card className="bg-white text-black shadow-lg">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">Talaba ro'yxatdan o'tish</CardTitle>
           </CardHeader>
@@ -103,6 +105,17 @@ export default function RegisterStudentPage() {
             <Button disabled={loading} onClick={handleSubmit} className="w-full">
               {loading ? "Yuborilmoqda..." : "Ro'yxatdan o'tish"}
             </Button>
+
+            {/* ✅ "Have an account? Sign in" section */}
+            <p className="text-center text-sm text-gray-600 mt-4">
+              Hisobingiz bormi?{" "}
+              <Link
+                href="/login/student"
+                className="text-purple-700 font-medium hover:underline"
+              >
+                Kirish
+              </Link>
+            </p>
           </CardContent>
         </Card>
       </div>
