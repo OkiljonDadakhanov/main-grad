@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Link from "next/link";
-import { toast } from "sonner";
+import { useCustomToast } from "@/components/custom-toast";
 
 import { FormSection } from "./FormSection";
 import { provinceCityData } from "@/constants/constants";
@@ -40,6 +40,7 @@ interface FormData {
 
 export default function UniversityRegisterForm() {
   const router = useRouter();
+  const { success, error } = useCustomToast();
   const termsContentRef = useRef<HTMLDivElement | null>(null);
 
   const [form, setForm] = useState<FormData>({
@@ -85,7 +86,7 @@ export default function UniversityRegisterForm() {
       return false;
     }
     if (!form.password || form.password.length < 6) {
-      toast.error("Password must be at least 6 characters.");
+      error("Password must be at least 6 characters.");
       return false;
     }
     if (
@@ -93,7 +94,7 @@ export default function UniversityRegisterForm() {
       !form.university_admission_representetive_email ||
       !form.university_office_phone
     ) {
-      toast.error("Please fill in all required fields.");
+      error("Please fill in all required fields.");
       return false;
     }
     return true;
@@ -104,7 +105,7 @@ export default function UniversityRegisterForm() {
     if (!isValidForm()) return;
 
     if (!agreed) {
-      toast.error(
+      error(
         "You must accept the Terms and Conditions before submitting."
       );
       return;
@@ -171,15 +172,15 @@ export default function UniversityRegisterForm() {
         } else if (data.email && Array.isArray(data.email)) {
           setEmailError(data.email[0]);
         } else {
-          toast.error("Something went wrong. Please check your inputs.");
+          error("Something went wrong. Please check your inputs.");
         }
         return;
       }
 
-      toast.success("Registration successful! Redirecting...");
+      success("Registration successful! Redirecting...");
       router.push("/success");
     } catch {
-      toast.error("Server error. Please try again later.");
+      error("Server error. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }

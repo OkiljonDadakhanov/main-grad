@@ -10,7 +10,7 @@ import * as z from "zod"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Upload, FileText, CheckCircle } from "lucide-react"
 import { useEffect, useState } from "react"
-import { toast } from "sonner"
+import { useCustomToast } from "@/components/custom-toast"
 import { BASE_URL, authFetch, getAccessTokenFromStorage } from "@/lib/auth"
 
 const personalInfoSchema = z.object({
@@ -62,6 +62,7 @@ interface UploadedDocument {
 }
 
 export default function PersonalInfoForm() {
+  const { success, error } = useCustomToast();
   const {
     register,
     handleSubmit,
@@ -118,12 +119,12 @@ export default function PersonalInfoForm() {
         body: JSON.stringify(data),
       });
       if (!res.ok) {
-        toast.error("Saqlashda xatolik.");
+        error("Saqlashda xatolik.");
         return;
       }
-      toast.success("Ma'lumotlar saqlandi.");
+      success("Ma'lumotlar saqlandi.");
     } catch {
-      toast.error("Server xatosi.");
+      error("Server xatosi.");
     }
   }
 

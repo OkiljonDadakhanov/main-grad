@@ -13,10 +13,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { useCustomToast } from "@/components/custom-toast";
 
 export default function UniversityLoginPage() {
   const router = useRouter();
+  const { success, error } = useCustomToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,13 +42,13 @@ export default function UniversityLoginPage() {
       if (!response.ok) {
         const errorData = await response.json();
         if (errorData.non_field_errors?.includes("University not verified")) {
-          toast.error(
+          error(
             "Your university account is not verified yet. Please contact support."
           );
         } else if (errorData.detail) {
-          alert(errorData.detail);
+          error(errorData.detail);
         } else {
-          alert("Login failed. Please check your credentials.");
+          error("Login failed. Please check your credentials.");
         }
         setLoading(false);
         return;
@@ -61,7 +62,7 @@ export default function UniversityLoginPage() {
       // Redirect to university dashboard
     } catch (error) {
       console.error("Login error:", error);
-      alert("An unexpected error occurred");
+      error("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -83,7 +84,7 @@ export default function UniversityLoginPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(errorData.detail || "Reset failed");
+        error(errorData.detail || "Reset failed");
         return;
       }
 
@@ -91,7 +92,7 @@ export default function UniversityLoginPage() {
       router.push("/login/reset-confirm");
     } catch (error) {
       console.error("Reset error:", error);
-      alert("An unexpected error occurred");
+      error("An unexpected error occurred");
     } finally {
       setResetting(false);
     }

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useCustomToast } from "@/components/custom-toast";
 import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
 
 interface RegisterForm {
@@ -19,6 +19,7 @@ interface RegisterForm {
 
 export default function RegisterStudentPage() {
   const router = useRouter();
+  const { success, error } = useCustomToast();
   const [form, setForm] = useState<RegisterForm>({
     first_name: "",
     last_name: "",
@@ -34,11 +35,11 @@ export default function RegisterStudentPage() {
 
   const handleSubmit = async () => {
     if (!form.first_name || !form.last_name || !form.email || !form.password) {
-      toast.error("Iltimos, barcha majburiy maydonlarni to'ldiring.");
+      error("Iltimos, barcha majburiy maydonlarni to'ldiring.");
       return;
     }
     if (!/\S+@\S+\.\S+/.test(form.email)) {
-      toast.error("Email noto'g'ri formatda.");
+      error("Email noto'g'ri formatda.");
       return;
     }
 
@@ -52,16 +53,16 @@ export default function RegisterStudentPage() {
       const data = await res.json();
       if (!res.ok) {
         const msg = typeof data?.detail === "string" ? data.detail : "Ro'yxatdan o'tishda xatolik.";
-        toast.error(msg);
+        error(msg);
         return;
       }
 
       // Token saqlash (agar backend yuborsa)
       saveAuthToStorage(data);
-      toast.success("Muvaffaqiyatli ro'yxatdan o'tdingiz. Kirish sahifasiga yo'naltirilmoqda...");
+      success("Muvaffaqiyatli ro'yxatdan o'tdingiz. Kirish sahifasiga yo'naltirilmoqda...");
       router.push("/login/student");
     } catch {
-      toast.error("Server xatosi. Keyinroq urinib ko'ring.");
+      error("Server xatosi. Keyinroq urinib ko'ring.");
     } finally {
       setLoading(false);
     }

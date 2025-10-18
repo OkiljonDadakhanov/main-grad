@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useCustomToast } from "@/components/custom-toast";
 import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
 
 export default function StudentLoginPage() {
@@ -13,10 +13,11 @@ export default function StudentLoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { success, error } = useCustomToast();
 
   const handleEmailLogin = async () => {
     if (!email || !password) {
-      toast.error("Email va parolni kiriting.");
+      error("Email va parolni kiriting.");
       return;
     }
     setLoading(true);
@@ -29,14 +30,14 @@ export default function StudentLoginPage() {
       const data = await res.json();
       if (!res.ok) {
         const msg = typeof data?.detail === "string" ? data.detail : "Kirishda xatolik.";
-        toast.error(msg);
+        error(msg);
         return;
       }
       saveAuthToStorage(data);
-      toast.success("Muvaffaqiyatli kirdingiz.");
+      success("Muvaffaqiyatli kirdingiz.");
       router.push("/student/profile");
     } catch {
-      toast.error("Server xatosi. Keyinroq urinib ko'ring.");
+      error("Server xatosi. Keyinroq urinib ko'ring.");
     } finally {
       setLoading(false);
     }
