@@ -67,6 +67,7 @@ export default function AddFamilyMemberModal({ isOpen, onClose, onAddMember }: A
     onAddMember({
       ...data,
       passportCopyUrl,
+      passportFile: passportFile || undefined, // Pass the file for API upload
     })
 
     reset()
