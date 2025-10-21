@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Upload, FileText, CheckCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useCustomToast } from "@/components/custom-toast"
 import { BASE_URL, authFetch, getAccessTokenFromStorage } from "@/lib/auth"
@@ -55,11 +54,6 @@ const emptyData: PersonalInfoFormData = {
   emergency_phone: "",
 }
 
-interface UploadedDocument {
-  name: string
-  file?: File
-  uploaded: boolean
-}
 
 export default function PersonalInfoForm() {
   const { success, error } = useCustomToast();
@@ -73,22 +67,6 @@ export default function PersonalInfoForm() {
     defaultValues: emptyData,
   })
 
-  const [documents, setDocuments] = useState<Record<string, UploadedDocument>>({
-    passportCopy: { name: "Passport Copy", uploaded: false },
-    passportPhoto: { name: "Passport-size Photo", uploaded: false },
-    medicalReport: { name: "Medical Examination Report", uploaded: false },
-    nationalId: { name: "National ID Card / Birth Certificate", uploaded: false },
-    apostilleBirth: { name: "Apostille Birth Certificate", uploaded: false },
-  })
-
-  const handleFileUpload = (documentKey: string, file: File | null) => {
-    if (file) {
-      setDocuments((prev) => ({
-        ...prev,
-        [documentKey]: { ...prev[documentKey], file, uploaded: true },
-      }))
-    }
-  }
 
   useEffect(() => {
     const token = getAccessTokenFromStorage();
@@ -179,45 +157,6 @@ export default function PersonalInfoForm() {
         </CardContent>
       </Card>
 
-      {/* Required Documents */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Required Documents</CardTitle>
-          <CardDescription>Upload your identification and personal documents</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {Object.entries(documents).map(([key, doc]) => (
-            <div key={key} className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <FileText className="h-5 w-5 text-gray-500" />
-                <div>
-                  <p className="font-medium text-sm">{doc.name}</p>
-                  {doc.uploaded && doc.file && <p className="text-xs text-gray-500">{doc.file.name}</p>}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {doc.uploaded ? (
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                ) : (
-                  <Label htmlFor={key} className="cursor-pointer">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
-                      <Upload className="h-4 w-4" />
-                      <span className="text-sm">Upload</span>
-                    </div>
-                    <Input
-                      id={key}
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileUpload(key, e.target.files?.[0] || null)}
-                    />
-                  </Label>
-                )}
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
 
       {/* Contact Information */}
       <Card>
