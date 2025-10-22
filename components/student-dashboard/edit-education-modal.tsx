@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,11 +17,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import type { EducationEntry } from "@/app/student/educational-information/page"
+import { authFetch, BASE_URL } from "@/lib/auth"
+import { useCustomToast } from "@/components/custom-toast"
 
 interface EditEducationModalProps {
   isOpen: boolean
   onClose: () => void
-  onUpdateEducation: (updatedEntry: EducationEntry) => void
+  onUpdated: () => Promise<void> | void
   educationEntry: EducationEntry | null
 }
 
@@ -29,8 +31,12 @@ const educationSchema = z.object({
   institution: z.string().min(1, "Institution name is required"),
   degree: z.string().min(1, "Degree is required"),
   fieldOfStudy: z.string().min(1, "Field of study is required"),
-  startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().min(1, "End date is required"),
+  startDate: z.string().optional().default(""),
+  endDate: z.string().optional().default(""),
+  type: z.string().optional().default("secondary"),
+  country: z.string().optional().default("") ,
+  city: z.string().optional().default("") ,
+  graduationYear: z.string().optional().default(""),
   gpa: z.string().optional(),
   description: z.string().optional(),
 })
@@ -40,9 +46,10 @@ type EducationFormData = z.infer<typeof educationSchema>
 export default function EditEducationModal({
   isOpen,
   onClose,
-  onUpdateEducation,
+  onUpdated,
   educationEntry,
 }: EditEducationModalProps) {
+  const { success, error } = useCustomToast()
   const {
     register,
     handleSubmit,
@@ -53,11 +60,6 @@ export default function EditEducationModal({
     resolver: zodResolver(educationSchema),
   })
 
-  const [diplomaFile, setDiplomaFile] = useState<File | null>(null)
-  const [apostilleFile, setApostilleFile] = useState<File | null>(null)
-  const [existingDiplomaUrl, setExistingDiplomaUrl] = useState<string | undefined>()
-  const [existingApostilleUrl, setExistingApostilleUrl] = useState<string | undefined>()
-
   useEffect(() => {
     if (educationEntry) {
       setValue("institution", educationEntry.institution)
@@ -67,41 +69,38 @@ export default function EditEducationModal({
       setValue("endDate", educationEntry.endDate)
       setValue("gpa", educationEntry.gpa || "")
       setValue("description", educationEntry.description || "")
-
-      setExistingDiplomaUrl(educationEntry.diplomaUrl)
-      setExistingApostilleUrl(educationEntry.apostilleUrl)
     }
   }, [educationEntry, setValue])
 
-  const handleDiplomaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) setDiplomaFile(e.target.files[0])
-  }
-
-  const handleApostilleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) setApostilleFile(e.target.files[0])
-  }
-
-  const onSubmit = (data: EducationFormData) => {
-    if (educationEntry) {
-      const diplomaUrl = diplomaFile
-        ? URL.createObjectURL(diplomaFile)
-        : existingDiplomaUrl
-      const apostilleUrl = apostilleFile
-        ? URL.createObjectURL(apostilleFile)
-        : existingApostilleUrl
-
-      onUpdateEducation({
-        ...educationEntry,
-        ...data,
-        diplomaUrl,
-        apostilleUrl,
+  const onSubmit = async (data: EducationFormData) => {
+    if (!educationEntry) return
+    try {
+      const graduationYear = data.graduationYear || (data.endDate ? String(new Date(data.endDate).getFullYear()) : "")
+      const payload: Record<string, unknown> = {
+        type: data.type || "secondary",
+        institution_name: data.institution,
+        degree: data.degree,
+        field_of_study: data.fieldOfStudy,
+        country: data.country || undefined,
+        city: data.city || undefined,
+        start_date: data.startDate || null,
+        end_date: data.endDate || null,
+        graduation_year: graduationYear ? Number(graduationYear) : undefined,
+        gpa: data.gpa || undefined,
+        description: data.description || "",
+      }
+      const response = await authFetch(`${BASE_URL}/api/educations/${educationEntry.id}/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       })
+      if (!response.ok) throw new Error("Failed to update education")
+      success("Education updated")
+      reset()
+      await onUpdated()
+    } catch (e) {
+      error("Failed to update education")
     }
-
-    reset()
-    setDiplomaFile(null)
-    setApostilleFile(null)
-    onClose()
   }
 
   if (!educationEntry) return null
@@ -124,6 +123,22 @@ export default function EditEducationModal({
             {errors.institution && (
               <p className="text-sm text-red-500">{errors.institution.message}</p>
             )}
+          </div>
+
+          {/* Type and Location */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="type">Type</Label>
+              <Input id="type" placeholder="secondary" {...register("type")} />
+            </div>
+            <div>
+              <Label htmlFor="country">Country</Label>
+              <Input id="country" placeholder="Uzbekistan" {...register("country")} />
+            </div>
+            <div>
+              <Label htmlFor="city">City</Label>
+              <Input id="city" placeholder="Tashkent" {...register("city")} />
+            </div>
           </div>
 
           {/* Degree */}
@@ -162,6 +177,12 @@ export default function EditEducationModal({
             </div>
           </div>
 
+          {/* Graduation Year */}
+          <div>
+            <Label htmlFor="graduationYear">Graduation Year</Label>
+            <Input id="graduationYear" placeholder="2024" {...register("graduationYear")} />
+          </div>
+
           {/* GPA */}
           <div>
             <Label htmlFor="gpa">GPA (Optional)</Label>
@@ -178,58 +199,7 @@ export default function EditEducationModal({
             />
           </div>
 
-          {/* 📄 Document Uploads */}
-          <div className="border-t pt-4 space-y-3">
-            <h3 className="text-sm font-medium text-gray-700">Educational Documents</h3>
-
-            {/* Diploma */}
-            <div>
-              <Label htmlFor="diplomaFile">Diploma / Attestat</Label>
-              <Input id="diplomaFile" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleDiplomaChange} />
-              {diplomaFile ? (
-                <p className="text-xs text-gray-500 mt-1">
-                  New file selected: <span className="font-medium">{diplomaFile.name}</span>
-                </p>
-              ) : existingDiplomaUrl ? (
-                <p className="text-xs mt-1">
-                  Current:{" "}
-                  <a
-                    href={existingDiplomaUrl}
-                    target="_blank"
-                    className="text-purple-600 hover:underline"
-                  >
-                    View current diploma
-                  </a>
-                </p>
-              ) : (
-                <p className="text-xs text-gray-400">No diploma uploaded yet.</p>
-              )}
-            </div>
-
-            {/* Apostille */}
-            <div>
-              <Label htmlFor="apostilleFile">Apostille (with translation)</Label>
-              <Input id="apostilleFile" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleApostilleChange} />
-              {apostilleFile ? (
-                <p className="text-xs text-gray-500 mt-1">
-                  New file selected: <span className="font-medium">{apostilleFile.name}</span>
-                </p>
-              ) : existingApostilleUrl ? (
-                <p className="text-xs mt-1">
-                  Current:{" "}
-                  <a
-                    href={existingApostilleUrl}
-                    target="_blank"
-                    className="text-purple-600 hover:underline"
-                  >
-                    View current apostille
-                  </a>
-                </p>
-              ) : (
-                <p className="text-xs text-gray-400">No apostille uploaded yet.</p>
-              )}
-            </div>
-          </div>
+          {/* Files are managed on the entry row */}
 
           {/* Buttons */}
           <DialogFooter>
@@ -238,8 +208,6 @@ export default function EditEducationModal({
               variant="outline"
               onClick={() => {
                 reset()
-                setDiplomaFile(null)
-                setApostilleFile(null)
                 onClose()
               }}
             >

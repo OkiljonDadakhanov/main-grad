@@ -5,8 +5,12 @@ import EditEducationModal from "@/components/student-dashboard/edit-education-mo
 import EducationItem from "@/components/student-dashboard/education-item"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { PlusCircle } from "lucide-react"
-import { useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { PlusCircle, Trash2, Upload, FileText, ExternalLink } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { authFetch, BASE_URL } from "@/lib/auth"
+import { useCustomToast } from "@/components/custom-toast"
 
 export interface EducationEntry {
   id: string
@@ -17,47 +21,76 @@ export interface EducationEntry {
   endDate: string
   gpa?: string
   description?: string
-  diplomaUrl?: string
-  apostilleUrl?: string
 }
 
-const mockEducationData: EducationEntry[] = [
-  {
-    id: "edu1",
-    institution: "Tashkent University of Information Technologies",
-    degree: "Bachelor of Science",
-    fieldOfStudy: "Computer Science",
-    startDate: "2016-09-01",
-    endDate: "2020-06-30",
-    gpa: "3.8/4.0",
-    description: "Graduated with honors, specialized in software development.",
-    diplomaUrl: "/documents/diploma_tuit.pdf",
-    apostilleUrl: "/documents/apostille_tuit.pdf",
-  },
-  {
-    id: "edu2",
-    institution: "Academic Lyceum under Westminster International University in Tashkent",
-    degree: "High School Diploma",
-    fieldOfStudy: "Exact Sciences",
-    startDate: "2013-09-01",
-    endDate: "2016-06-30",
-    description: "Focused on Mathematics and Physics.",
-    diplomaUrl: "/documents/attestat_lyceum.pdf",
-  },
-]
+interface EducationFileItem {
+  id: string
+  file_url: string
+  file_name?: string
+  created_at?: string
+}
 
 export default function EducationalInformationPage() {
-  const [educationEntries, setEducationEntries] = useState<EducationEntry[]>(mockEducationData)
+  const { success, error } = useCustomToast()
+  const [educationEntries, setEducationEntries] = useState<EducationEntry[]>([])
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editingEducationEntry, setEditingEducationEntry] = useState<EducationEntry | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [filesByEducationId, setFilesByEducationId] = useState<Record<string, EducationFileItem[]>>({})
+  const [uploadingFor, setUploadingFor] = useState<Record<string, boolean>>({})
 
-  const handleAddEducation = (newEntry: Omit<EducationEntry, "id">) => {
-    setEducationEntries((prev) => [...prev, { ...newEntry, id: `edu${Date.now()}` }])
+  const hasEntries = useMemo(() => educationEntries.length > 0, [educationEntries])
+
+  useEffect(() => {
+    void loadEducations()
+  }, [])
+
+  async function loadEducations() {
+    try {
+      setLoading(true)
+      const response = await authFetch(`${BASE_URL}/api/educations/`)
+      if (!response.ok) throw new Error("Failed to load educations")
+      const list: unknown = await response.json()
+      const items = Array.isArray(list) ? list : []
+      const normalized: EducationEntry[] = items.map((item: any) => ({
+        id: String(item.id),
+        institution: item.institution_name ?? "",
+        degree: item.degree ?? "",
+        fieldOfStudy: item.field_of_study ?? "",
+        startDate: item.start_date ?? "",
+        endDate: item.end_date ?? "",
+        gpa: item.gpa != null ? String(item.gpa) : undefined,
+        description: item.description ?? "",
+      }))
+      setEducationEntries(normalized)
+      // Load files for each education in parallel
+      await Promise.all(
+        normalized.map((e) => loadEducationFiles(e.id))
+      )
+    } catch (e) {
+      error("Failed to load educational information")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleDeleteEducation = (id: string) => {
-    setEducationEntries((prev) => prev.filter((entry) => entry.id !== id))
+  async function loadEducationFiles(educationId: string) {
+    try {
+      const res = await authFetch(`${BASE_URL}/api/educations/${educationId}/files/`)
+      if (!res.ok) throw new Error("Failed to load files")
+      const list: unknown = await res.json()
+      const items = Array.isArray(list) ? list : []
+      const normalized: EducationFileItem[] = items.map((f: any) => ({
+        id: String(f.id),
+        file_url: f.file_url ?? f.url ?? "",
+        file_name: f.file_name ?? f.name ?? undefined,
+        created_at: f.created_at ?? undefined,
+      }))
+      setFilesByEducationId((prev) => ({ ...prev, [educationId]: normalized }))
+    } catch {
+      // ignore item-level errors
+    }
   }
 
   const handleOpenEditModal = (entry: EducationEntry) => {
@@ -65,10 +98,59 @@ export default function EducationalInformationPage() {
     setIsEditModalOpen(true)
   }
 
-  const handleUpdateEducation = (updatedEntry: EducationEntry) => {
-    setEducationEntries((prev) => prev.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry)))
-    setEditingEducationEntry(null)
-    setIsEditModalOpen(false)
+  async function handleDeleteEducation(id: string) {
+    try {
+      const res = await authFetch(`${BASE_URL}/api/educations/${id}/`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      success("Education deleted")
+      await loadEducations()
+    } catch {
+      error("Failed to delete education")
+    }
+  }
+
+  async function handleFileUpload(educationId: string, file: File | null) {
+    if (!file) return
+    try {
+      setUploadingFor((prev) => ({ ...prev, [educationId]: true }))
+      const form = new FormData()
+      form.append("file", file)
+      const res = await authFetch(`${BASE_URL}/api/educations/${educationId}/files/`, {
+        method: "POST",
+        body: form,
+      })
+      if (!res.ok) throw new Error()
+      success("File uploaded")
+      await loadEducationFiles(educationId)
+    } catch {
+      error("Failed to upload file")
+    } finally {
+      setUploadingFor((prev) => ({ ...prev, [educationId]: false }))
+    }
+  }
+
+  async function handleDeleteFile(fileId: string, educationId: string) {
+    try {
+      const res = await authFetch(`${BASE_URL}/api/educations/files/${fileId}/`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      success("File deleted")
+      await loadEducationFiles(educationId)
+    } catch {
+      error("Failed to delete file")
+    }
+  }
+
+  const getDisplayName = (file: EducationFileItem) => {
+    if (file.file_name) return file.file_name
+    // Extract filename from URL
+    try {
+      const url = new URL(file.file_url)
+      const pathname = url.pathname
+      const filename = pathname.split('/').pop()
+      return filename || 'Document'
+    } catch {
+      return 'Document'
+    }
   }
 
   return (
@@ -85,7 +167,13 @@ export default function EducationalInformationPage() {
         </Button>
       </div>
 
-      {educationEntries.length > 0 ? (
+      {loading ? (
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-gray-500">Loading educational information...</p>
+          </CardContent>
+        </Card>
+      ) : hasEntries ? (
         <div className="space-y-4">
           {educationEntries.map((entry) => (
             <Card key={entry.id} className="border border-gray-200 shadow-sm">
@@ -96,33 +184,48 @@ export default function EducationalInformationPage() {
                   onEdit={handleOpenEditModal}
                 />
 
-                {/* 🎓 Educational Documents Section */}
-                <div className="mt-4 border-t pt-4">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Educational Documents</h3>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                    {entry.diplomaUrl ? (
-                      <a
-                        href={entry.diplomaUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-purple-600 hover:underline"
-                      >
-                        📄 View Diploma / Attestat
-                      </a>
+                <div className="mt-4 border-t pt-4 space-y-3">
+                  <h3 className="text-sm font-medium text-gray-700">Educational Documents</h3>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor={`file-${entry.id}`} className="cursor-pointer">
+                      <div className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${uploadingFor[entry.id] ? "bg-gray-400 text-white cursor-not-allowed" : "bg-purple-600 text-white hover:bg-purple-700"}`}>
+                        <Upload className="h-4 w-4" />
+                        <span className="text-sm">{uploadingFor[entry.id] ? "Uploading..." : "Upload File"}</span>
+                      </div>
+                      <Input id={`file-${entry.id}`} type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" disabled={!!uploadingFor[entry.id]} onChange={(e) => handleFileUpload(entry.id, e.target.files?.[0] || null)} />
+                    </Label>
+                  </div>
+                  <div className="space-y-2">
+                    {(filesByEducationId[entry.id] || []).length === 0 ? (
+                      <p className="text-xs text-gray-400">No files uploaded.</p>
                     ) : (
-                      <p className="text-xs text-gray-400">No diploma uploaded.</p>
-                    )}
-                    {entry.apostilleUrl ? (
-                      <a
-                        href={entry.apostilleUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-purple-600 hover:underline"
-                      >
-                        🌐 View Apostille (with translation)
-                      </a>
-                    ) : (
-                      <p className="text-xs text-gray-400">No apostille uploaded.</p>
+                      (filesByEducationId[entry.id] || []).map((f) => (
+                        <div key={f.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-md border border-gray-200">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <FileText className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 truncate">{getDisplayName(f)}</span>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                              onClick={() => window.open(f.file_url, '_blank')}
+                            >
+                              <ExternalLink className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleDeleteFile(f.id, entry.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))
                     )}
                   </div>
                 </div>
@@ -134,7 +237,7 @@ export default function EducationalInformationPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-gray-500">
-              No educational information added yet. Click “Add New Education” to get started.
+              No educational information added yet. Click "Add New Education" to get started.
             </p>
           </CardContent>
         </Card>
@@ -143,7 +246,10 @@ export default function EducationalInformationPage() {
       <AddEducationModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onAddEducation={handleAddEducation}
+        onCreated={async () => {
+          await loadEducations()
+          setIsAddModalOpen(false)
+        }}
       />
       {editingEducationEntry && (
         <EditEducationModal
@@ -152,7 +258,11 @@ export default function EducationalInformationPage() {
             setIsEditModalOpen(false)
             setEditingEducationEntry(null)
           }}
-          onUpdateEducation={handleUpdateEducation}
+          onUpdated={async () => {
+            await loadEducations()
+            setIsEditModalOpen(false)
+            setEditingEducationEntry(null)
+          }}
           educationEntry={editingEducationEntry}
         />
       )}

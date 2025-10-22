@@ -45,10 +45,10 @@ export default function EducationItem({ entry, onDelete, onEdit }: EducationItem
       <CardContent>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <p>
-            <span className="font-medium">Start Date:</span> {new Date(entry.startDate).toLocaleDateString()}
+            <span className="font-medium">Start Date:</span> {entry.startDate ? new Date(entry.startDate).toLocaleDateString() : "-"}
           </p>
           <p>
-            <span className="font-medium">End Date:</span> {new Date(entry.endDate).toLocaleDateString()}
+            <span className="font-medium">End Date:</span> {entry.endDate ? new Date(entry.endDate).toLocaleDateString() : "-"}
           </p>
           {entry.gpa && (
             <p>
