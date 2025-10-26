@@ -67,6 +67,10 @@ export default function EditEducationModal({
       setValue("fieldOfStudy", educationEntry.fieldOfStudy)
       setValue("startDate", educationEntry.startDate)
       setValue("endDate", educationEntry.endDate)
+      setValue("type", educationEntry.type || "secondary")
+      setValue("country", educationEntry.country || "")
+      setValue("city", educationEntry.city || "")
+      setValue("graduationYear", educationEntry.graduationYear ? String(educationEntry.graduationYear) : "")
       setValue("gpa", educationEntry.gpa || "")
       setValue("description", educationEntry.description || "")
     }

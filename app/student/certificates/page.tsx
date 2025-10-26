@@ -6,7 +6,9 @@ import EditCertificateModal from "@/components/student-dashboard/edit-certificat
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { PlusCircle } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
+import { authFetch, BASE_URL } from "@/lib/auth"
+import { useCustomToast } from "@/components/custom-toast"
 
 export interface CertificateEntry {
   id: string
@@ -16,6 +18,9 @@ export interface CertificateEntry {
   fileUrl?: string
   fileName?: string
   description?: string
+  score?: number
+  language?: string
+  certificate?: string
 }
 
 export interface NewCertificateData {
@@ -24,51 +29,85 @@ export interface NewCertificateData {
   issueDate: string
   description?: string
   file?: File[]
+  score?: number
+  language?: string
+  certificate?: string
 }
 
-const mockCertificates: CertificateEntry[] = [
-  {
-    id: "cert1",
-    name: "TOPIK Level 5",
-    type: "Language Proficiency (TOPIK, IELTS, TOEFL)",
-    issueDate: "2023-11-15",
-    fileName: "topik_level_5.pdf",
-    description: "Test of Proficiency in Korean, achieved Level 5.",
-  },
-  {
-    id: "cert2",
-    name: "Bachelor's Degree Transcript",
-    type: "Academic Transcript (School, College, University)",
-    issueDate: "2020-06-30",
-    fileName: "bachelors_transcript.pdf",
-  },
-]
-
 export default function CertificatesPage() {
-  const [certificates, setCertificates] = useState<CertificateEntry[]>(mockCertificates)
+  const { success, error } = useCustomToast()
+  const [languageCertificates, setLanguageCertificates] = useState<CertificateEntry[]>([])
+  const [importantCertificates, setImportantCertificates] = useState<CertificateEntry[]>([])
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editingCertificate, setEditingCertificate] = useState<CertificateEntry | null>(null)
+  const [loading, setLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
+
+  const allCertificates = useMemo(() => [...languageCertificates, ...importantCertificates], [languageCertificates, importantCertificates])
 
   useEffect(() => {
     setMounted(true)
+    void loadCertificates()
   }, [])
 
-  const handleAddCertificate = (newCertData: NewCertificateData) => {
-    const newCert: CertificateEntry = {
-      id: `cert${Date.now()}`,
-      name: newCertData.name,
-      type: newCertData.type,
-      issueDate: newCertData.issueDate,
-      description: newCertData.description,
-      fileName: newCertData.file?.[0]?.name,
+  async function loadCertificates() {
+    try {
+      setLoading(true)
+      await Promise.all([
+        loadLanguageCertificates(),
+        loadImportantCertificates()
+      ])
+    } catch (e) {
+      error("Failed to load certificates")
+    } finally {
+      setLoading(false)
     }
-    setCertificates((prev) => [...prev, newCert])
   }
 
-  const handleDeleteCertificate = (id: string) => {
-    setCertificates((prev) => prev.filter((cert) => cert.id !== id))
+  async function loadLanguageCertificates() {
+    try {
+      const response = await authFetch(`${BASE_URL}/api/certificates/language/`)
+      if (!response.ok) throw new Error("Failed to load language certificates")
+      const list: unknown = await response.json()
+      const items = Array.isArray(list) ? list : []
+      const normalized: CertificateEntry[] = items.map((item: any) => ({
+        id: String(item.id),
+        name: item.name || `${item.certificate || 'Language'} Certificate`,
+        type: "Language Proficiency",
+        issueDate: item.issue_date || "",
+        fileUrl: item.file_url || item.file,
+        fileName: item.file_name || item.file?.split('/').pop(),
+        description: item.description || "",
+        score: item.score || item.score_or_level,
+        language: item.language,
+        certificate: item.certificate,
+      }))
+      setLanguageCertificates(normalized)
+    } catch (e) {
+      console.error("Error loading language certificates:", e)
+    }
+  }
+
+  async function loadImportantCertificates() {
+    try {
+      const response = await authFetch(`${BASE_URL}/api/certificates/important/`)
+      if (!response.ok) throw new Error("Failed to load important certificates")
+      const list: unknown = await response.json()
+      const items = Array.isArray(list) ? list : []
+      const normalized: CertificateEntry[] = items.map((item: any) => ({
+        id: String(item.id),
+        name: item.name || "Important Certificate",
+        type: item.type || "Important Document",
+        issueDate: item.issue_date || "",
+        fileUrl: item.file_url || item.file,
+        fileName: item.file_name || item.file?.split('/').pop(),
+        description: item.description || "",
+      }))
+      setImportantCertificates(normalized)
+    } catch (e) {
+      console.error("Error loading important certificates:", e)
+    }
   }
 
   const handleOpenEditModal = (certificate: CertificateEntry) => {
@@ -76,10 +115,20 @@ export default function CertificatesPage() {
     setIsEditModalOpen(true)
   }
 
-  const handleUpdateCertificate = (updatedCertificate: CertificateEntry) => {
-    setCertificates((prev) => prev.map((cert) => (cert.id === updatedCertificate.id ? updatedCertificate : cert)))
-    setEditingCertificate(null)
-    setIsEditModalOpen(false)
+  async function handleDeleteCertificate(id: string, type: 'language' | 'important') {
+    try {
+      const endpoint = type === 'language' 
+        ? `${BASE_URL}/api/certificates/language/${id}/`
+        : `${BASE_URL}/api/certificates/important/${id}/`
+      
+      const response = await authFetch(endpoint, { method: "DELETE" })
+      if (!response.ok) throw new Error("Failed to delete certificate")
+      
+      success("Certificate deleted")
+      await loadCertificates()
+    } catch (e) {
+      error("Failed to delete certificate")
+    }
   }
 
   if (!mounted) {
@@ -98,16 +147,47 @@ export default function CertificatesPage() {
         </Button>
       </div>
 
-      {certificates.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {certificates.map((cert) => (
-            <CertificateItem
-              key={cert.id}
-              certificate={cert}
-              onDelete={handleDeleteCertificate}
-              onEdit={handleOpenEditModal}
-            />
-          ))}
+      {loading ? (
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-gray-500">Loading certificates...</p>
+          </CardContent>
+        </Card>
+      ) : allCertificates.length > 0 ? (
+        <div className="space-y-6">
+          {/* Language Certificates Section */}
+          {languageCertificates.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Language Certificates</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {languageCertificates.map((cert) => (
+                  <CertificateItem
+                    key={cert.id}
+                    certificate={cert}
+                    onDelete={(id) => handleDeleteCertificate(id, 'language')}
+                    onEdit={handleOpenEditModal}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Important Certificates Section */}
+          {importantCertificates.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Important Documents</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {importantCertificates.map((cert) => (
+                  <CertificateItem
+                    key={cert.id}
+                    certificate={cert}
+                    onDelete={(id) => handleDeleteCertificate(id, 'important')}
+                    onEdit={handleOpenEditModal}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <Card>
@@ -122,7 +202,10 @@ export default function CertificatesPage() {
       <UploadCertificateModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onAddCertificateAction={handleAddCertificate}
+        onCreated={async () => {
+          await loadCertificates()
+          setIsAddModalOpen(false)
+        }}
       />
       {editingCertificate && (
         <EditCertificateModal
@@ -131,7 +214,11 @@ export default function CertificatesPage() {
             setIsEditModalOpen(false)
             setEditingCertificate(null)
           }}
-          onUpdateCertificate={handleUpdateCertificate}
+          onUpdated={async () => {
+            await loadCertificates()
+            setIsEditModalOpen(false)
+            setEditingCertificate(null)
+          }}
           certificate={editingCertificate}
         />
       )}

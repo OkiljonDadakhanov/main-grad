@@ -24,31 +24,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { authFetch, BASE_URL } from "@/lib/auth"
+import { useCustomToast } from "@/components/custom-toast"
 
 interface UploadCertificateModalProps {
   isOpen: boolean
   onClose: () => void
-  onAddCertificateAction: (data: NewCertificateData) => void
+  onCreated: () => Promise<void> | void
 }
 
 const certificateTypes = [
-  "Language Proficiency (TOPIK, IELTS, TOEFL)",
-  "Academic Transcript (School, College, University)",
+  "Language Proficiency",
+  "Academic Transcript",
   "Degree/Diploma Certificate",
   "Letter of Recommendation",
   "Passport/ID Scan",
   "Financial Statement",
   "Award/Achievement",
-  "Portfolio (for arts/design)",
+  "Portfolio",
+  "Other",
+]
+
+const languageOptions = [
+  "English",
+  "Korean",
+  "Chinese",
+  "Japanese",
+  "German",
+  "French",
+  "Spanish",
+  "Other",
+]
+
+const certificateOptions = [
+  "IELTS",
+  "TOEFL",
+  "TOPIK",
+  "HSK",
+  "JLPT",
+  "DELE",
+  "DELF",
   "Other",
 ]
 
 export default function UploadCertificateModal({
   isOpen,
   onClose,
-  onAddCertificateAction,
+  onCreated,
 }: UploadCertificateModalProps) {
-  // ✅ Prevent FileList schema from being created on server
+  const { success, error } = useCustomToast()
+  const [certificateType, setCertificateType] = useState<string>("")
   const [schema, setSchema] = useState<z.ZodType<any> | null>(null)
 
   useEffect(() => {
@@ -58,13 +83,15 @@ export default function UploadCertificateModal({
       issueDate: z.string().min(1, "Issue date is required"),
       file: z
         .any()
-        .optional()
         .refine(
-          (files) =>
-            !files || (files instanceof FileList && files.length > 0),
-          "File is required if provided"
+          (files) => files instanceof FileList && files.length > 0,
+          "File is required"
         ),
       description: z.string().optional(),
+      // Language certificate specific fields
+      language: z.string().optional(),
+      certificate: z.string().optional(),
+      score: z.string().optional(),
     })
     setSchema(clientSchema)
   }, [])
@@ -78,28 +105,54 @@ export default function UploadCertificateModal({
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = form
 
-  const onSubmit = (data: any) => {
-    const submissionData: NewCertificateData = {
-      name: data.name,
-      type: data.type,
-      issueDate: data.issueDate,
-      description: data.description,
-    }
+  const isLanguageCertificate = certificateType === "Language Proficiency"
 
-    if (data.file && data.file.length > 0) {
-      submissionData.file = Array.from(data.file)
-    }
+  const onSubmit = async (data: any) => {
+    try {
+      const formData = new FormData()
+      formData.append("name", data.name)
+      formData.append("issue_date", data.issueDate)
+      formData.append("file", data.file[0])
+      
+      if (data.description) {
+        formData.append("description", data.description)
+      }
 
-    onAddCertificateAction(submissionData)
-    reset()
-    onClose()
+      let endpoint: string
+      if (isLanguageCertificate) {
+        // Language certificate endpoint
+        endpoint = `${BASE_URL}/api/certificates/language/`
+        formData.append("language", data.language || "")
+        formData.append("certificate", data.certificate || "")
+        formData.append("score_or_level", data.score || "")
+      } else {
+        // Important certificate endpoint
+        endpoint = `${BASE_URL}/api/certificates/important/`
+        formData.append("type", data.type)
+      }
+
+      const response = await authFetch(endpoint, {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to upload certificate")
+      }
+
+      success("Certificate uploaded successfully")
+      reset()
+      setCertificateType("")
+      await onCreated()
+    } catch (e) {
+      error("Failed to upload certificate")
+    }
   }
-
-  // ✅ Wait until schema is defined on client
-  if (!schema) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -112,25 +165,13 @@ export default function UploadCertificateModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
-          {/* Document Name */}
-          <div>
-            <Label htmlFor="name">Document Name</Label>
-            <Input
-              id="name"
-              {...register("name")}
-              placeholder="e.g., TOPIK Level 5 Certificate"
-            />
-            {errors.name?.message && (
-              <p className="text-sm text-red-500">
-                {String(errors.name.message)}
-              </p>
-            )}
-          </div>
-
           {/* Document Type */}
           <div>
             <Label htmlFor="type">Document Type</Label>
-            <Select onValueChange={(value) => setValue("type", value)}>
+            <Select onValueChange={(value) => {
+              setCertificateType(value)
+              setValue("type", value)
+            }}>
               <SelectTrigger id="type">
                 <SelectValue placeholder="Select document type" />
               </SelectTrigger>
@@ -148,6 +189,67 @@ export default function UploadCertificateModal({
               </p>
             )}
           </div>
+
+          {/* Document Name */}
+          <div>
+            <Label htmlFor="name">Document Name</Label>
+            <Input
+              id="name"
+              {...register("name")}
+              placeholder="e.g., IELTS Certificate, Academic Transcript"
+            />
+            {errors.name?.message && (
+              <p className="text-sm text-red-500">
+                {String(errors.name.message)}
+              </p>
+            )}
+          </div>
+
+          {/* Language Certificate Specific Fields */}
+          {isLanguageCertificate && (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="language">Language</Label>
+                  <Select onValueChange={(value) => setValue("language", value)}>
+                    <SelectTrigger id="language">
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {languageOptions.map((lang) => (
+                        <SelectItem key={lang} value={lang}>
+                          {lang}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="certificate">Certificate Type</Label>
+                  <Select onValueChange={(value) => setValue("certificate", value)}>
+                    <SelectTrigger id="certificate">
+                      <SelectValue placeholder="Select certificate" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {certificateOptions.map((cert) => (
+                        <SelectItem key={cert} value={cert}>
+                          {cert}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="score">Score/Level</Label>
+                <Input
+                  id="score"
+                  {...register("score")}
+                  placeholder="e.g., 7.5, Level 5, B2"
+                />
+              </div>
+            </>
+          )}
 
           {/* Issue Date */}
           <div>
@@ -198,6 +300,7 @@ export default function UploadCertificateModal({
               variant="outline"
               onClick={() => {
                 reset()
+                setCertificateType("")
                 onClose()
               }}
             >

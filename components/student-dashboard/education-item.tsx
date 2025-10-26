@@ -45,11 +45,22 @@ export default function EducationItem({ entry, onDelete, onEdit }: EducationItem
       <CardContent>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <p>
+            <span className="font-medium">Type:</span> {entry.type || "-"}
+          </p>
+          <p>
+            <span className="font-medium">Location:</span> {entry.city && entry.country ? `${entry.city}, ${entry.country}` : entry.country || entry.city || "-"}
+          </p>
+          <p>
             <span className="font-medium">Start Date:</span> {entry.startDate ? new Date(entry.startDate).toLocaleDateString() : "-"}
           </p>
           <p>
             <span className="font-medium">End Date:</span> {entry.endDate ? new Date(entry.endDate).toLocaleDateString() : "-"}
           </p>
+          {entry.graduationYear && (
+            <p>
+              <span className="font-medium">Graduation Year:</span> {entry.graduationYear}
+            </p>
+          )}
           {entry.gpa && (
             <p>
               <span className="font-medium">GPA:</span> {entry.gpa}

@@ -14,13 +14,22 @@ import { useCustomToast } from "@/components/custom-toast"
 
 export interface EducationEntry {
   id: string
+  student_id: number
+  type: string
   institution: string
   degree: string
   fieldOfStudy: string
+  country: string
+  city: string
   startDate: string
   endDate: string
+  graduationYear?: number
   gpa?: string
   description?: string
+  extra: Record<string, unknown>
+  files: unknown[]
+  created_at: string
+  updated_at: string
 }
 
 interface EducationFileItem {
@@ -55,13 +64,22 @@ export default function EducationalInformationPage() {
       const items = Array.isArray(list) ? list : []
       const normalized: EducationEntry[] = items.map((item: any) => ({
         id: String(item.id),
+        student_id: item.student_id ?? 0,
+        type: item.type ?? "secondary",
         institution: item.institution_name ?? "",
         degree: item.degree ?? "",
         fieldOfStudy: item.field_of_study ?? "",
+        country: item.country ?? "",
+        city: item.city ?? "",
         startDate: item.start_date ?? "",
         endDate: item.end_date ?? "",
+        graduationYear: item.graduation_year ?? undefined,
         gpa: item.gpa != null ? String(item.gpa) : undefined,
         description: item.description ?? "",
+        extra: item.extra ?? {},
+        files: item.files ?? [],
+        created_at: item.created_at ?? "",
+        updated_at: item.updated_at ?? "",
       }))
       setEducationEntries(normalized)
       // Load files for each education in parallel
