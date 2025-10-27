@@ -113,17 +113,18 @@ export default function EditCertificateModal({
         : `${BASE_URL}/api/certificates/important/${certificate.id}/`
 
       const payload: Record<string, unknown> = {
-        name: data.name,
         issue_date: data.issueDate,
         description: data.description || "",
       }
 
       if (isLanguageCertificate) {
+        payload.name = data.name
         payload.language = data.language || ""
         payload.certificate = data.certificate || ""
         payload.score_or_level = data.score || ""
       } else {
-        payload.type = data.type
+        // Important certificates use 'title' field
+        payload.title = data.name
       }
 
       const response = await authFetch(endpoint, {

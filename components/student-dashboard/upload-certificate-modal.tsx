@@ -16,7 +16,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import type { NewCertificateData } from "@/app/student/certificates/page"
 import {
   Select,
   SelectContent,
@@ -26,6 +25,7 @@ import {
 } from "@/components/ui/select"
 import { authFetch, BASE_URL } from "@/lib/auth"
 import { useCustomToast } from "@/components/custom-toast"
+import { Loader2 } from "lucide-react"
 
 interface UploadCertificateModalProps {
   isOpen: boolean
@@ -75,6 +75,7 @@ export default function UploadCertificateModal({
   const { success, error } = useCustomToast()
   const [certificateType, setCertificateType] = useState<string>("")
   const [schema, setSchema] = useState<z.ZodType<any> | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const clientSchema = z.object({
@@ -88,7 +89,6 @@ export default function UploadCertificateModal({
           "File is required"
         ),
       description: z.string().optional(),
-      // Language certificate specific fields
       language: z.string().optional(),
       certificate: z.string().optional(),
       score: z.string().optional(),
@@ -105,34 +105,33 @@ export default function UploadCertificateModal({
     handleSubmit,
     reset,
     setValue,
-    watch,
     formState: { errors },
   } = form
 
   const isLanguageCertificate = certificateType === "Language Proficiency"
 
   const onSubmit = async (data: any) => {
+    setIsLoading(true)
     try {
       const formData = new FormData()
-      formData.append("name", data.name)
-      formData.append("issue_date", data.issueDate)
       formData.append("file", data.file[0])
-      
+
       if (data.description) {
         formData.append("description", data.description)
       }
 
       let endpoint: string
       if (isLanguageCertificate) {
-        // Language certificate endpoint
         endpoint = `${BASE_URL}/api/certificates/language/`
+        formData.append("name", data.name)
+        formData.append("issue_date", data.issueDate)
         formData.append("language", data.language || "")
         formData.append("certificate", data.certificate || "")
         formData.append("score_or_level", data.score || "")
       } else {
-        // Important certificate endpoint
         endpoint = `${BASE_URL}/api/certificates/important/`
-        formData.append("type", data.type)
+        formData.append("title", data.name)
+        formData.append("issue_date", data.issueDate)
       }
 
       const response = await authFetch(endpoint, {
@@ -151,6 +150,8 @@ export default function UploadCertificateModal({
       await onCreated()
     } catch (e) {
       error("Failed to upload certificate")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -168,10 +169,12 @@ export default function UploadCertificateModal({
           {/* Document Type */}
           <div>
             <Label htmlFor="type">Document Type</Label>
-            <Select onValueChange={(value) => {
-              setCertificateType(value)
-              setValue("type", value)
-            }}>
+            <Select
+              onValueChange={(value) => {
+                setCertificateType(value)
+                setValue("type", value)
+              }}
+            >
               <SelectTrigger id="type">
                 <SelectValue placeholder="Select document type" />
               </SelectTrigger>
@@ -226,7 +229,9 @@ export default function UploadCertificateModal({
                 </div>
                 <div>
                   <Label htmlFor="certificate">Certificate Type</Label>
-                  <Select onValueChange={(value) => setValue("certificate", value)}>
+                  <Select
+                    onValueChange={(value) => setValue("certificate", value)}
+                  >
                     <SelectTrigger id="certificate">
                       <SelectValue placeholder="Select certificate" />
                     </SelectTrigger>
@@ -286,11 +291,6 @@ export default function UploadCertificateModal({
               {...register("description")}
               placeholder="Any notes about this document..."
             />
-            {errors.description?.message && (
-              <p className="text-sm text-red-500">
-                {String(errors.description.message)}
-              </p>
-            )}
           </div>
 
           {/* Footer Buttons */}
@@ -303,14 +303,24 @@ export default function UploadCertificateModal({
                 setCertificateType("")
                 onClose()
               }}
+              disabled={isLoading}
             >
               Cancel
             </Button>
+
             <Button
               type="submit"
               className="bg-purple-600 hover:bg-purple-700"
+              disabled={isLoading}
             >
-              Upload Document
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                "Upload Document"
+              )}
             </Button>
           </DialogFooter>
         </form>

@@ -15,9 +15,14 @@ interface MeProfileResponse {
   gender: string;
 }
 
+interface PersonalInfoResponse {
+  emergency_phone: string | null;
+}
+
 export default function MyProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<MeProfileResponse | null>(null);
+  const [personalInfo, setPersonalInfo] = useState<PersonalInfoResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,13 +33,23 @@ export default function MyProfilePage() {
     }
     const load = async () => {
       try {
-        const res = await authFetch(`${BASE_URL}/api/me/profile/`);
-        if (res.status === 401) {
+        const [profileRes, personalInfoRes] = await Promise.all([
+          authFetch(`${BASE_URL}/api/me/profile/`),
+          authFetch(`${BASE_URL}/api/personal-information/`)
+        ]);
+        
+        if (profileRes.status === 401) {
           router.replace("/login/student");
           return;
         }
-        const data: MeProfileResponse = await res.json();
-        setProfile(data);
+        
+        const profileData: MeProfileResponse = await profileRes.json();
+        setProfile(profileData);
+        
+        if (personalInfoRes.ok) {
+          const personalInfoData: PersonalInfoResponse = await personalInfoRes.json();
+          setPersonalInfo(personalInfoData);
+        }
       } catch {
         // fail silently for now
       } finally {
@@ -64,8 +79,8 @@ export default function MyProfilePage() {
             <p className="font-medium text-gray-800">{profile?.phone_number || "-"}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Additional phone number</p>
-            <p className="font-medium text-gray-800">{profile?.additional_phone || "-"}</p>
+            <p className="text-sm text-gray-500">Emergency phone</p>
+            <p className="font-medium text-gray-800">{personalInfo?.emergency_phone || "-"}</p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Email address</p>

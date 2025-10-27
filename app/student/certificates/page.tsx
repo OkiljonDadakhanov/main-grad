@@ -97,7 +97,7 @@ export default function CertificatesPage() {
       const items = Array.isArray(list) ? list : []
       const normalized: CertificateEntry[] = items.map((item: any) => ({
         id: String(item.id),
-        name: item.name || "Important Certificate",
+        name: item.title || item.name || "Important Certificate",
         type: item.type || "Important Document",
         issueDate: item.issue_date || "",
         fileUrl: item.file_url || item.file,
