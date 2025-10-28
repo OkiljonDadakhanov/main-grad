@@ -80,17 +80,18 @@ export default function EditFamilyMemberModal({
   }
 
   const onSubmit = (data: FamilyMemberFormData) => {
-    if (member) {
-      const passportCopyUrl = passportFile
-        ? URL.createObjectURL(passportFile)
-        : existingPassportUrl
+    if (!member) return
 
-      onUpdateMember({
-        ...member,
-        ...data,
-        passportCopyUrl,
-      })
-    }
+    onUpdateMember({
+      ...member,
+      fullName: data.fullName,
+      relationship: data.relationship,
+      dateOfBirth: data.dateOfBirth,
+      occupation: data.occupation,
+      contactNumber: data.contactNumber,
+      passportFile: passportFile ?? undefined, // ✅ pass file for PATCH
+      passportCopyUrl: existingPassportUrl,
+    })
 
     reset()
     setPassportFile(null)
@@ -104,9 +105,7 @@ export default function EditFamilyMemberModal({
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle>Edit Family Member</DialogTitle>
-          <DialogDescription>
-            Update the details and passport copy of this family member.
-          </DialogDescription>
+          <DialogDescription>Update the details and passport copy of this family member.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -120,7 +119,10 @@ export default function EditFamilyMemberModal({
           {/* Relationship */}
           <div>
             <Label htmlFor="relationship">Relationship</Label>
-            <Select defaultValue={member.relationship} onValueChange={(value) => setValue("relationship", value)}>
+            <Select
+              defaultValue={member.relationship}
+              onValueChange={(value) => setValue("relationship", value)}
+            >
               <SelectTrigger id="relationship">
                 <SelectValue placeholder="Select relationship" />
               </SelectTrigger>
@@ -154,7 +156,7 @@ export default function EditFamilyMemberModal({
             <Input id="contactNumber" {...register("contactNumber")} />
           </div>
 
-          {/* 📄 Passport Copy Upload */}
+          {/* Passport File */}
           <div className="border-t pt-4 space-y-2">
             <h3 className="text-sm font-medium text-gray-700">Passport Copy</h3>
             <Label htmlFor="passportFile">Upload New Passport Copy (PDF, JPG, or PNG)</Label>
@@ -170,8 +172,8 @@ export default function EditFamilyMemberModal({
                 <a
                   href={existingPassportUrl}
                   target="_blank"
-                  className="text-purple-600 hover:underline"
                   rel="noopener noreferrer"
+                  className="text-purple-600 hover:underline"
                 >
                   View current passport copy
                 </a>
@@ -181,7 +183,6 @@ export default function EditFamilyMemberModal({
             )}
           </div>
 
-          {/* Buttons */}
           <DialogFooter>
             <Button
               type="button"

@@ -93,14 +93,7 @@ export default function ApplyToUniversityPage({ params }: { params: { university
     }
 
     // In a real app, this would submit to the backend
-    console.log({
-      universityId: university.id,
-      program: selectedProgram,
-      motivation,
-      whyThisUniversity,
-      includeDocuments,
-      uploadedDocs,
-    })
+    // TODO: Implement actual API call for application submission
 
     toast({
       title: "Application Submitted!",

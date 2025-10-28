@@ -5,13 +5,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { HelpCircle } from "lucide-react"
 import { useState } from "react"
 import HelpCenterModal, { type HelpMessageFormData } from "./help-center-modal" // Import new modal
+import { useCustomToast } from "@/components/custom-toast"
 
 export default function HelpCenter() {
+  const { success, error } = useCustomToast()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleSubmitMessage = (data: HelpMessageFormData) => {
-    console.log("Help message submitted:", data) // Replace with actual submission logic
-    // Add a toast notification for success
+    try {
+      // TODO: Implement actual submission logic
+      // For now, simulate success
+      success("Help message submitted successfully! We'll get back to you soon.")
+      setIsModalOpen(false)
+    } catch (err) {
+      error("Failed to submit help message. Please try again.")
+    }
   }
 
   return (

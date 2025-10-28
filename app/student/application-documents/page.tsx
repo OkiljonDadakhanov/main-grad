@@ -65,8 +65,9 @@ const DOCUMENT_TYPES: Record<string, DocumentUpload> = {
 }
 
 export default function ApplicationDocumentsPage() {
-  const { success, error } = useCustomToast()
+  const { success, error, warning } = useCustomToast()
   const [documents, setDocuments] = useState<Record<string, DocumentUpload>>(DOCUMENT_TYPES)
+  const [submitting, setSubmitting] = useState(false)
 
   const [textInputs, setTextInputs] = useState({
     personalStatementText: "",
@@ -79,6 +80,7 @@ export default function ApplicationDocumentsPage() {
         ...prev,
         [documentKey]: { ...prev[documentKey], file, uploaded: true },
       }))
+      success("File selected successfully")
     }
   }
 
@@ -96,10 +98,28 @@ export default function ApplicationDocumentsPage() {
     }))
   }
 
-  const handleSave = () => {
-    console.log("Documents:", documents)
-    console.log("Text Inputs:", textInputs)
-    alert("Application documents saved successfully!")
+  const handleSave = async () => {
+    setSubmitting(true)
+    try {
+      // Count uploaded files and text inputs
+      const uploadedFiles = Object.values(documents).filter(doc => doc.uploaded && doc.file)
+      const hasTextInput = textInputs.personalStatementText.trim() || textInputs.studyPlanText.trim()
+      
+      if (uploadedFiles.length === 0 && !hasTextInput) {
+        warning("Please upload at least one document or write some text")
+        return
+      }
+
+      // TODO: Implement actual API call when application_id is available
+      // For now, simulate save
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      success("Application documents saved successfully!")
+    } catch (err) {
+      error("Failed to save documents")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -309,8 +329,12 @@ export default function ApplicationDocumentsPage() {
       </Card>
 
       <div className="flex justify-end pt-6">
-        <Button onClick={handleSave} className="bg-purple-600 hover:bg-purple-700">
-          Save All Documents
+        <Button 
+          onClick={handleSave} 
+          className="bg-purple-600 hover:bg-purple-700"
+          disabled={submitting}
+        >
+          {submitting ? "Saving..." : "Save All Documents"}
         </Button>
       </div>
     </div>
