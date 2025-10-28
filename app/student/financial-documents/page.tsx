@@ -52,14 +52,14 @@ export default function FinancialDocumentsPage() {
       description: "Letter from sponsor confirming they will support your education financially",
       uploaded: false,
       required: true,
-      doc_type: "financial_support",
+      doc_type: "financial_support_letter",
     },
     familyRelationship: {
       name: "Certificate of Family Relationship",
       description: "Official document proving relationship with your financial sponsor",
       uploaded: false,
       required: true,
-      doc_type: "family_relationship",
+      doc_type: "family_relationship_certificate",
     },
     applicationFeeReceipt: {
       name: "Application Fee Payment Receipt",
@@ -73,14 +73,14 @@ export default function FinancialDocumentsPage() {
       description: "If applicable, upload your scholarship award letter",
       uploaded: false,
       required: false,
-      doc_type: "scholarship_proof",
+      doc_type: "scholarship_award_letter",
     },
     taxDocuments: {
       name: "Sponsor's Tax Documents",
       description: "Income tax returns or employment certificate of financial sponsor",
       uploaded: false,
       required: false,
-      doc_type: "tax_documents",
+      doc_type: "sponsor_tax_documents",
     },
   })
 

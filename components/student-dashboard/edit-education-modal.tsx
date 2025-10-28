@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -133,7 +134,15 @@ export default function EditEducationModal({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="type">Type</Label>
-              <Input id="type" placeholder="secondary" {...register("type")} />
+              <Select onValueChange={(value) => setValue("type", value)} defaultValue={educationEntry.type || "secondary"}>
+                <SelectTrigger id="type">
+                  <SelectValue placeholder="Select education type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="secondary">Secondary</SelectItem>
+                  <SelectItem value="higher">Higher</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="country">Country</Label>

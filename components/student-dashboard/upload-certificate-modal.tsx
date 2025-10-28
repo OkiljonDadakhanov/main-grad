@@ -57,14 +57,11 @@ const languageOptions = [
 ]
 
 const certificateOptions = [
+  "TOPIK",
   "IELTS",
   "TOEFL",
-  "TOPIK",
-  "HSK",
   "JLPT",
-  "DELE",
-  "DELF",
-  "Other",
+  "OTHER",
 ]
 
 export default function UploadCertificateModal({

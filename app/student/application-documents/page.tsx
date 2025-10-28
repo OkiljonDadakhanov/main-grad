@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Upload, CheckCircle, Trash2, Eye } from "lucide-react"
 import { useState } from "react"
+import { BASE_URL, authFetch } from "@/lib/auth"
+import { useCustomToast } from "@/components/custom-toast"
 
 interface DocumentUpload {
   name: string
@@ -14,47 +16,57 @@ interface DocumentUpload {
   file?: File
   uploaded: boolean
   required: boolean
+  doc_type: string
+}
+
+const DOCUMENT_TYPES: Record<string, DocumentUpload> = {
+  sop: {
+    name: "Statement of Purpose (SOP)",
+    description: "Describe your academic background, career goals, and why you want to study in Korea",
+    uploaded: false,
+    required: true,
+    doc_type: "sop",
+  },
+  studyPlan: {
+    name: "Study Plan",
+    description: "Detailed plan of what you intend to study and your research interests (for graduate programs)",
+    uploaded: false,
+    required: true,
+    doc_type: "study_plan",
+  },
+  recommendationLetter1: {
+    name: "Recommendation Letter #1",
+    description: "Letter from a professor or professional who can vouch for your academic abilities",
+    uploaded: false,
+    required: true,
+    doc_type: "recommendation_letter_1",
+  },
+  recommendationLetter2: {
+    name: "Recommendation Letter #2",
+    description: "Second recommendation letter (if required by the university)",
+    uploaded: false,
+    required: false,
+    doc_type: "recommendation_letter_2",
+  },
+  portfolio: {
+    name: "Portfolio",
+    description: "For arts, design, or creative programs - showcase your work",
+    uploaded: false,
+    required: false,
+    doc_type: "portfolio",
+  },
+  researchProposal: {
+    name: "Research Proposal",
+    description: "Detailed research proposal for PhD or research-based programs",
+    uploaded: false,
+    required: false,
+    doc_type: "research_proposal",
+  },
 }
 
 export default function ApplicationDocumentsPage() {
-  const [documents, setDocuments] = useState<Record<string, DocumentUpload>>({
-    personalStatement: {
-      name: "Personal Statement / Statement of Purpose",
-      description: "Describe your academic background, career goals, and why you want to study in Korea",
-      uploaded: false,
-      required: true,
-    },
-    studyPlan: {
-      name: "Study Plan",
-      description: "Detailed plan of what you intend to study and your research interests (for graduate programs)",
-      uploaded: false,
-      required: true,
-    },
-    recommendationLetter1: {
-      name: "Recommendation Letter #1",
-      description: "Letter from a professor or professional who can vouch for your academic abilities",
-      uploaded: false,
-      required: true,
-    },
-    recommendationLetter2: {
-      name: "Recommendation Letter #2",
-      description: "Second recommendation letter (if required by the university)",
-      uploaded: false,
-      required: false,
-    },
-    portfolio: {
-      name: "Portfolio",
-      description: "For arts, design, or creative programs - showcase your work",
-      uploaded: false,
-      required: false,
-    },
-    researchProposal: {
-      name: "Research Proposal",
-      description: "Detailed research proposal for PhD or research-based programs",
-      uploaded: false,
-      required: false,
-    },
-  })
+  const { success, error } = useCustomToast()
+  const [documents, setDocuments] = useState<Record<string, DocumentUpload>>(DOCUMENT_TYPES)
 
   const [textInputs, setTextInputs] = useState({
     personalStatementText: "",
@@ -122,14 +134,14 @@ export default function ApplicationDocumentsPage() {
           </div>
           <div className="pt-4 border-t">
             <Label className="mb-2 block">Or upload a prepared document</Label>
-            {documents.personalStatement.uploaded && documents.personalStatement.file ? (
+            {documents.sop.uploaded && documents.sop.file ? (
               <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-500" />
                   <div>
-                    <p className="font-medium text-sm">{documents.personalStatement.file.name}</p>
+                    <p className="font-medium text-sm">{documents.sop.file.name}</p>
                     <p className="text-xs text-gray-500">
-                      {(documents.personalStatement.file.size / 1024).toFixed(2)} KB
+                      {(documents.sop.file.size / 1024).toFixed(2)} KB
                     </p>
                   </div>
                 </div>
@@ -140,7 +152,7 @@ export default function ApplicationDocumentsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleRemoveFile("personalStatement")}
+                    onClick={() => handleRemoveFile("sop")}
                     className="text-red-500 hover:text-red-700"
                   >
                     <Trash2 className="h-4 w-4 mr-1" /> Remove
@@ -148,17 +160,17 @@ export default function ApplicationDocumentsPage() {
                 </div>
               </div>
             ) : (
-              <Label htmlFor="personalStatement" className="cursor-pointer">
+              <Label htmlFor="sop" className="cursor-pointer">
                 <div className="flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed rounded-lg hover:border-purple-400 transition-colors">
                   <Upload className="h-5 w-5 text-gray-400" />
                   <span className="text-sm text-gray-600">Click to upload PDF or Word document</span>
                 </div>
                 <Input
-                  id="personalStatement"
+                  id="sop"
                   type="file"
                   className="hidden"
                   accept=".pdf,.doc,.docx"
-                  onChange={(e) => handleFileUpload("personalStatement", e.target.files?.[0] || null)}
+                  onChange={(e) => handleFileUpload("sop", e.target.files?.[0] || null)}
                 />
               </Label>
             )}
@@ -239,7 +251,7 @@ export default function ApplicationDocumentsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {Object.entries(documents)
-            .filter(([key]) => !["personalStatement", "studyPlan"].includes(key))
+            .filter(([key]) => !["sop", "studyPlan"].includes(key))
             .map(([key, doc]) => (
               <div key={key} className="p-4 border rounded-lg">
                 <div className="flex items-start justify-between mb-2">
