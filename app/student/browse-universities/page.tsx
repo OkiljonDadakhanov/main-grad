@@ -1,88 +1,131 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, MapPin, Star } from "lucide-react"
+import { Search, MapPin, Star, GraduationCap, Building2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { authFetch, BASE_URL } from "@/lib/auth"
+import { useCustomToast } from "@/components/custom-toast"
 
 interface University {
-  id: string
+  id: number
   name: string
   location: string
   country: string
-  ranking: number
+  ranking: string | null
   programs: number
   tuitionRange: string
-  image: string
+  image: string | null
+  logoUrl: string | null
   description: string
-  acceptanceRate: string
+  classification: string
+  website: string
+  city: string
+  isVerified: boolean
 }
 
-const mockUniversities: University[] = [
-  {
-    id: "seoul-national",
-    name: "Seoul National University",
-    location: "Seoul",
-    country: "South Korea",
-    ranking: 36,
-    programs: 120,
-    tuitionRange: "$5,000 - $8,000",
-    image: "/placeholder.svg?height=200&width=400",
-    description: "Leading research university in South Korea with world-class programs",
-    acceptanceRate: "15%",
-  },
-  {
-    id: "kaist",
-    name: "KAIST",
-    location: "Daejeon",
-    country: "South Korea",
-    ranking: 42,
-    programs: 85,
-    tuitionRange: "$4,500 - $7,500",
-    image: "/placeholder.svg?height=200&width=400",
-    description: "Premier science and technology institution",
-    acceptanceRate: "18%",
-  },
-  {
-    id: "yonsei",
-    name: "Yonsei University",
-    location: "Seoul",
-    country: "South Korea",
-    ranking: 73,
-    programs: 150,
-    tuitionRange: "$6,000 - $9,000",
-    image: "/placeholder.svg?height=200&width=400",
-    description: "Prestigious private university with diverse programs",
-    acceptanceRate: "20%",
-  },
-  {
-    id: "korea-university",
-    name: "Korea University",
-    location: "Seoul",
-    country: "South Korea",
-    ranking: 79,
-    programs: 140,
-    tuitionRange: "$5,500 - $8,500",
-    image: "/placeholder.svg?height=200&width=400",
-    description: "Top-tier comprehensive research university",
-    acceptanceRate: "22%",
-  },
-]
+interface ApiUniversity {
+  id: number
+  logo: string | null
+  logo_url: string | null
+  website: string
+  university_name: string
+  types_of_schools: string
+  classification: string
+  address: string
+  city: string
+  zip_code: string
+  is_verified: boolean
+  campus_information: {
+    ranking_global: string | null
+    description: string | null
+  } | null
+  programmes: any[]
+}
 
 export default function BrowseUniversitiesPage() {
-  const [universities] = useState<University[]>(mockUniversities)
+  const { error } = useCustomToast()
+  const [universities, setUniversities] = useState<University[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [countryFilter, setCountryFilter] = useState("all")
+  const [cityFilter, setCityFilter] = useState("all")
+  const [classificationFilter, setClassificationFilter] = useState("all")
+
+  useEffect(() => {
+    const fetchUniversities = async () => {
+      try {
+        setLoading(true)
+        const response = await authFetch(`${BASE_URL}/api/auth/universities/`)
+  
+        if (!response.ok) throw new Error("Failed to fetch universities")
+  
+        const data: ApiUniversity[] = await response.json()
+  
+        const transformedUniversities: University[] = data.map((uni) => ({
+          id: uni.id,
+          name: uni.university_name,
+          location: uni.city,
+          country: "South Korea",
+          ranking: uni.campus_information?.ranking_global || null,
+          programs: uni.programmes?.length || 0,
+          tuitionRange: "$0 - N/A",
+          image: uni.logo_url,
+          logoUrl: uni.logo_url,
+          description:
+            uni.campus_information?.description ||
+            "Leading educational institution in South Korea",
+          classification: uni.classification,
+          website: uni.website,
+          city: uni.city,
+          isVerified: uni.is_verified,
+        }))
+  
+        setUniversities(transformedUniversities)
+      } catch (err) {
+        console.error("Error fetching universities:", err)
+        error("Failed to load universities. Please try again later.")
+      } finally {
+        setLoading(false)
+      }
+    }
+  
+    fetchUniversities()
+  }, []) // ✅ Only run once
+  
 
   const filteredUniversities = universities.filter((uni) => {
     const matchesSearch = uni.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCountry = countryFilter === "all" || uni.country === countryFilter
-    return matchesSearch && matchesCountry
+    const matchesCity = cityFilter === "all" || uni.city === cityFilter
+    const matchesClassification = classificationFilter === "all" || uni.classification === classificationFilter
+    return matchesSearch && matchesCity && matchesClassification
   })
+
+  const uniqueCities = Array.from(new Set(universities.map(u => u.city))).filter(Boolean)
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Browse Universities</h1>
+          <p className="text-sm text-gray-500">
+            Explore universities and start your application journey. Your profile information will be used automatically.
+          </p>
+        </div>
+        <Card>
+          <CardContent className="py-12">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+              <p className="ml-3 text-gray-600">Loading universities...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -96,8 +139,8 @@ export default function BrowseUniversitiesPage() {
       {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
                 placeholder="Search universities..."
@@ -106,15 +149,27 @@ export default function BrowseUniversitiesPage() {
                 className="pl-10"
               />
             </div>
-            <Select value={countryFilter} onValueChange={setCountryFilter}>
-              <SelectTrigger className="w-full md:w-[200px]">
-                <SelectValue placeholder="Filter by country" />
+            <Select value={cityFilter} onValueChange={setCityFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by city" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Countries</SelectItem>
-                <SelectItem value="South Korea">South Korea</SelectItem>
-                <SelectItem value="Japan">Japan</SelectItem>
-                <SelectItem value="China">China</SelectItem>
+                <SelectItem value="all">All Cities</SelectItem>
+                {uniqueCities.map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={classificationFilter} onValueChange={setClassificationFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="Private">Private</SelectItem>
+                <SelectItem value="National">National</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -125,51 +180,72 @@ export default function BrowseUniversitiesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredUniversities.map((university) => (
           <Card key={university.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="relative h-48 w-full">
-              <Image src={university.image || "/placeholder.svg"} alt={university.name} fill className="object-cover" />
-              <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-medium">
-                #{university.ranking} QS Ranking
-              </div>
+            <div className="relative h-48 w-full bg-gradient-to-br from-purple-600 to-purple-800">
+              {university.logoUrl ? (
+                <div className="absolute inset-0 flex items-center justify-center p-8">
+                  <Image 
+                    src={university.logoUrl} 
+                    alt={university.name} 
+                    width={200}
+                    height={120}
+                    className="object-contain max-h-full"
+                  />
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <GraduationCap className="h-16 w-16 text-white/20" />
+                </div>
+              )}
+              {university.isVerified && (
+                <div className="absolute top-4 right-4 bg-green-500 px-3 py-1 rounded-full text-xs font-medium text-white flex items-center gap-1">
+                  <Star className="h-3 w-3 fill-white" />
+                  Verified
+                </div>
+              )}
+              {university.ranking && (
+                <div className="absolute top-4 left-4 bg-white px-3 py-1 rounded-full text-sm font-medium">
+                  Rank {university.ranking}
+                </div>
+              )}
             </div>
             <CardContent className="p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-2">{university.name}</h3>
-              <div className="flex items-center text-sm text-gray-600 mb-3">
+              <div className="flex items-center text-sm text-gray-600 mb-2">
                 <MapPin className="h-4 w-4 mr-1" />
-                {university.location}, {university.country}
+                {university.city}, {university.country}
+              </div>
+              <div className="flex items-center gap-2 mb-3">
+                <Building2 className="h-4 w-4 text-purple-600" />
+                <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded">
+                  {university.classification}
+                </span>
               </div>
               <p className="text-sm text-gray-600 mb-4 line-clamp-2">{university.description}</p>
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <p className="text-xs text-gray-500">Programs</p>
-                  <p className="text-sm font-semibold">{university.programs}+</p>
+                  <p className="text-sm font-semibold">{university.programs}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Tuition/Year</p>
-                  <p className="text-sm font-semibold">{university.tuitionRange}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Acceptance Rate</p>
-                  <p className="text-sm font-semibold">{university.acceptanceRate}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Rating</p>
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                    <span className="text-sm font-semibold">4.5</span>
-                  </div>
+                  <p className="text-xs text-gray-500">Type</p>
+                  <p className="text-sm font-semibold">{university.classification}</p>
                 </div>
               </div>
 
               <div className="flex gap-2">
-                <Link href={`/universities/${university.id}`} className="flex-1">
-                  <Button variant="outline" className="w-full bg-transparent">
-                    View Details
-                  </Button>
-                </Link>
                 <Link href={`/student/apply/${university.id}`} className="flex-1">
                   <Button className="w-full bg-purple-600 hover:bg-purple-700">Apply Now</Button>
                 </Link>
+                {university.website && (
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => window.open(university.website, '_blank')}
+                  >
+                    Visit Website
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
