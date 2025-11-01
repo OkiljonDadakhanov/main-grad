@@ -138,9 +138,15 @@ export default function EditEducationModal({
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Select education type" />
                 </SelectTrigger>
-                <SelectContent>
+                 <SelectContent>
+                  <SelectItem value="primary">Primary</SelectItem>
                   <SelectItem value="secondary">Secondary</SelectItem>
-                  <SelectItem value="higher">Higher</SelectItem>
+                  <SelectItem value="vocational">Vocational</SelectItem>
+                  <SelectItem value="higher_bachelor">Higher (Bachelor’s)</SelectItem>
+                  <SelectItem value="graduate_master">Graduate (Master’s)</SelectItem>
+                  <SelectItem value="postgraduate_doctoral">Postgraduate / Doctoral</SelectItem>
+                  <SelectItem value="foundation_preparatory">Foundation / Preparatory</SelectItem>
+                  <SelectItem value="professional_certificate">Professional / Certificate</SelectItem>
                 </SelectContent>
               </Select>
             </div>

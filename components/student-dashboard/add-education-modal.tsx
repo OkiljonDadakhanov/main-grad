@@ -70,6 +70,7 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
         description: data.description || "",
         extra: {},
       }
+
       const response = await authFetch(`${BASE_URL}/api/educations/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -99,27 +100,37 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
           <div>
             <Label htmlFor="institution">Institution Name</Label>
             <Input id="institution" {...register("institution")} />
-            {errors.institution && <p className="text-sm text-red-500">{errors.institution.message}</p>}
+            {errors.institution && (
+              <p className="text-sm text-red-500">{errors.institution.message}</p>
+            )}
           </div>
 
           {/* Type and Location */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="type">Type</Label>
-              <Select onValueChange={(value) => setValue("type", value)} defaultValue="secondary">
+              <Select onValueChange={(value) => setValue("type", value)} defaultValue="primary">
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Select education type" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="primary">Primary</SelectItem>
                   <SelectItem value="secondary">Secondary</SelectItem>
-                  <SelectItem value="higher">Higher</SelectItem>
+                  <SelectItem value="vocational">Vocational</SelectItem>
+                  <SelectItem value="higher_bachelor">Higher (Bachelor’s)</SelectItem>
+                  <SelectItem value="graduate_master">Graduate (Master’s)</SelectItem>
+                  <SelectItem value="postgraduate_doctoral">Postgraduate / Doctoral</SelectItem>
+                  <SelectItem value="foundation_preparatory">Foundation / Preparatory</SelectItem>
+                  <SelectItem value="professional_certificate">Professional / Certificate</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
             <div>
               <Label htmlFor="country">Country</Label>
               <Input id="country" placeholder="Uzbekistan" {...register("country")} />
             </div>
+
             <div>
               <Label htmlFor="city">City</Label>
               <Input id="city" placeholder="Tashkent" {...register("city")} />
@@ -130,14 +141,18 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
           <div>
             <Label htmlFor="degree">Degree/Certificate</Label>
             <Input id="degree" {...register("degree")} />
-            {errors.degree && <p className="text-sm text-red-500">{errors.degree.message}</p>}
+            {errors.degree && (
+              <p className="text-sm text-red-500">{errors.degree.message}</p>
+            )}
           </div>
 
           {/* Field of Study */}
           <div>
             <Label htmlFor="fieldOfStudy">Field of Study</Label>
             <Input id="fieldOfStudy" {...register("fieldOfStudy")} />
-            {errors.fieldOfStudy && <p className="text-sm text-red-500">{errors.fieldOfStudy.message}</p>}
+            {errors.fieldOfStudy && (
+              <p className="text-sm text-red-500">{errors.fieldOfStudy.message}</p>
+            )}
           </div>
 
           {/* Dates */}
@@ -173,8 +188,6 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
               placeholder="Any additional details or achievements..."
             />
           </div>
-
-          {/* Files are managed per education entry after creation */}
 
           {/* Buttons */}
           <DialogFooter>
