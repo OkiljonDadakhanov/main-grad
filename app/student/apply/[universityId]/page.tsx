@@ -1,22 +1,18 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { Loader2, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Loader2, AlertCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useCustomToast } from "@/components/custom-toast"
 import { authFetch, BASE_URL } from "@/lib/auth"
 
-// ✅ Imported modular components
-import ProgramSelector from "@/components/ProgramSelector"
-import DocumentsSelector from "@/components/DocumentsSelector"
-import EssaysSection from "@/components/EssaysSection"
-import ProgramRequirements from "@/components/ProgramRequirements"
-import ApplicationPreview from "@/components/ApplicationPreview"
-import SubmitSection from "@/components/SubmitSection"
-
-// ✅ Backend API logic encapsulated in hook
+import HeaderSection from "@/components/HeaderSection"
+import ApplySections from "@/components/ApplySections"
+import SubmitActions from "@/components/SubmitActions"
+import { useDocumentStatus } from "@/hooks/useDocumentStatus"
+import { isRequirementFulfilled } from "@/lib/isRequirementFulfilled"
 import {
   createDraftApplication,
   uploadAttachments,
@@ -47,13 +43,14 @@ export default function ApplyToUniversityPage({
     applicationDocs: true,
     financialDocs: true,
   })
-  const [documentStatus, setDocumentStatus] = useState<any>(null)
+  const [missingRequirements, setMissingRequirements] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [checkingDocuments, setCheckingDocuments] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
 
-  // 🧭 Fetch university + programs
+  const { documentStatus, checkingDocuments } = useDocumentStatus()
+
+  // 🎓 Fetch University Data
   useEffect(() => {
     const fetchUniversity = async () => {
       try {
@@ -70,80 +67,40 @@ export default function ApplyToUniversityPage({
     fetchUniversity()
   }, [universityId])
 
-  // 🧾 Fetch document statuses from user profile
+  // 🧩 Check missing requirements
   useEffect(() => {
-    const checkDocuments = async () => {
-      setCheckingDocuments(true)
-      try {
-        const [personal, education, certificates, family, financial] = await Promise.all([
-          authFetch(`${BASE_URL}/api/personal-documents/`).catch(() => null),
-          authFetch(`${BASE_URL}/api/educations/`).catch(() => null),
-          authFetch(`${BASE_URL}/api/certificates/important/`).catch(() => null),
-          authFetch(`${BASE_URL}/api/family/`).catch(() => null),
-          authFetch(`${BASE_URL}/api/financial-documents/`).catch(() => null),
-        ])
-        const parse = async (res: any) => (res?.ok ? await res.json() : { results: [] })
-        const [p, e, c, f, fin] = await Promise.all([
-          parse(personal),
-          parse(education),
-          parse(certificates),
-          parse(family),
-          parse(financial),
-        ])
-        setDocumentStatus({
-          personal: { hasDocuments: p.results?.length > 0, documents: p.results },
-          education: { hasDocuments: e.results?.length > 0, documents: e.results },
-          certificates: { hasDocuments: c.results?.length > 0, documents: c.results },
-          family: { hasDocuments: f?.length > 0, documents: f },
-          financial: { hasDocuments: fin?.length > 0, documents: fin },
-        })
-      } catch (err) {
-        console.error("Error checking documents:", err)
-      } finally {
-        setCheckingDocuments(false)
-      }
-    }
-    checkDocuments()
-  }, [])
+    if (!selectedProgram || !university || !documentStatus) return
+    const selectedProgramObj = university?.programmes.find(
+      (p: any) => String(p.id) === selectedProgram
+    )
+    if (!selectedProgramObj) return
 
-  // 📂 File uploads
+    const requiredDocs = selectedProgramObj.requirements?.filter((r: any) => r.required) || []
+    const notUploaded = requiredDocs.filter(
+      (req: any) => !isRequirementFulfilled(req, documentStatus)
+    )
+    setMissingRequirements(notUploaded)
+  }, [selectedProgram, university, documentStatus])
+
+  // 📂 Handle Upload
   const handleFileUpload = (docName: string, file: File | null) => {
     if (file) setUploadedDocs((prev) => ({ ...prev, [docName]: file }))
   }
 
-  // 🧩 Check readiness
+  // ✅ Check before submission
   const handleCheckDocuments = async () => {
-    const selectedProgramObj = university?.programmes.find((p: any) => String(p.id) === selectedProgram)
     if (!selectedProgram) return error("Please select a program first")
     if (!motivation || !whyThisUniversity) return error("Please fill in all required essays")
 
-    const warnings: string[] = []
-
-    const d = documentStatus
-    if (includeDocuments.personalInfo && !d?.personal?.hasDocuments)
-      warnings.push("• Personal Information missing")
-    if (includeDocuments.education && !d?.education?.hasDocuments)
-      warnings.push("• Educational Documents missing")
-    if (includeDocuments.certificates && !d?.certificates?.hasDocuments)
-      warnings.push("• Certificates missing")
-    if (includeDocuments.family && !d?.family?.hasDocuments)
-      warnings.push("• Family Information missing")
-    if (includeDocuments.financialDocs && !d?.financial?.hasDocuments)
-      warnings.push("• Financial Documents missing")
-
-    const requiredDocs = selectedProgramObj?.requirements?.filter((r: any) => r.required) || []
-    const uploadedRequiredCount = requiredDocs.filter((r: any) => uploadedDocs[r.label]).length
-    if (uploadedRequiredCount < requiredDocs.length)
-      warnings.push(`• Missing program-specific documents (${uploadedRequiredCount}/${requiredDocs.length})`)
-
-    if (warnings.length > 0) {
-      warning(warnings.join("\n"))
+    if (missingRequirements.length > 0) {
+      const missingList = missingRequirements.map((r) => `• ${r.label}`).join("\n")
+      warning(`You must upload the following documents:\n${missingList}`)
       return
     }
     setShowPreview(true)
   }
 
-  // 🚀 Final Submission
+  // 🚀 Submit Application
   const handleSubmitApplication = async () => {
     if (!selectedProgram) return error("Select a program before submitting.")
     setSubmitting(true)
@@ -162,7 +119,6 @@ export default function ApplyToUniversityPage({
     }
   }
 
-  // 🌀 Loading State
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-600">
@@ -184,59 +140,33 @@ export default function ApplyToUniversityPage({
     )
   }
 
-  const selectedProgramObj = university?.programmes.find((p: any) => String(p.id) === selectedProgram)
+  const selectedProgramObj = university?.programmes.find(
+    (p: any) => String(p.id) === selectedProgram
+  )
 
-  // 🧩 Render UI
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/student/browse-universities">
-          <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Apply to {university.university_name}</h1>
-          <p className="text-sm text-gray-500">Complete your application using your pre-filled profile info</p>
-        </div>
-      </div>
+      <HeaderSection universityName={university.university_name} />
 
-      {/* Sections */}
-      <ProgramSelector
+      <ApplySections
         university={university}
         selectedProgram={selectedProgram}
         setSelectedProgram={setSelectedProgram}
-      />
-
-      <DocumentsSelector
         includeDocuments={includeDocuments}
         setIncludeDocuments={setIncludeDocuments}
         documentStatus={documentStatus}
-      />
-
-      <EssaysSection
-        university={university}
         motivation={motivation}
         setMotivation={setMotivation}
         whyThisUniversity={whyThisUniversity}
         setWhyThisUniversity={setWhyThisUniversity}
-      />
-
-      <ProgramRequirements
         selectedProgramObj={selectedProgramObj}
         uploadedDocs={uploadedDocs}
         handleFileUpload={handleFileUpload}
+        missingRequirements={missingRequirements}
+        showPreview={showPreview}
       />
 
-      {showPreview && (
-        <ApplicationPreview
-          program={selectedProgramObj}
-          motivation={motivation}
-          whyThisUniversity={whyThisUniversity}
-          includeDocuments={includeDocuments}
-        />
-      )}
-
-      <SubmitSection
+      <SubmitActions
         showPreview={showPreview}
         handleCheckDocuments={handleCheckDocuments}
         handleSubmitApplication={handleSubmitApplication}
