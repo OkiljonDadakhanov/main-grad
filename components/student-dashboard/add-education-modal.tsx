@@ -27,7 +27,7 @@ interface AddEducationModalProps {
 
 const educationSchema = z.object({
   institution: z.string().min(1, "Institution name is required"),
-  degree: z.string().min(1, "Degree is required"),
+
   fieldOfStudy: z.string().min(1, "Field of study is required"),
   startDate: z.string().optional().default(""),
   endDate: z.string().optional().default(""),
@@ -59,7 +59,7 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
       const payload: Record<string, unknown> = {
         type: data.type || "secondary",
         institution_name: data.institution,
-        degree: data.degree,
+   
         field_of_study: data.fieldOfStudy,
         country: data.country || undefined,
         city: data.city || undefined,
@@ -108,7 +108,7 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
           {/* Type and Location */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type">Degree</Label>
               <Select onValueChange={(value) => setValue("type", value)} defaultValue="primary">
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Select education type" />
@@ -138,13 +138,7 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
           </div>
 
           {/* Degree */}
-          <div>
-            <Label htmlFor="degree">Degree/Certificate</Label>
-            <Input id="degree" {...register("degree")} />
-            {errors.degree && (
-              <p className="text-sm text-red-500">{errors.degree.message}</p>
-            )}
-          </div>
+        
 
           {/* Field of Study */}
           <div>

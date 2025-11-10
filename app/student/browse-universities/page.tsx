@@ -28,6 +28,12 @@ interface University {
   isVerified: boolean
 }
 
+interface GalleryCategory {
+  id: number
+  name: string
+  images: { id: number; image_url: string }[]
+}
+
 interface ApiUniversity {
   id: number
   logo: string | null
@@ -45,6 +51,7 @@ interface ApiUniversity {
     description: string | null
   } | null
   programmes: any[]
+  gallery_categories?: GalleryCategory[]
 }
 
 export default function BrowseUniversitiesPage() {
@@ -60,30 +67,37 @@ export default function BrowseUniversitiesPage() {
       try {
         setLoading(true)
         const response = await authFetch(`${BASE_URL}/api/auth/universities/`)
-  
         if (!response.ok) throw new Error("Failed to fetch universities")
-  
+
         const data: ApiUniversity[] = await response.json()
-  
-        const transformedUniversities: University[] = data.map((uni) => ({
-          id: uni.id,
-          name: uni.university_name,
-          location: uni.city,
-          country: "South Korea",
-          ranking: uni.campus_information?.ranking_global || null,
-          programs: uni.programmes?.length || 0,
-          tuitionRange: "$0 - N/A",
-          image: uni.logo_url,
-          logoUrl: uni.logo_url,
-          description:
-            uni.campus_information?.description ||
-            "Leading educational institution in South Korea",
-          classification: uni.classification,
-          website: uni.website,
-          city: uni.city,
-          isVerified: uni.is_verified,
-        }))
-  
+
+        const transformedUniversities: University[] = data.map((uni) => {
+          const campusCategory = uni.gallery_categories?.find(
+            (cat) => cat.name.toLowerCase() === "campus"
+          )
+          const campusImage =
+            campusCategory?.images?.[0]?.image_url || uni.logo_url || null
+
+          return {
+            id: uni.id,
+            name: uni.university_name,
+            location: uni.city,
+            country: "South Korea",
+            ranking: uni.campus_information?.ranking_global || null,
+            programs: uni.programmes?.length || 0,
+            tuitionRange: "$0 - N/A",
+            image: campusImage,
+            logoUrl: uni.logo_url,
+            description:
+              uni.campus_information?.description ||
+              "Leading educational institution in South Korea.",
+            classification: uni.classification,
+            website: uni.website,
+            city: uni.city,
+            isVerified: uni.is_verified,
+          }
+        })
+
         setUniversities(transformedUniversities)
       } catch (err) {
         console.error("Error fetching universities:", err)
@@ -92,19 +106,19 @@ export default function BrowseUniversitiesPage() {
         setLoading(false)
       }
     }
-  
+
     fetchUniversities()
-  }, []) // ✅ Only run once
-  
+  }, [])
 
   const filteredUniversities = universities.filter((uni) => {
     const matchesSearch = uni.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCity = cityFilter === "all" || uni.city === cityFilter
-    const matchesClassification = classificationFilter === "all" || uni.classification === classificationFilter
+    const matchesClassification =
+      classificationFilter === "all" || uni.classification === classificationFilter
     return matchesSearch && matchesCity && matchesClassification
   })
 
-  const uniqueCities = Array.from(new Set(universities.map(u => u.city))).filter(Boolean)
+  const uniqueCities = Array.from(new Set(universities.map((u) => u.city))).filter(Boolean)
 
   if (loading) {
     return (
@@ -180,20 +194,18 @@ export default function BrowseUniversitiesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredUniversities.map((university) => (
           <Card key={university.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="relative h-48 w-full bg-gradient-to-br from-purple-600 to-purple-800">
-              {university.logoUrl ? (
-                <div className="absolute inset-0 flex items-center justify-center p-8">
-                  <Image 
-                    src={university.logoUrl} 
-                    alt={university.name} 
-                    width={200}
-                    height={120}
-                    className="object-contain max-h-full"
-                  />
-                </div>
+            <div className="relative h-48 w-full bg-gray-100">
+              {university.image ? (
+                <Image
+                  src={university.image}
+                  alt={university.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <GraduationCap className="h-16 w-16 text-white/20" />
+                  <GraduationCap className="h-16 w-16 text-gray-300" />
                 </div>
               )}
               {university.isVerified && (
@@ -203,11 +215,12 @@ export default function BrowseUniversitiesPage() {
                 </div>
               )}
               {university.ranking && (
-                <div className="absolute top-4 left-4 bg-white px-3 py-1 rounded-full text-sm font-medium">
+                <div className="absolute top-4 left-4 bg-white px-3 py-1 rounded-full text-sm font-medium shadow">
                   Rank {university.ranking}
                 </div>
               )}
             </div>
+
             <CardContent className="p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-2">{university.name}</h3>
               <div className="flex items-center text-sm text-gray-600 mb-2">
@@ -237,15 +250,15 @@ export default function BrowseUniversitiesPage() {
                 <Link href={`/student/apply/${university.id}`} className="flex-1">
                   <Button className="w-full bg-purple-600 hover:bg-purple-700">Apply Now</Button>
                 </Link>
-                {university.website && (
-                  <Button 
-                    variant="outline" 
-                    className="flex-1"
-                    onClick={() => window.open(university.website, '_blank')}
-                  >
-                    Visit Website
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() =>
+                    window.open(`https://www.gradabroad.net/universities/${university.id}`, "_blank")
+                  }
+                >
+                  Visit Website
+                </Button>
               </div>
             </CardContent>
           </Card>
