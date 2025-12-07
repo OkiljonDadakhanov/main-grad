@@ -24,7 +24,7 @@ const navigationLinks = [
   { href: "/student/profile", label: "My profile", icon: Home },
   { href: "/student/personal-information", label: "Personal information", icon: FileText },
   { href: "/student/educational-information", label: "Educational information", icon: GraduationCap },
-  { href: "/student/application-documents", label: "Application documents", icon: FolderOpen },
+  // { href: "/student/application-documents", label: "Application documents", icon: FolderOpen },
   { href: "/student/certificates", label: "Certificates", icon: Award },
   { href: "/student/financial-documents", label: "Financial documents", icon: DollarSign },
   { href: "/student/my-family", label: "My family", icon: Users },
