@@ -8,7 +8,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { PlusCircle } from "lucide-react"
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { authFetch, BASE_URL } from "@/lib/auth"
+import { useCustomToast } from "@/components/custom-toast"
 
 export interface ApplicationEntry {
   id: string
@@ -75,11 +77,13 @@ const mockApplications: ApplicationEntry[] = [
 ]
 
 export default function MyApplicationsPage() {
-  const [applications, setApplications] = useState<ApplicationEntry[]>(mockApplications)
+  const { error } = useCustomToast()
+  const [applications, setApplications] = useState<ApplicationEntry[]>([])
   const [selectedApplication, setSelectedApplication] = useState<ApplicationEntry | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<string>("all")
+  const [loading, setLoading] = useState<boolean>(true)
 
   const handleViewDetails = (application: ApplicationEntry) => {
     setSelectedApplication(application)
@@ -94,6 +98,51 @@ export default function MyApplicationsPage() {
     }
     setApplications((prev) => [newApplication, ...prev])
   }
+
+  useEffect(() => {
+    const fetchMyApplications = async () => {
+      try {
+        setLoading(true)
+        const res = await authFetch(`${BASE_URL}/api/applications/mine/`)
+        if (!res.ok) throw new Error("Failed to load applications")
+        const data = await res.json()
+        if (!Array.isArray(data)) {
+          setApplications([])
+          return
+        }
+
+        const mapped = data.map((item: any) => {
+          const id = String(item.id ?? item.pk ?? item.application_id ?? item.uuid ?? "")
+          const universityName =
+            item.university?.university_name || item.university_name || item.university?.name || ""
+          const programName =
+            item.programme?.title || item.programme_name || item.programme?.name || item.program_name || ""
+          const applicationDate = item.created_at || item.application_date || item.created || ""
+          const status = item.status || item.application_status || "Submitted"
+          const statusDate = item.status_updated_at || item.updated_at || applicationDate
+          const remarks = item.remarks || item.note || item.comment || ""
+          const applicationId = item.application_id || item.id || item.pk || ""
+          return {
+            id,
+            universityName,
+            programName,
+            applicationDate,
+            status,
+            statusDate,
+            remarks,
+            applicationId,
+          } as ApplicationEntry
+        })
+        setApplications(mapped)
+      } catch (err) {
+        console.error(err)
+        error("Failed to load your applications.")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchMyApplications()
+  }, [])
 
   const filterApplications = (status: string) => {
     if (status === "all") return applications

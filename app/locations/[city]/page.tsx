@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { BASE_URL } from "@/lib/auth";
 
 // Allow dynamic rendering in production
 export const dynamic = "force-dynamic";
@@ -15,26 +16,35 @@ export default async function CityPage({
   params: Promise<{ city: string }>;
 }) {
   const { city } = await params;
-  const cityName = city.toLowerCase();
+  // Convert slug back to city name format (e.g., "sejong-city" -> "Sejong City")
+  const cityNameFormatted = city
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
-  const res = await fetch("https://api.gradabroad.net/api/auth/universities/", {
+  // Use backend API with city filter
+  const apiUrl = new URL(`${BASE_URL}/api/auth/universities/`);
+  apiUrl.searchParams.append("city", cityNameFormatted);
+
+  const res = await fetch(apiUrl.toString(), {
     next: { revalidate: 60 },
   });
 
-  const allUniversities = await res.json();
+  if (!res.ok) {
+    return notFound();
+  }
 
-  const normalized = (s: string) => s?.trim().toLowerCase();
-  const filtered = allUniversities.filter(
-    (uni: any) => normalized(uni.city) === cityName
-  );
+  const filtered = await res.json();
 
-  if (filtered.length === 0) return notFound();
+  if (!Array.isArray(filtered) || filtered.length === 0) {
+    return notFound();
+  }
 
   return (
     <section className="py-16 bg-white">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-purple-900 mb-6 capitalize">
-          {city} Universities
+        <h1 className="text-4xl font-bold text-purple-900 mb-6">
+          {cityNameFormatted} Universities
         </h1>
         <div className="grid md:grid-cols-2 gap-8">
           {filtered.map((uni: any) => (

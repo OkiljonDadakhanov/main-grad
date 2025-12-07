@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, MapPin, GraduationCap, BookOpen } from "lucide-react";
+import { BASE_URL } from "@/lib/auth";
 
 interface University {
   city: string;
@@ -87,7 +88,8 @@ export function FeaturedLocations() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://api.gradabroad.net/api/auth/universities/");
+        // Fetch all universities from backend API
+        const response = await fetch(`${BASE_URL}/api/auth/universities/`);
         
         if (!response.ok) {
           throw new Error(`API Error: ${response.status}`);
@@ -99,6 +101,8 @@ export function FeaturedLocations() {
         // Group universities by city
         data.forEach((university: University) => {
           const cityName = (university.city || "Unknown").trim();
+          if (cityName === "Unknown") return; // Skip unknown cities
+          
           const citySlug = createSlug(cityName);
           const programCount = university.programmes?.length || 0;
 
@@ -119,7 +123,9 @@ export function FeaturedLocations() {
           }
         });
 
-        const locationsArray = Array.from(locationMap.values());
+        // Sort locations by number of universities (descending)
+        const locationsArray = Array.from(locationMap.values())
+          .sort((a, b) => b.universities - a.universities);
         
         // Check image availability for all locations
         const imageChecks = await Promise.all(

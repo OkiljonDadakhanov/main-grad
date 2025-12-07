@@ -35,6 +35,7 @@ export default function ApplySections({
         includeDocuments={includeDocuments}
         setIncludeDocuments={setIncludeDocuments}
         documentStatus={documentStatus}
+        programmeId={selectedProgram || null}
       />
 
       <EssaysSection
@@ -50,6 +51,7 @@ export default function ApplySections({
         uploadedDocs={uploadedDocs}
         handleFileUpload={handleFileUpload}
         missingRequirements={missingRequirements}
+        programmeId={selectedProgram || null}
       />
 
       {missingRequirements.length === 0 && (

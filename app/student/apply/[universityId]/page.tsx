@@ -12,9 +12,7 @@ import HeaderSection from "@/components/HeaderSection"
 import ApplySections from "@/components/ApplySections"
 import SubmitActions from "@/components/SubmitActions"
 import { useDocumentStatus } from "@/hooks/useDocumentStatus"
-import { isRequirementFulfilled } from "@/lib/isRequirementFulfilled"
 import {
-  createDraftApplication,
   uploadAttachments,
   uploadEssays,
   finalizeApplication,
@@ -67,36 +65,80 @@ export default function ApplyToUniversityPage({
     fetchUniversity()
   }, [universityId])
 
-  // 🧩 Check missing requirements
+  // 🧩 Check missing requirements using student-readiness API
   useEffect(() => {
-    if (!selectedProgram || !university || !documentStatus) return
-    const selectedProgramObj = university?.programmes.find(
-      (p: any) => String(p.id) === selectedProgram
-    )
-    if (!selectedProgramObj) return
+    if (!selectedProgram) {
+      setMissingRequirements([])
+      return
+    }
 
-    const requiredDocs = selectedProgramObj.requirements?.filter((r: any) => r.required) || []
-    const notUploaded = requiredDocs.filter(
-      (req: any) => !isRequirementFulfilled(req, documentStatus)
-    )
-    setMissingRequirements(notUploaded)
-  }, [selectedProgram, university, documentStatus])
+    const fetchMissingRequirements = async () => {
+      try {
+        const res = await authFetch(`${BASE_URL}/api/programmes/${selectedProgram}/student-readiness/`)
+        if (!res.ok) return
+        
+        const data = await res.json()
+        // Get missing required requirements from API
+        const missingReqs = (data.requirements || []).filter((req: any) => 
+          req.required && 
+          req.status === "missing" &&
+          data.missing_required?.includes(req.id)
+        )
+        setMissingRequirements(missingReqs)
+      } catch (err) {
+        console.error("Error fetching missing requirements:", err)
+        setMissingRequirements([])
+      }
+    }
+
+    fetchMissingRequirements()
+  }, [selectedProgram])
 
   // 📂 Handle Upload
   const handleFileUpload = (docName: string, file: File | null) => {
     if (file) setUploadedDocs((prev) => ({ ...prev, [docName]: file }))
   }
 
+  // ---- server-side readiness check ----
+  const checkStudentReadiness = async (programmeId: string) => {
+    try {
+      const res = await authFetch(`${BASE_URL}/api/programmes/${programmeId}/student-readiness/`)
+      if (!res.ok) {
+        warning("Failed to verify readiness. Please try again.")
+        return false
+      }
+      const data = await res.json()
+      
+      // Use can_apply flag from API response
+      if (!data.can_apply) {
+        const missingRequiredIds = data.missing_required || []
+        const missingRequirements = (data.requirements || []).filter((req: any) => 
+          missingRequiredIds.includes(req.id)
+        )
+        
+        const missingList = missingRequirements.length > 0
+          ? missingRequirements.map((req: any) => `• ${req.label || req.requirementType || 'Required document'}`).join("\n")
+          : "Some required documents or fields are missing."
+        warning(`You are not ready to apply:\n${missingList}`)
+        return false
+      }
+      return true
+    } catch (err) {
+      warning("Failed to verify readiness. Please try again.")
+      return false
+    }
+  }
+  // --------------------------------------
+
   // ✅ Check before submission
   const handleCheckDocuments = async () => {
     if (!selectedProgram) return error("Please select a program first")
     if (!motivation || !whyThisUniversity) return error("Please fill in all required essays")
 
-    if (missingRequirements.length > 0) {
-      const missingList = missingRequirements.map((r) => `• ${r.label}`).join("\n")
-      warning(`You must upload the following documents:\n${missingList}`)
-      return
-    }
+    // Server-side readiness check using API
+    const isReady = await checkStudentReadiness(selectedProgram)
+    if (!isReady) return
+
     setShowPreview(true)
   }
 
@@ -105,7 +147,22 @@ export default function ApplyToUniversityPage({
     if (!selectedProgram) return error("Select a program before submitting.")
     setSubmitting(true)
     try {
-      const appId = await createDraftApplication(Number(selectedProgram))
+      // create application via POST /api/applications/
+      const createRes = await authFetch(`${BASE_URL}/api/applications/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ programme_id: Number(selectedProgram) }),
+      })
+
+      if (!createRes.ok) {
+        const text = await createRes.text().catch(() => null)
+        throw new Error(text || "Failed to create application")
+      }
+
+      const created = await createRes.json()
+      const appId = created.id ?? created.application_id ?? created.pk
+      if (!appId) throw new Error("Application created but no ID returned")
+
       await uploadAttachments(appId, uploadedDocs)
       await uploadEssays(appId, motivation, whyThisUniversity)
       await finalizeApplication(appId)
