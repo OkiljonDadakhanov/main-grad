@@ -18,54 +18,74 @@ export default function UniversitiesPage() {
 
   // Fetch all universities
   useEffect(() => {
+    let cancelled = false;
     const fetchData = async () => {
-      const res = await fetch(
-        "https://api.gradabroad.net/api/auth/universities/"
-      );
-      const data = await res.json();
-      setUniversities(data);
-      setFilteredUniversities(data);
+      try {
+        const res = await fetch(
+          "https://api.gradabroad.net/api/auth/universities/"
+        );
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        if (!cancelled) {
+          setUniversities(data);
+          setFilteredUniversities(data);
+        }
+      } catch (error) {
+        console.error("Error fetching universities:", error);
+        if (!cancelled) {
+          setUniversities([]);
+          setFilteredUniversities([]);
+        }
+      }
     };
     fetchData();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Apply filtering logic
+  // Apply filtering logic with debouncing for search
   useEffect(() => {
-    const filtered = universities.filter((uni) => {
-      const matchesCity =
-        !selectedCity || uni.city?.toLowerCase() === selectedCity.toLowerCase();
-      const matchesType =
-        !selectedType ||
-        uni.types_of_schools?.toLowerCase() === selectedType.toLowerCase();
-      const matchesSearch =
-        !searchQuery ||
-        uni.university_name.toLowerCase().includes(searchQuery.toLowerCase());
+    // Use requestAnimationFrame to batch updates and prevent blocking
+    const timeoutId = setTimeout(() => {
+      const filtered = universities.filter((uni) => {
+        const matchesCity =
+          !selectedCity || uni.city?.toLowerCase() === selectedCity.toLowerCase();
+        const matchesType =
+          !selectedType ||
+          uni.types_of_schools?.toLowerCase() === selectedType.toLowerCase();
+        const matchesSearch =
+          !searchQuery ||
+          uni.university_name?.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesFeatures = programFeatures.every((feature) => {
-        if (feature === "english") {
-          return uni.programmes?.some((p) =>
-            p.requirements?.some((r) => r.requirementType === "english")
-          );
-        }
-        if (feature === "scholarship") {
-          return uni.scholarships?.length > 0;
-        }
-        if (feature === "dormitory") {
-          return (
-            uni.campus_information?.dormitory_available?.toLowerCase() === "yes"
-          );
-        }
-        if (feature === "exchange") {
-          return uni.programmes?.length > 1;
-        }
-        return true;
+        const matchesFeatures = programFeatures.every((feature) => {
+          if (feature === "english") {
+            return uni.programmes?.some((p) =>
+              p?.requirements?.some((r) => r?.requirementType === "english")
+            );
+          }
+          if (feature === "scholarship") {
+            return uni.scholarships?.length > 0;
+          }
+          if (feature === "dormitory") {
+            return (
+              uni.campus_information?.dormitory_available?.toLowerCase() === "yes"
+            );
+          }
+          if (feature === "exchange") {
+            return uni.programmes?.length > 1;
+          }
+          return true;
+        });
+
+        return matchesCity && matchesType && matchesSearch && matchesFeatures;
       });
 
-      return matchesCity && matchesType && matchesSearch && matchesFeatures;
-    });
+      setFilteredUniversities(filtered);
+      setCurrentPage(1);
+    }, searchQuery ? 300 : 0); // Debounce search queries
 
-    setFilteredUniversities(filtered);
-    setCurrentPage(1);
+    return () => clearTimeout(timeoutId);
   }, [universities, selectedCity, selectedType, searchQuery, programFeatures]);
 
   const handleSearch = (query: string) => {

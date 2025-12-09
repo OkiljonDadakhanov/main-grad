@@ -4,13 +4,18 @@ import React, { useState, useEffect } from "react"
 import { Loader2, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
 import { useCustomToast } from "@/components/custom-toast"
 import { authFetch, BASE_URL } from "@/lib/auth"
-
-import HeaderSection from "@/components/HeaderSection"
-import ApplySections from "@/components/ApplySections"
-import SubmitActions from "@/components/SubmitActions"
+import { UniversityPrograms } from "@/components/university/university-programs"
+import DocumentsSelector from "@/components/DocumentsSelector"
+import EssaysSection from "@/components/EssaysSection"
+import ProgramRequirements from "@/components/ProgramRequirements"
+import ApplicationPreview from "@/components/ApplicationPreview"
+import SubmitSection from "@/components/SubmitSection"
 import { useDocumentStatus } from "@/hooks/useDocumentStatus"
 import {
   uploadAttachments,
@@ -30,6 +35,7 @@ export default function ApplyToUniversityPage({
 
   const [university, setUniversity] = useState<any>(null)
   const [selectedProgram, setSelectedProgram] = useState<string>("")
+  const [activeTab, setActiveTab] = useState("programs")
   const [motivation, setMotivation] = useState("")
   const [whyThisUniversity, setWhyThisUniversity] = useState("")
   const [uploadedDocs, setUploadedDocs] = useState<Record<string, File>>({})
@@ -56,6 +62,11 @@ export default function ApplyToUniversityPage({
         if (!res.ok) throw new Error("Failed to fetch university details")
         const data = await res.json()
         setUniversity(data)
+        // Auto-select first active program if available
+        const firstActive = data.programmes?.find((p: any) => p.active)
+        if (firstActive) {
+          setSelectedProgram(String(firstActive.id))
+        }
       } catch {
         error("Failed to load university information.")
       } finally {
@@ -99,6 +110,12 @@ export default function ApplyToUniversityPage({
     if (file) setUploadedDocs((prev) => ({ ...prev, [docName]: file }))
   }
 
+  // Handle program selection from tabs
+  const handleProgramSelect = (programId: string) => {
+    setSelectedProgram(programId)
+    setActiveTab("apply")
+  }
+
   // ---- server-side readiness check ----
   const checkStudentReadiness = async (programmeId: string) => {
     try {
@@ -128,7 +145,6 @@ export default function ApplyToUniversityPage({
       return false
     }
   }
-  // --------------------------------------
 
   // ✅ Check before submission
   const handleCheckDocuments = async () => {
@@ -142,12 +158,21 @@ export default function ApplyToUniversityPage({
     setShowPreview(true)
   }
 
-  // 🚀 Submit Application
+  // 🚀 Submit Application (checks readiness first, then creates application)
   const handleSubmitApplication = async () => {
     if (!selectedProgram) return error("Select a program before submitting.")
+    if (!motivation || !whyThisUniversity) return error("Please fill in all required essays")
+    
     setSubmitting(true)
     try {
-      // create application via POST /api/applications/
+      // First check readiness
+      const isReady = await checkStudentReadiness(selectedProgram)
+      if (!isReady) {
+        setSubmitting(false)
+        return
+      }
+
+      // Create application via POST /api/applications/
       const createRes = await authFetch(`${BASE_URL}/api/applications/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -197,40 +222,126 @@ export default function ApplyToUniversityPage({
     )
   }
 
-  const selectedProgramObj = university?.programmes.find(
+  const selectedProgramObj = university?.programmes?.find(
     (p: any) => String(p.id) === selectedProgram
   )
 
+  const activePrograms = university?.programmes?.filter((p: any) => p.active) || []
+
   return (
-    <div className="space-y-6">
-      <HeaderSection universityName={university.university_name} />
+    <div className="space-y-6 pb-8">
+      {/* Header */}
+      <Card>
+        <CardContent className="p-6">
+          <h1 className="text-2xl font-bold text-purple-900 mb-2">
+            Apply to {university.university_name}
+          </h1>
+          <p className="text-gray-600">
+            Select a program and complete your application
+          </p>
+        </CardContent>
+      </Card>
 
-      <ApplySections
-        university={university}
-        selectedProgram={selectedProgram}
-        setSelectedProgram={setSelectedProgram}
-        includeDocuments={includeDocuments}
-        setIncludeDocuments={setIncludeDocuments}
-        documentStatus={documentStatus}
-        motivation={motivation}
-        setMotivation={setMotivation}
-        whyThisUniversity={whyThisUniversity}
-        setWhyThisUniversity={setWhyThisUniversity}
-        selectedProgramObj={selectedProgramObj}
-        uploadedDocs={uploadedDocs}
-        handleFileUpload={handleFileUpload}
-        missingRequirements={missingRequirements}
-        showPreview={showPreview}
-      />
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full justify-start mb-6 bg-white border">
+          <TabsTrigger value="programs">Programs</TabsTrigger>
+          {selectedProgram && <TabsTrigger value="apply">Apply</TabsTrigger>}
+        </TabsList>
 
-      <SubmitActions
-        showPreview={showPreview}
-        handleCheckDocuments={handleCheckDocuments}
-        handleSubmitApplication={handleSubmitApplication}
-        submitting={submitting}
-        checkingDocuments={checkingDocuments}
-        selectedProgram={selectedProgram}
-      />
+        <TabsContent value="programs" className="space-y-6">
+          <UniversityPrograms 
+            programs={activePrograms}
+            onProgramSelect={handleProgramSelect}
+            selectedProgramId={selectedProgram}
+          />
+        </TabsContent>
+
+        {selectedProgram && (
+          <TabsContent value="apply" className="space-y-6">
+            {selectedProgramObj && (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-purple-900">
+                        {selectedProgramObj.name}
+                      </h3>
+                      <div className="flex gap-2 mt-2">
+                        <Badge className="bg-purple-100 text-purple-800">
+                          {selectedProgramObj.field_of_study}
+                        </Badge>
+                        <Badge variant="outline">
+                          {selectedProgramObj.degreeType}
+                        </Badge>
+                      </div>
+                    </div>
+                    {selectedProgramObj.contractPrice && (
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600">Contract Price</p>
+                        <p className="text-2xl font-bold text-purple-600">
+                          ${parseFloat(selectedProgramObj.contractPrice).toLocaleString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <DocumentsSelector
+              includeDocuments={includeDocuments}
+              setIncludeDocuments={setIncludeDocuments}
+              documentStatus={documentStatus}
+              programmeId={selectedProgram || null}
+            />
+
+            <EssaysSection
+              university={university}
+              motivation={motivation}
+              setMotivation={setMotivation}
+              whyThisUniversity={whyThisUniversity}
+              setWhyThisUniversity={setWhyThisUniversity}
+            />
+
+            <ProgramRequirements
+              selectedProgramObj={selectedProgramObj}
+              uploadedDocs={uploadedDocs}
+              handleFileUpload={handleFileUpload}
+              missingRequirements={missingRequirements}
+              programmeId={selectedProgram || null}
+            />
+
+            {missingRequirements.length === 0 && selectedProgram && (
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-green-600 font-medium">
+                    ✅ All required documents are already uploaded.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {showPreview && selectedProgramObj && (
+              <ApplicationPreview
+                program={selectedProgramObj}
+                motivation={motivation}
+                whyThisUniversity={whyThisUniversity}
+                includeDocuments={includeDocuments}
+              />
+            )}
+
+            <SubmitSection
+              showPreview={showPreview}
+              handleCheckDocuments={handleCheckDocuments}
+              handleSubmitApplication={handleSubmitApplication}
+              submitting={submitting}
+              checkingDocuments={checkingDocuments}
+              selectedProgram={selectedProgram}
+            />
+          </TabsContent>
+        )}
+      </Tabs>
     </div>
   )
 }

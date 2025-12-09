@@ -29,24 +29,41 @@ export function ClientUniversityPage({
   const [tab, setTab] = useState("overview"); // ✅ controlled tab
 
   useEffect(() => {
+    if (!universityId) {
+      setLoading(false);
+      setUniversity(null);
+      return;
+    }
+
+    let cancelled = false;
     const fetchUniversity = async () => {
       try {
+        setLoading(true);
         const res = await fetch(
           `https://api.gradabroad.net/api/auth/universities/${universityId}/`
         );
         if (!res.ok) throw new Error("Failed to fetch university");
         const data = await res.json();
-        setUniversity(data);
-        // ✅ Debug output
+        if (!cancelled) {
+          setUniversity(data);
+        }
       } catch (error) {
         console.error(error);
-        setUniversity(null);
+        if (!cancelled) {
+          setUniversity(null);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchUniversity();
+    
+    return () => {
+      cancelled = true;
+    };
   }, [universityId]);
 
   if (loading) {

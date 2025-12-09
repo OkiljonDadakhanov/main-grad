@@ -1,6 +1,7 @@
 // app/universities/[id]/page.tsx
 import { ClientUniversityPage } from "./ClientUniversityPage";
 
-export default function Page({ params }: { params: { id: string } }) {
-  return <ClientUniversityPage universityId={params.id} />;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <ClientUniversityPage universityId={id} />;
 }

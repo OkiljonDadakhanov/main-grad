@@ -30,10 +30,10 @@ export default function SubmitSection({ showPreview, handleCheckDocuments, handl
           {!showPreview ? (
             <Button
               onClick={handleCheckDocuments}
-              disabled={submitting || !selectedProgram}
+              disabled={submitting || checkingDocuments || !selectedProgram}
               className="flex-1 bg-blue-600 hover:bg-blue-700"
             >
-              {checkingDocuments ? <><Loader2 className="h-4 w-4 animate-spin" /> Checking...</> : "Check & Preview"}
+              {checkingDocuments ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Checking...</> : "Check & Preview"}
             </Button>
           ) : (
             <Button
@@ -41,7 +41,7 @@ export default function SubmitSection({ showPreview, handleCheckDocuments, handl
               disabled={submitting}
               className="flex-1 bg-purple-600 hover:bg-purple-700"
             >
-              {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Submitting...</> : "Submit Application"}
+              {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Submitting...</> : "Submit Now"}
             </Button>
           )}
         </div>

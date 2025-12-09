@@ -25,9 +25,15 @@ import type { AcademicProgram } from "@/types/academic";
 
 interface UniversityProgramsProps {
   programs?: AcademicProgram[];
+  onProgramSelect?: (programId: string) => void;
+  selectedProgramId?: string;
 }
 
-export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
+export function UniversityPrograms({ 
+  programs = [], 
+  onProgramSelect,
+  selectedProgramId 
+}: UniversityProgramsProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedDegree, setSelectedDegree] = useState("All");
@@ -242,8 +248,13 @@ export function UniversityPrograms({ programs = [] }: UniversityProgramsProps) {
                         </div>
 
                         <div className="flex flex-col gap-2 min-w-[120px] mt-4 md:mt-0">
-                          <Button className="bg-purple-900 hover:bg-purple-800">
-                            Apply Now
+                          <Button 
+                            className={`bg-purple-900 hover:bg-purple-800 ${
+                              selectedProgramId === String(program.id) ? 'ring-2 ring-purple-400' : ''
+                            }`}
+                            onClick={() => onProgramSelect?.(String(program.id))}
+                          >
+                            {selectedProgramId === String(program.id) ? 'Selected' : 'Select Program'}
                           </Button>
                           <Button variant="outline">Details</Button>
                         </div>
