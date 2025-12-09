@@ -30,11 +30,32 @@ export async function uploadAttachments(appId: number, uploadedDocs: UploadedDoc
   }
 }
 
-export async function uploadEssays(appId: number, motivation: string, whyThisUniversity: string) {
+export async function uploadEssays(
+  appId: number, 
+  motivation?: string, 
+  whyThisUniversity?: string,
+  requirementId?: number
+) {
+  // If requirementId is provided, use dynamic essay format
+  if (requirementId && motivation) {
+    const res = await authFetch(`${BASE_URL}/api/applications/${appId}/docs/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requirement_id: requirementId,
+        text_body: motivation,
+      }),
+    })
+    if (!res.ok) throw new Error(`Failed to upload essay for requirement ${requirementId}`)
+    return
+  }
+  
+  // Fallback to old format
   const essays = [
-    { doc_type: "motivation", text_body: motivation },
-    { doc_type: "why_university", text_body: whyThisUniversity },
-  ]
+    { doc_type: "motivation", text_body: motivation || "" },
+    { doc_type: "why_university", text_body: whyThisUniversity || "" },
+  ].filter(essay => essay.text_body) // Only upload non-empty essays
+  
   for (const essay of essays) {
     const res = await authFetch(`${BASE_URL}/api/applications/${appId}/docs/`, {
       method: "POST",

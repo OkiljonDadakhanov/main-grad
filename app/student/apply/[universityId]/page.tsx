@@ -48,9 +48,11 @@ export default function ApplyToUniversityPage({
     financialDocs: true,
   })
   const [missingRequirements, setMissingRequirements] = useState<any[]>([])
+  const [readinessData, setReadinessData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
+  const [essayAnswers, setEssayAnswers] = useState<Record<string, string>>({})
 
   const { documentStatus, checkingDocuments } = useDocumentStatus()
 
@@ -76,33 +78,61 @@ export default function ApplyToUniversityPage({
     fetchUniversity()
   }, [universityId])
 
-  // 🧩 Check missing requirements using student-readiness API
+  // 🧩 Fetch student-readiness data (includes essays and requirements)
   useEffect(() => {
     if (!selectedProgram) {
       setMissingRequirements([])
+      setReadinessData(null)
+      setEssayAnswers({})
       return
     }
 
-    const fetchMissingRequirements = async () => {
+    const fetchReadiness = async () => {
       try {
         const res = await authFetch(`${BASE_URL}/api/programmes/${selectedProgram}/student-readiness/`)
         if (!res.ok) return
         
         const data = await res.json()
-        // Get missing required requirements from API
+        setReadinessData(data)
+        
+        // Get missing required requirements from API (for document uploads)
         const missingReqs = (data.requirements || []).filter((req: any) => 
           req.required && 
           req.status === "missing" &&
-          data.missing_required?.includes(req.id)
+          data.missing_required?.includes(req.id) &&
+          // Filter out essay requirements (they're handled separately)
+          !req.requirementType?.toLowerCase().includes("essay") &&
+          !req.label?.toLowerCase().includes("essay") &&
+          !req.label?.toLowerCase().includes("motivation") &&
+          !req.label?.toLowerCase().includes("statement")
         )
         setMissingRequirements(missingReqs)
+        
+        // Initialize essay answers from existing data if available
+        const essayReqs = (data.requirements || []).filter((req: any) => 
+          req.requirementType?.toLowerCase().includes("essay") ||
+          req.label?.toLowerCase().includes("essay") ||
+          req.label?.toLowerCase().includes("motivation") ||
+          req.label?.toLowerCase().includes("statement") ||
+          req.label?.toLowerCase().includes("why")
+        )
+        
+        // Initialize with existing values if they exist
+        const initialEssays: Record<string, string> = {}
+        essayReqs.forEach((req: any) => {
+          if (req.matched_record?.answer || req.matched_record?.content) {
+            initialEssays[String(req.id)] = req.matched_record.answer || req.matched_record.content || ""
+          }
+        })
+        setEssayAnswers(initialEssays)
       } catch (err) {
-        console.error("Error fetching missing requirements:", err)
+        console.error("Error fetching readiness:", err)
         setMissingRequirements([])
+        setReadinessData(null)
       }
     }
 
-    fetchMissingRequirements()
+    fetchReadiness()
   }, [selectedProgram])
 
   // 📂 Handle Upload
@@ -149,7 +179,31 @@ export default function ApplyToUniversityPage({
   // ✅ Check before submission
   const handleCheckDocuments = async () => {
     if (!selectedProgram) return error("Please select a program first")
-    if (!motivation || !whyThisUniversity) return error("Please fill in all required essays")
+    
+    // Check if all required essays are filled
+    if (readinessData) {
+      const essayReqs = (readinessData.requirements || []).filter((req: any) => 
+        req.required &&
+        (req.requirementType?.toLowerCase().includes("essay") ||
+         req.label?.toLowerCase().includes("essay") ||
+         req.label?.toLowerCase().includes("motivation") ||
+         req.label?.toLowerCase().includes("statement") ||
+         req.label?.toLowerCase().includes("why"))
+      )
+      
+      const missingEssays = essayReqs.filter((req: any) => {
+        const answer = essayAnswers[String(req.id)]
+        return !answer || answer.trim().length === 0
+      })
+      
+      if (missingEssays.length > 0) {
+        error(`Please fill in all required essays: ${missingEssays.map((r: any) => r.label).join(", ")}`)
+        return
+      }
+    } else {
+      // Fallback to old validation
+      if (!motivation || !whyThisUniversity) return error("Please fill in all required essays")
+    }
 
     // Server-side readiness check using API
     const isReady = await checkStudentReadiness(selectedProgram)
@@ -161,7 +215,31 @@ export default function ApplyToUniversityPage({
   // 🚀 Submit Application (checks readiness first, then creates application)
   const handleSubmitApplication = async () => {
     if (!selectedProgram) return error("Select a program before submitting.")
-    if (!motivation || !whyThisUniversity) return error("Please fill in all required essays")
+    
+    // Check if all required essays are filled
+    if (readinessData) {
+      const essayReqs = (readinessData.requirements || []).filter((req: any) => 
+        req.required &&
+        (req.requirementType?.toLowerCase().includes("essay") ||
+         req.label?.toLowerCase().includes("essay") ||
+         req.label?.toLowerCase().includes("motivation") ||
+         req.label?.toLowerCase().includes("statement") ||
+         req.label?.toLowerCase().includes("why"))
+      )
+      
+      const missingEssays = essayReqs.filter((req: any) => {
+        const answer = essayAnswers[String(req.id)]
+        return !answer || answer.trim().length === 0
+      })
+      
+      if (missingEssays.length > 0) {
+        error(`Please fill in all required essays: ${missingEssays.map((r: any) => r.label).join(", ")}`)
+        return
+      }
+    } else {
+      // Fallback to old validation
+      if (!motivation || !whyThisUniversity) return error("Please fill in all required essays")
+    }
     
     setSubmitting(true)
     try {
@@ -189,7 +267,30 @@ export default function ApplyToUniversityPage({
       if (!appId) throw new Error("Application created but no ID returned")
 
       await uploadAttachments(appId, uploadedDocs)
-      await uploadEssays(appId, motivation, whyThisUniversity)
+      
+      // Upload essays dynamically based on readiness data
+      if (readinessData && Object.keys(essayAnswers).length > 0) {
+        const essayReqs = (readinessData.requirements || []).filter((req: any) => 
+          req.requirementType?.toLowerCase().includes("essay") ||
+          req.label?.toLowerCase().includes("essay") ||
+          req.label?.toLowerCase().includes("motivation") ||
+          req.label?.toLowerCase().includes("statement") ||
+          req.label?.toLowerCase().includes("why")
+        )
+        
+        // Upload each essay requirement
+        for (const req of essayReqs) {
+          const answer = essayAnswers[String(req.id)]
+          if (answer && answer.trim()) {
+            // Use the requirement ID and answer to upload
+            await uploadEssays(appId, answer, undefined, req.id)
+          }
+        }
+      } else {
+        // Fallback to old method
+        await uploadEssays(appId, motivation, whyThisUniversity)
+      }
+      
       await finalizeApplication(appId)
       success("Your application has been successfully submitted!")
       router.push("/student/my-applications")
@@ -298,6 +399,9 @@ export default function ApplyToUniversityPage({
 
             <EssaysSection
               university={university}
+              readinessData={readinessData}
+              essayAnswers={essayAnswers}
+              setEssayAnswers={setEssayAnswers}
               motivation={motivation}
               setMotivation={setMotivation}
               whyThisUniversity={whyThisUniversity}
@@ -309,6 +413,7 @@ export default function ApplyToUniversityPage({
               uploadedDocs={uploadedDocs}
               handleFileUpload={handleFileUpload}
               missingRequirements={missingRequirements}
+              readinessData={readinessData}
               programmeId={selectedProgram || null}
             />
 
@@ -327,6 +432,8 @@ export default function ApplyToUniversityPage({
                 program={selectedProgramObj}
                 motivation={motivation}
                 whyThisUniversity={whyThisUniversity}
+                essayAnswers={essayAnswers}
+                readinessData={readinessData}
                 includeDocuments={includeDocuments}
               />
             )}
