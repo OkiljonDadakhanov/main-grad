@@ -67,7 +67,7 @@ export const provinceCityData = {
   "South Chungcheong": ["Cheonan", "Gongju", "Nonsan", "Dangjin", "Asan"],
   "North Jeolla": ["Jeonju", "Iksan", "Gunsan"],
   "South Jeolla": ["Mokpo", "Yeosu", "Suncheon", "Naju"],
-  "North Gyeongsang": ["Gyeongsan", "Andong", "Pohang", "Gumi", "Sangju"],
+  "North Gyeongsang": ["Gyeongsan", "Gyeongju", "Andong", "Pohang", "Gumi", "Sangju"],
   "South Gyeongsang": ["Jinju", "Changwon", "Gimhae", "Miryang", "Tongyeong"],
   Jeju: ["Jeju"],
   Seoul: ["Seoul"],
