@@ -26,16 +26,28 @@ export default function EssaysSection({
   whyThisUniversity = "",
   setWhyThisUniversity
 }: EssaysSectionProps) {
-  // Extract essay requirements from readiness data
-  const essayRequirements = readinessData?.requirements?.filter((req: any) => 
-    req.requirementType?.toLowerCase().includes("essay") ||
-    req.label?.toLowerCase().includes("essay") ||
-    req.label?.toLowerCase().includes("motivation") ||
-    req.label?.toLowerCase().includes("statement") ||
-    req.label?.toLowerCase().includes("why") ||
-    req.label?.toLowerCase().includes("personal statement") ||
-    req.label?.toLowerCase().includes("statement of purpose")
-  ) || []
+  // Extract essay requirements from readiness data (only pure text essays, not document uploads)
+  const essayRequirements = readinessData?.requirements?.filter((req: any) => {
+    const reqType = req.requirementType?.toLowerCase() || ""
+    const label = req.label?.toLowerCase() || ""
+
+    // Exclude document type requirements - those need file uploads, not text
+    if (reqType === "document" || reqType === "file" || reqType === "upload") {
+      return false
+    }
+
+    // Include essay/text type requirements
+    if (reqType === "essay" || reqType === "text") {
+      return true
+    }
+
+    // Include based on label only if NOT a document type
+    return (
+      label.includes("essay") ||
+      label.includes("motivation letter") ||
+      (label.includes("why") && !label.includes("document"))
+    )
+  }) || []
 
   // If no essay requirements from API, use fallback to old hardcoded essays
   const useDynamicEssays = essayRequirements.length > 0 && readinessData

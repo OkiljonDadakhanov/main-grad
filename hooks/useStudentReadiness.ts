@@ -83,7 +83,7 @@ export function useStudentReadiness(programmeId: string | null) {
       certificates: {
         key: "certificates",
         label: "Certificates (Language, Professional)",
-        requirementTypes: ["certificate", "language", "ielts", "toefl", "topik", "language_certificate", "professional_certificate"],
+        requirementTypes: ["certificate", "language", "english", "ielts", "toefl", "topik", "language_certificate", "professional_certificate", "score"],
       },
       family: {
         key: "family",

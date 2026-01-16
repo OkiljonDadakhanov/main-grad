@@ -96,26 +96,49 @@ export default function ApplyToUniversityPage({
         setReadinessData(data)
         
         // Get missing required requirements from API (for document uploads)
-        const missingReqs = (data.requirements || []).filter((req: any) => 
-          req.required && 
-          req.status === "missing" &&
-          data.missing_required?.includes(req.id) &&
-          // Filter out essay requirements (they're handled separately)
-          !req.requirementType?.toLowerCase().includes("essay") &&
-          !req.label?.toLowerCase().includes("essay") &&
-          !req.label?.toLowerCase().includes("motivation") &&
-          !req.label?.toLowerCase().includes("statement")
-        )
+        // Only include document-type requirements, exclude pure text essays
+        const missingReqs = (data.requirements || []).filter((req: any) => {
+          if (!req.required || req.status !== "missing" || !data.missing_required?.includes(req.id)) {
+            return false
+          }
+          const reqType = req.requirementType?.toLowerCase() || ""
+          // Include document type requirements (even if label contains "statement")
+          if (reqType === "document" || reqType === "file" || reqType === "upload") {
+            return true
+          }
+          // Exclude pure essay types
+          if (reqType === "essay" || reqType === "text") {
+            return false
+          }
+          // For other types, exclude based on essay-related labels
+          const label = req.label?.toLowerCase() || ""
+          return !(label.includes("essay") || label.includes("motivation letter"))
+        })
         setMissingRequirements(missingReqs)
-        
+
         // Initialize essay answers from existing data if available
-        const essayReqs = (data.requirements || []).filter((req: any) => 
-          req.requirementType?.toLowerCase().includes("essay") ||
-          req.label?.toLowerCase().includes("essay") ||
-          req.label?.toLowerCase().includes("motivation") ||
-          req.label?.toLowerCase().includes("statement") ||
-          req.label?.toLowerCase().includes("why")
-        )
+        // Only include pure essay type requirements
+        const essayReqs = (data.requirements || []).filter((req: any) => {
+          const reqType = req.requirementType?.toLowerCase() || ""
+          const label = req.label?.toLowerCase() || ""
+
+          // Skip document type requirements
+          if (reqType === "document" || reqType === "file" || reqType === "upload") {
+            return false
+          }
+
+          // Include essay/text type requirements
+          if (reqType === "essay" || reqType === "text") {
+            return true
+          }
+
+          // Include based on label only if NOT a document type
+          return (
+            label.includes("essay") ||
+            label.includes("motivation letter") ||
+            (label.includes("why") && !label.includes("document"))
+          )
+        })
         
         // Initialize with existing values if they exist
         const initialEssays: Record<string, string> = {}
@@ -147,6 +170,7 @@ export default function ApplyToUniversityPage({
   }
 
   // ---- server-side readiness check ----
+  // This check accounts for locally uploaded documents that haven't been sent to server yet
   const checkStudentReadiness = async (programmeId: string) => {
     try {
       const res = await authFetch(`${BASE_URL}/api/programmes/${programmeId}/student-readiness/`)
@@ -155,20 +179,52 @@ export default function ApplyToUniversityPage({
         return false
       }
       const data = await res.json()
-      
-      // Use can_apply flag from API response
-      if (!data.can_apply) {
-        const missingRequiredIds = data.missing_required || []
-        const missingRequirements = (data.requirements || []).filter((req: any) => 
-          missingRequiredIds.includes(req.id)
-        )
-        
-        const missingList = missingRequirements.length > 0
-          ? missingRequirements.map((req: any) => `• ${req.label || req.requirementType || 'Required document'}`).join("\n")
-          : "Some required documents or fields are missing."
+
+      // If server says ready, we're good
+      if (data.can_apply) {
+        return true
+      }
+
+      // Check if missing requirements are covered by local uploads
+      const missingRequiredIds = data.missing_required || []
+      const missingRequirements = (data.requirements || []).filter((req: any) =>
+        missingRequiredIds.includes(req.id)
+      )
+
+      // Get all locally uploaded doc keys (exact labels used in ProgramRequirements)
+      const uploadedKeys = Object.keys(uploadedDocs)
+
+      // Filter out requirements that are covered by local uploads
+      const trulyMissing = missingRequirements.filter((req: any) => {
+        const reqLabel = req.label || ""
+        const reqType = (req.requirementType || "").toLowerCase()
+
+        // For document type requirements, check if user uploaded a matching file
+        if (reqType === "document" || reqType === "file" || reqType === "upload") {
+          // The upload key is exactly the requirement label (from ProgramRequirements component)
+          const hasUpload = uploadedKeys.some(key =>
+            key === reqLabel || // Exact match (most common)
+            key.toLowerCase() === reqLabel.toLowerCase() || // Case-insensitive match
+            key.toLowerCase().includes(reqLabel.toLowerCase()) ||
+            reqLabel.toLowerCase().includes(key.toLowerCase())
+          )
+          if (hasUpload) {
+            return false // Not truly missing - user has uploaded it locally
+          }
+        }
+
+        return true // Still missing
+      })
+
+      if (trulyMissing.length > 0) {
+        const missingList = trulyMissing
+          .map((req: any) => `• ${req.label || req.requirementType || 'Required document'}`)
+          .join("\n")
         warning(`You are not ready to apply:\n${missingList}`)
         return false
       }
+
+      // All missing requirements are covered by local uploads
       return true
     } catch (err) {
       warning("Failed to verify readiness. Please try again.")
@@ -179,23 +235,37 @@ export default function ApplyToUniversityPage({
   // ✅ Check before submission
   const handleCheckDocuments = async () => {
     if (!selectedProgram) return error("Please select a program first")
-    
-    // Check if all required essays are filled
+
+    // Check if all required essays are filled (only pure text essays, not document uploads)
     if (readinessData) {
-      const essayReqs = (readinessData.requirements || []).filter((req: any) => 
-        req.required &&
-        (req.requirementType?.toLowerCase().includes("essay") ||
-         req.label?.toLowerCase().includes("essay") ||
-         req.label?.toLowerCase().includes("motivation") ||
-         req.label?.toLowerCase().includes("statement") ||
-         req.label?.toLowerCase().includes("why"))
-      )
-      
+      const essayReqs = (readinessData.requirements || []).filter((req: any) => {
+        if (!req.required) return false
+        const reqType = req.requirementType?.toLowerCase() || ""
+        const label = req.label?.toLowerCase() || ""
+
+        // Skip document type requirements - those are file uploads, not text
+        if (reqType === "document" || reqType === "file" || reqType === "upload") {
+          return false
+        }
+
+        // Include essay/text type requirements
+        if (reqType === "essay" || reqType === "text") {
+          return true
+        }
+
+        // Include based on label only if NOT a document type
+        return (
+          label.includes("essay") ||
+          label.includes("motivation letter") ||
+          (label.includes("why") && !label.includes("document"))
+        )
+      })
+
       const missingEssays = essayReqs.filter((req: any) => {
         const answer = essayAnswers[String(req.id)]
         return !answer || answer.trim().length === 0
       })
-      
+
       if (missingEssays.length > 0) {
         error(`Please fill in all required essays: ${missingEssays.map((r: any) => r.label).join(", ")}`)
         return
@@ -215,23 +285,37 @@ export default function ApplyToUniversityPage({
   // 🚀 Submit Application (checks readiness first, then creates application)
   const handleSubmitApplication = async () => {
     if (!selectedProgram) return error("Select a program before submitting.")
-    
-    // Check if all required essays are filled
+
+    // Check if all required essays are filled (only pure text essays, not document uploads)
     if (readinessData) {
-      const essayReqs = (readinessData.requirements || []).filter((req: any) => 
-        req.required &&
-        (req.requirementType?.toLowerCase().includes("essay") ||
-         req.label?.toLowerCase().includes("essay") ||
-         req.label?.toLowerCase().includes("motivation") ||
-         req.label?.toLowerCase().includes("statement") ||
-         req.label?.toLowerCase().includes("why"))
-      )
-      
+      const essayReqs = (readinessData.requirements || []).filter((req: any) => {
+        if (!req.required) return false
+        const reqType = req.requirementType?.toLowerCase() || ""
+        const label = req.label?.toLowerCase() || ""
+
+        // Skip document type requirements - those are file uploads, not text
+        if (reqType === "document" || reqType === "file" || reqType === "upload") {
+          return false
+        }
+
+        // Include essay/text type requirements
+        if (reqType === "essay" || reqType === "text") {
+          return true
+        }
+
+        // Include based on label only if NOT a document type
+        return (
+          label.includes("essay") ||
+          label.includes("motivation letter") ||
+          (label.includes("why") && !label.includes("document"))
+        )
+      })
+
       const missingEssays = essayReqs.filter((req: any) => {
         const answer = essayAnswers[String(req.id)]
         return !answer || answer.trim().length === 0
       })
-      
+
       if (missingEssays.length > 0) {
         error(`Please fill in all required essays: ${missingEssays.map((r: any) => r.label).join(", ")}`)
         return
@@ -268,15 +352,29 @@ export default function ApplyToUniversityPage({
 
       await uploadAttachments(appId, uploadedDocs)
       
-      // Upload essays dynamically based on readiness data
+      // Upload essays dynamically based on readiness data (only pure text essays)
       if (readinessData && Object.keys(essayAnswers).length > 0) {
-        const essayReqs = (readinessData.requirements || []).filter((req: any) => 
-          req.requirementType?.toLowerCase().includes("essay") ||
-          req.label?.toLowerCase().includes("essay") ||
-          req.label?.toLowerCase().includes("motivation") ||
-          req.label?.toLowerCase().includes("statement") ||
-          req.label?.toLowerCase().includes("why")
-        )
+        const essayReqs = (readinessData.requirements || []).filter((req: any) => {
+          const reqType = req.requirementType?.toLowerCase() || ""
+          const label = req.label?.toLowerCase() || ""
+
+          // Skip document type requirements
+          if (reqType === "document" || reqType === "file" || reqType === "upload") {
+            return false
+          }
+
+          // Include essay/text type requirements
+          if (reqType === "essay" || reqType === "text") {
+            return true
+          }
+
+          // Include based on label only if NOT a document type
+          return (
+            label.includes("essay") ||
+            label.includes("motivation letter") ||
+            (label.includes("why") && !label.includes("document"))
+          )
+        })
         
         // Upload each essay requirement
         for (const req of essayReqs) {

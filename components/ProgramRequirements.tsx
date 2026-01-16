@@ -29,31 +29,40 @@ export default function ProgramRequirements({
   // Use readinessData from props if available, otherwise use hook data
   const activeReadiness = readinessData || readiness
   
-  // Get all document requirements from API (exclude essays)
+  // Get all document requirements from API (exclude pure text essays)
   const allDocumentRequirements = React.useMemo(() => {
     if (!activeReadiness || !activeReadiness.requirements) return []
-    
-    // Filter requirements that need file uploads (not essays)
+
+    // Filter requirements that need file uploads (not pure text essays)
     return activeReadiness.requirements.filter((req: any) => {
-      const isEssay = req.requirementType?.toLowerCase().includes("essay") ||
-                     req.label?.toLowerCase().includes("essay") ||
-                     req.label?.toLowerCase().includes("motivation") ||
-                     req.label?.toLowerCase().includes("statement") ||
-                     req.label?.toLowerCase().includes("why") ||
-                     req.requirementType?.toLowerCase() === "text"
-      
-      return !isEssay && (
-        req.requirementType?.toLowerCase().includes("document") ||
-        req.requirementType?.toLowerCase().includes("file") ||
-        req.requirementType?.toLowerCase().includes("upload") ||
-        req.label?.toLowerCase().includes("document") ||
-        req.label?.toLowerCase().includes("file") ||
-        req.label?.toLowerCase().includes("upload") ||
-        req.label?.toLowerCase().includes("certificate") ||
-        req.label?.toLowerCase().includes("diploma") ||
-        req.label?.toLowerCase().includes("transcript") ||
-        req.label?.toLowerCase().includes("passport") ||
-        req.label?.toLowerCase().includes("photo")
+      const reqType = req.requirementType?.toLowerCase() || ""
+      const label = req.label?.toLowerCase() || ""
+
+      // If explicitly marked as document type, include it (even if label contains "statement")
+      if (reqType === "document" || reqType === "file" || reqType === "upload") {
+        return true
+      }
+
+      // Pure essays (text type or essay type) should be excluded
+      const isPureEssay = reqType === "essay" || reqType === "text" ||
+                         (label.includes("essay") && reqType !== "document") ||
+                         (label.includes("motivation") && reqType !== "document") ||
+                         (label.includes("why") && !label.includes("document") && reqType !== "document")
+
+      if (isPureEssay) return false
+
+      // Include based on label keywords for other document types
+      return (
+        label.includes("document") ||
+        label.includes("file") ||
+        label.includes("upload") ||
+        label.includes("certificate") ||
+        label.includes("diploma") ||
+        label.includes("transcript") ||
+        label.includes("passport") ||
+        label.includes("photo") ||
+        label.includes("statement") ||
+        label.includes("purpose")
       )
     })
   }, [activeReadiness])
