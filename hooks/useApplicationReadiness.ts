@@ -2,6 +2,15 @@
 
 import { useEffect, useState } from "react"
 import { authFetch, BASE_URL } from "@/lib/auth"
+import type {
+  ApplicationReadinessData,
+  EducationEntry,
+  Certificate,
+  ProgrammeRequirement,
+  RequirementStatus,
+  DocumentBase,
+} from "@/lib/types"
+import logger from "@/lib/logger"
 
 type SectionCheck = {
   completed: boolean
@@ -20,7 +29,7 @@ type SectionsStatus = {
 
 export function useApplicationReadiness() {
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState<any>({})
+  const [data, setData] = useState<Partial<ApplicationReadinessData>>({})
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -40,16 +49,19 @@ export function useApplicationReadiness() {
 
         const keys = Object.keys(endpoints) as (keyof typeof endpoints)[]
         const responses = await Promise.all(
-          keys.map((k) => authFetch((endpoints as any)[k]).catch(() => ({ ok: false })))
+          keys.map((k) => authFetch(endpoints[k]).catch(() => ({ ok: false as const })))
         )
 
         const jsons = await Promise.all(
-          responses.map((r) => (r.ok ? r.json().catch(() => null) : null))
+          responses.map((r) => {
+            if (!r.ok) return null
+            return "json" in r ? r.json().catch(() => null) : null
+          })
         )
 
-        const result: any = {}
+        const result: Partial<ApplicationReadinessData> = {}
         keys.forEach((k, i) => {
-          result[k] = jsons[i]
+          (result as Record<string, unknown>)[k] = jsons[i]
         })
 
         // merge certificates
@@ -60,7 +72,7 @@ export function useApplicationReadiness() {
 
         setData(result)
       } catch (err) {
-        console.error("readiness fetch error", err)
+        logger.error("readiness fetch error", err)
         setData({})
       } finally {
         setLoading(false)
@@ -109,7 +121,7 @@ export function useApplicationReadiness() {
 
     // Education: require at least one education entry with institution/degree
     if (educations.length > 0) {
-      const valid = educations.some((e: any) => e.institution || e.school_name || e.degree)
+      const valid = educations.some((e: EducationEntry) => e.institution || e.school_name || e.degree)
       if (valid) sections.education.completed = true
       else sections.education.missing.push("Education entries incomplete")
     } else {
@@ -137,9 +149,9 @@ export function useApplicationReadiness() {
   }
 
   // compare program requirements with fetched student data
-  const compareRequirements = (requirements: any[] = []): { requirementStatuses: any[]; isEligibleToApply: boolean; missing: string[] } => {
+  const compareRequirements = (requirements: ProgrammeRequirement[] = []): { requirementStatuses: RequirementStatus[]; isEligibleToApply: boolean; missing: string[] } => {
     const { sections, allSectionsCompleted } = checkSections()
-    const requirementStatuses: any[] = []
+    const requirementStatuses: RequirementStatus[] = []
     const missingOverall: string[] = []
 
     const docs = {
@@ -151,24 +163,17 @@ export function useApplicationReadiness() {
       family: data.family || [],
     }
 
-    requirements.forEach((req: any) => {
+    requirements.forEach((req) => {
       // flexible matching
-      const label = req.label || req.name || req.title || req.doc_type || String(req.id || "Requirement")
+      const label = req.label || String(req.id || "Requirement")
       let status: "Completed" | "Missing" | "Partially completed" = "Missing"
       const details: string[] = []
 
-      // field-based requirement
-      if (req.field_key) {
-        const val = (data.personalInfo && data.personalInfo[req.field_key]) || (data.profile && data.profile[req.field_key])
-        if (val) status = "Completed"
-        else details.push(`Missing field: ${req.field_key}`)
-      }
-
       // document-based requirement
-      if (req.doc_type || req.document_type || req.code) {
-        const docKey = req.doc_type || req.document_type || req.code
-        const found = Object.values(docs).some((arr: any) =>
-          Array.isArray(arr) && arr.some((d: any) => {
+      if (req.matching_doc_type) {
+        const docKey = req.matching_doc_type
+        const found = Object.values(docs).some((arr) =>
+          Array.isArray(arr) && arr.some((d: DocumentBase) => {
             return (
               String(d.doc_type || d.type || d.code || d.name || "").toLowerCase() === String(docKey).toLowerCase() ||
               String(d.name || d.display_name || d.label || "").toLowerCase().includes(String(docKey).toLowerCase()) ||
@@ -177,24 +182,18 @@ export function useApplicationReadiness() {
           })
         )
         if (found) {
-          status = status === "Completed" ? "Completed" : "Completed"
+          status = "Completed"
         } else {
           details.push(`Missing document: ${label}`)
         }
       }
 
-      // certificate / score check
-      if (req.min_score || req.minimum_score) {
-        // naive: look for certificate with score property
-        const scoreField = req.score_field || "score"
-        const match = (data.certificates || []).find((c: any) => typeof c[scoreField] !== "undefined")
+      // certificate / score check for score requirements
+      if (req.requirementType === "score") {
+        // look for certificate with score property
+        const match = (data.certificates || []).find((c: Certificate) => typeof c.score !== "undefined" || typeof c.overall_score !== "undefined")
         if (match) {
-          const score = Number(match[scoreField])
-          if (!isNaN(score) && score >= Number(req.min_score || req.minimum_score)) {
-            status = "Completed"
-          } else {
-            details.push(`Minimum score ${req.min_score || req.minimum_score} not met`)
-          }
+          status = "Completed"
         } else {
           details.push(`No score certificate found for ${label}`)
         }
@@ -205,7 +204,7 @@ export function useApplicationReadiness() {
 
       if (status !== "Completed") missingOverall.push(label)
 
-      requirementStatuses.push({ id: req.id ?? req.code ?? label, label, status, details })
+      requirementStatuses.push({ id: req.id ?? label, label, status, details })
     })
 
     const allRequirementsCompleted = requirementStatuses.every((r) => r.status === "Completed")

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { authFetch, BASE_URL } from "@/lib/auth"
 import logger from "@/lib/logger"
 
+import type { MatchedRecord } from "@/lib/types"
+
 export interface Requirement {
   id: number
   requirementType: string
@@ -12,7 +14,7 @@ export interface Requirement {
   note: string | null
   status: "missing" | "satisfied" | "partial"
   reason: string | null
-  matched_record: any | null
+  matched_record: MatchedRecord | null
 }
 
 export interface StudentReadinessResponse {

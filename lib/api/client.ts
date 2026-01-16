@@ -4,6 +4,7 @@
 
 import { authFetch, BASE_URL } from "@/lib/auth"
 import logger from "@/lib/logger"
+import type { z } from "zod"
 
 export class ApiError extends Error {
   constructor(
@@ -13,6 +14,16 @@ export class ApiError extends Error {
   ) {
     super(message)
     this.name = "ApiError"
+  }
+}
+
+export class ValidationError extends Error {
+  constructor(
+    message: string,
+    public issues: z.ZodIssue[]
+  ) {
+    super(message)
+    this.name = "ValidationError"
   }
 }
 
@@ -65,6 +76,29 @@ async function request<T>(
   return data as T
 }
 
+/**
+ * Make a validated request with Zod schema
+ */
+async function validatedRequest<T>(
+  endpoint: string,
+  schema: z.ZodType<T>,
+  options: RequestOptions = {}
+): Promise<T> {
+  const data = await request<unknown>(endpoint, options)
+
+  const result = schema.safeParse(data)
+  if (!result.success) {
+    logger.warn(`API response validation failed for ${endpoint}:`, result.error.issues)
+    // In development, throw the error; in production, log and return data as-is
+    if (process.env.NODE_ENV === "development") {
+      throw new ValidationError("API response validation failed", result.error.issues)
+    }
+    return data as T
+  }
+
+  return result.data
+}
+
 export const api = {
   get: <T>(endpoint: string, options?: RequestOptions) =>
     request<T>(endpoint, { ...options, method: "GET" }),
@@ -113,6 +147,23 @@ export const api = {
       body: formData,
       // Don't set Content-Type - browser will set it with boundary
     }),
+
+  // Validated requests with Zod schemas
+  validated: {
+    get: <T>(endpoint: string, schema: z.ZodType<T>, options?: RequestOptions) =>
+      validatedRequest<T>(endpoint, schema, { ...options, method: "GET" }),
+
+    post: <T>(endpoint: string, schema: z.ZodType<T>, body?: unknown, options?: RequestOptions) =>
+      validatedRequest<T>(endpoint, schema, {
+        ...options,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...options?.headers,
+        },
+        body: body ? JSON.stringify(body) : undefined,
+      }),
+  },
 }
 
 export default api

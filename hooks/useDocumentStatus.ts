@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { authFetch, BASE_URL } from "@/lib/auth"
+import type { DocumentStatus } from "@/lib/types"
 
 export function useDocumentStatus() {
-  const [documentStatus, setDocumentStatus] = useState<any>(null)
+  const [documentStatus, setDocumentStatus] = useState<DocumentStatus | null>(null)
   const [checkingDocuments, setCheckingDocuments] = useState(false)
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export function useDocumentStatus() {
           financial: jsons[4],
         })
       } catch (err) {
-        console.error("Error fetching documents:", err)
+        // Silently fail - documents will be empty
       } finally {
         setCheckingDocuments(false)
       }
