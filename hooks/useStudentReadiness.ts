@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { authFetch, BASE_URL } from "@/lib/auth"
+import logger from "@/lib/logger"
 
 export interface Requirement {
   id: number
@@ -52,7 +53,7 @@ export function useStudentReadiness(programmeId: string | null) {
         const data = await res.json()
         setReadiness(data)
       } catch (err) {
-        console.error("Error fetching student readiness:", err)
+        logger.error("Error fetching student readiness:", err)
         setError(err instanceof Error ? err.message : "Failed to fetch readiness")
         setReadiness(null)
       } finally {
