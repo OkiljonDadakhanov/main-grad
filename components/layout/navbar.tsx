@@ -88,8 +88,9 @@ export function Navbar() {
                     </NavigationMenuItem>
                   ) : (
                     <NavigationMenuItem key={item.title}>
-                      <Link href={item.href} passHref legacyBehavior>
-                        <NavigationMenuLink
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href={item.href}
                           className={cn(
                             navigationMenuTriggerStyle(),
                             pathname === item.href &&
@@ -97,8 +98,8 @@ export function Navbar() {
                           )}
                         >
                           {item.title}
-                        </NavigationMenuLink>
-                      </Link>
+                        </Link>
+                      </NavigationMenuLink>
                     </NavigationMenuItem>
                   )
                 )}
