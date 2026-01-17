@@ -6,30 +6,32 @@ import { Card } from "@/components/ui/card"
 import { PasswordChangeForm } from "./password-change-form"
 import { NotificationSettings } from "./notification-settings"
 import { LanguageSettings } from "./language-settings"
+import { useI18n } from "@/lib/i18n"
 
 export function SettingsSection() {
   const [activeTab, setActiveTab] = useState("password")
+  const { t } = useI18n()
 
   return (
     <>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-purple-900">Settings</h2>
+        <h2 className="text-2xl font-bold text-purple-900 dark:text-purple-300">{t("nav.settings")}</h2>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-6 dark:bg-gray-900 dark:border-gray-800">
         <Tabs defaultValue="password" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-purple-100 mb-6">
-            <TabsTrigger value="password" className="data-[state=active]:bg-purple-700 data-[state=active]:text-white">
-              Password
+          <TabsList className="bg-purple-100 dark:bg-purple-900/30 mb-6">
+            <TabsTrigger value="password" className="data-[state=active]:bg-purple-700 data-[state=active]:text-white dark:text-gray-300">
+              {t("settings.password")}
             </TabsTrigger>
             <TabsTrigger
               value="notifications"
-              className="data-[state=active]:bg-purple-700 data-[state=active]:text-white"
+              className="data-[state=active]:bg-purple-700 data-[state=active]:text-white dark:text-gray-300"
             >
-              Notifications
+              {t("settings.notifications")}
             </TabsTrigger>
-            <TabsTrigger value="language" className="data-[state=active]:bg-purple-700 data-[state=active]:text-white">
-              Language
+            <TabsTrigger value="language" className="data-[state=active]:bg-purple-700 data-[state=active]:text-white dark:text-gray-300">
+              {t("settings.language")}
             </TabsTrigger>
           </TabsList>
 

@@ -15,7 +15,8 @@ import {
   Users,
   FolderOpen,
   DollarSign,
-  Search
+  Search,
+  Settings
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BASE_URL, authFetch, clearAuthStorage, getAccessTokenFromStorage, getUserFromStorage } from "@/lib/auth"
@@ -30,6 +31,7 @@ const navigationLinks = [
   { href: "/student/my-family", labelKey: "nav.myFamily", icon: Users },
   { href: "/student/browse-universities", labelKey: "nav.browseUniversities", icon: Search },
   { href: "/student/my-applications", labelKey: "nav.myApplications", icon: CreditCard },
+  { href: "/student/settings", labelKey: "nav.settings", icon: Settings },
 ]
 
 export default function StudentSidebar() {

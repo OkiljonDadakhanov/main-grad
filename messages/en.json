@@ -266,5 +266,10 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System"
+  },
+  "settings": {
+    "password": "Password",
+    "notifications": "Notifications",
+    "language": "Language"
   }
 }

@@ -266,5 +266,10 @@
     "light": "Yorug'",
     "dark": "Qorong'u",
     "system": "Tizim"
+  },
+  "settings": {
+    "password": "Parol",
+    "notifications": "Bildirishnomalar",
+    "language": "Til"
   }
 }

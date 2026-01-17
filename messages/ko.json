@@ -266,5 +266,10 @@
     "light": "라이트",
     "dark": "다크",
     "system": "시스템"
+  },
+  "settings": {
+    "password": "비밀번호",
+    "notifications": "알림",
+    "language": "언어"
   }
 }
