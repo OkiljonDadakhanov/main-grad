@@ -14,6 +14,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useCustomToast } from "@/components/custom-toast";
+import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
 
 export default function UniversityLoginPage() {
   const router = useRouter();
@@ -27,24 +28,18 @@ export default function UniversityLoginPage() {
 
   const handleLogin = async () => {
     setLoading(true);
+
     try {
-      const response = await fetch(
-        "https://api.gradabroad.net/api/auth/login/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/auth/login/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
         if (errorData.non_field_errors?.includes("University not verified")) {
-          error(
-            "Your university account is not verified yet. Please contact support."
-          );
+          error("Your university account is not verified yet. Please contact support.");
         } else if (errorData.detail) {
           error(errorData.detail);
         } else {
@@ -55,13 +50,36 @@ export default function UniversityLoginPage() {
       }
 
       const data = await response.json();
+
+      // Verify this is a university account
+      if (data.account_type !== "university") {
+        error("This login is for university accounts only. Please use the student login.");
+        setLoading(false);
+        return;
+      }
+
+      // Save auth tokens using the shared auth utility
+      saveAuthToStorage(data);
+      // Also save for legacy compatibility
       localStorage.setItem("accessToken", data.access);
       localStorage.setItem("refreshToken", data.refresh);
-      window.location.href = `https://university.gradabroad.net/profile?token=${data.access}`;
-      // window.location.href = `http://localhost:3001/profile?token=${data.access}`;
-      // Redirect to university dashboard
-    } catch (error) {
-      console.error("Login error:", error);
+      localStorage.setItem("account_type", data.account_type);
+      if (data.university_id) {
+        localStorage.setItem("university_id", String(data.university_id));
+      }
+
+      success("Login successful!");
+
+      // Redirect to university dashboard if configured, otherwise stay in app
+      const universityDashboardUrl = process.env.NEXT_PUBLIC_UNIVERSITY_DASHBOARD_URL;
+      if (universityDashboardUrl) {
+        window.location.href = `${universityDashboardUrl}/profile?token=${data.access}`;
+      } else {
+        // Fallback: redirect to home with success state
+        router.push("/");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
       error("An unexpected error occurred");
     } finally {
       setLoading(false);
@@ -70,17 +88,13 @@ export default function UniversityLoginPage() {
 
   const handleResetPassword = async () => {
     setResetting(true);
+
     try {
-      const response = await fetch(
-        "https://api.gradabroad.net/api/auth/password-reset/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: resetEmail }),
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/auth/password-reset/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resetEmail }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -88,10 +102,9 @@ export default function UniversityLoginPage() {
         return;
       }
 
-      // ✅ Redirect to confirmation page
       router.push("/login/reset-confirm");
-    } catch (error) {
-      console.error("Reset error:", error);
+    } catch (err) {
+      console.error("Reset error:", err);
       error("An unexpected error occurred");
     } finally {
       setResetting(false);

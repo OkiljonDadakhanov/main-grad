@@ -1,5 +1,6 @@
 import type React from "react"
 import StudentSidebar from "@/components/student-dashboard/student-sidebar"
+import NotificationBell from "@/components/student-dashboard/notification-bell"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function StudentDashboardLayout({
@@ -19,6 +20,7 @@ export default function StudentDashboardLayout({
             Graduate in Korea
           </h1>
           <div className="flex items-center gap-4">
+            <NotificationBell />
             <div className="flex items-center gap-2 cursor-pointer">
               <Avatar className="h-8 w-8">
                 <AvatarImage src="https://flagcdn.com/us.svg" alt="USA Flag" />

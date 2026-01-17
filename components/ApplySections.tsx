@@ -6,6 +6,21 @@ import EssaysSection from "@/components/EssaysSection"
 import ProgramRequirements from "@/components/ProgramRequirements"
 import ApplicationPreview from "@/components/ApplicationPreview"
 
+interface ApplySectionsProps {
+  university: any
+  selectedProgram: string
+  setSelectedProgram: (program: string) => void
+  includeDocuments: Record<string, boolean>
+  setIncludeDocuments: (docs: Record<string, boolean>) => void
+  documentStatus: any
+  readinessData?: any
+  selectedProgramObj: any
+  uploadedDocs: Record<string, File>
+  handleFileUpload: (docName: string, file: File | null) => void
+  missingRequirements: any[]
+  showPreview: boolean
+}
+
 export default function ApplySections({
   university,
   selectedProgram,
@@ -13,16 +28,13 @@ export default function ApplySections({
   includeDocuments,
   setIncludeDocuments,
   documentStatus,
-  motivation,
-  setMotivation,
-  whyThisUniversity,
-  setWhyThisUniversity,
+  readinessData,
   selectedProgramObj,
   uploadedDocs,
   handleFileUpload,
   missingRequirements,
   showPreview,
-}: any) {
+}: ApplySectionsProps) {
   return (
     <>
       <ProgramSelector
@@ -40,10 +52,7 @@ export default function ApplySections({
 
       <EssaysSection
         university={university}
-        motivation={motivation}
-        setMotivation={setMotivation}
-        whyThisUniversity={whyThisUniversity}
-        setWhyThisUniversity={setWhyThisUniversity}
+        readinessData={readinessData}
       />
 
       <ProgramRequirements
@@ -56,15 +65,14 @@ export default function ApplySections({
 
       {missingRequirements.length === 0 && (
         <p className="text-green-600 font-medium">
-          ✅ All required documents are already uploaded.
+          All required documents are already uploaded.
         </p>
       )}
 
       {showPreview && (
         <ApplicationPreview
           program={selectedProgramObj}
-          motivation={motivation}
-          whyThisUniversity={whyThisUniversity}
+          readinessData={readinessData}
           includeDocuments={includeDocuments}
         />
       )}

@@ -1,22 +1,21 @@
 "use client"
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
+import { CheckCircle2, AlertCircle, Loader2, FileText } from "lucide-react"
 import React from "react"
 import { useStudentReadiness } from "@/hooks/useStudentReadiness"
 
-export default function DocumentsSelector({ 
-  includeDocuments, 
-  setIncludeDocuments, 
+export default function DocumentsSelector({
+  includeDocuments,
+  setIncludeDocuments,
   documentStatus,
-  programmeId 
+  programmeId
 }: any) {
   const { getDocumentCategoryStatus, loading } = useStudentReadiness(programmeId)
-  
+
   // Get dynamic status from API if programmeId is available
   const categoryStatuses = programmeId ? getDocumentCategoryStatus() : []
-  
+
   // Default items list
   const defaultItems = [
     { key: "personalInfo", label: "Personal Information & Documents" },
@@ -35,7 +34,7 @@ export default function DocumentsSelector({
     const showWarning = programmeId && status ? status.hasMissingRequired : false
     const showSuccess = programmeId && status ? (status.allSatisfied && status.requirements.length > 0 && !status.hasMissingRequired) : false
     const showLoading = loading && programmeId
-    
+
     return {
       ...item,
       status,
@@ -48,32 +47,26 @@ export default function DocumentsSelector({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Include Documents from Your Profile</CardTitle>
-        <CardDescription>Select which documents to include</CardDescription>
+        <CardTitle>Documents from Your Profile</CardTitle>
+        <CardDescription>These documents will be automatically included from your profile</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {items.map((item) => (
-          <div key={item.key} className="flex items-center space-x-2">
-            <Checkbox
-              id={item.key}
-              checked={includeDocuments[item.key]}
-              onCheckedChange={(checked) =>
-                setIncludeDocuments((prev: any) => ({ ...prev, [item.key]: checked as boolean }))
-              }
-            />
-            <label
-              htmlFor={item.key}
-              className="text-sm font-medium leading-none cursor-pointer flex-1 flex items-center gap-2"
-            >
-              {item.label}
+          <div key={item.key} className="flex items-center space-x-3 py-1">
+            <div className="flex-shrink-0">
               {item.showLoading ? (
-                <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
+                <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
               ) : item.showWarning ? (
-                <AlertCircle className="h-4 w-4 text-red-500" />
+                <AlertCircle className="h-5 w-5 text-amber-500" />
               ) : item.showSuccess ? (
-                <CheckCircle2 className="h-4 w-4 text-green-500" />
-              ) : null}
-            </label>
+                <CheckCircle2 className="h-5 w-5 text-green-500" />
+              ) : (
+                <FileText className="h-5 w-5 text-gray-400" />
+              )}
+            </div>
+            <span className="text-sm font-medium text-gray-700">
+              {item.label}
+            </span>
           </div>
         ))}
       </CardContent>

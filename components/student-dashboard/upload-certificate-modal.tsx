@@ -36,6 +36,7 @@ interface UploadCertificateModalProps {
 const certificateTypes = [
   "Language Proficiency",
   "Academic Transcript",
+  "Motivation Letter",
   "Degree/Diploma Certificate",
   "Letter of Recommendation",
   "Passport/ID Scan",
@@ -107,6 +108,18 @@ export default function UploadCertificateModal({
 
   const isLanguageCertificate = certificateType === "Language Proficiency"
 
+  // Map document types to backend categories
+  const getCategoryForType = (type: string): string => {
+    switch (type) {
+      case "Academic Transcript":
+        return "academic_transcript"
+      case "Motivation Letter":
+        return "motivation_letter"
+      default:
+        return "other"
+    }
+  }
+
   const onSubmit = async (data: any) => {
     setIsLoading(true)
     try {
@@ -129,6 +142,7 @@ export default function UploadCertificateModal({
         endpoint = `${BASE_URL}/api/certificates/important/`
         formData.append("title", data.name)
         formData.append("issue_date", data.issueDate)
+        formData.append("category", getCategoryForType(certificateType))
       }
 
       const response = await authFetch(endpoint, {

@@ -1,25 +1,37 @@
 "use client"
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { CheckCircle2, FileText, AlertCircle } from "lucide-react"
 
-export default function ApplicationPreview({ 
-  program, 
-  motivation, 
-  whyThisUniversity, 
-  essayAnswers,
+interface ApplicationPreviewProps {
+  program: any
+  readinessData?: any
+  includeDocuments?: Record<string, boolean>
+  uploadedDocs?: Record<string, File>
+}
+
+export default function ApplicationPreview({
+  program,
   readinessData,
-  includeDocuments 
-}: any) {
-  // Extract essay requirements from readiness data
-  const essayRequirements = readinessData?.requirements?.filter((req: any) => 
-    req.requirementType?.toLowerCase().includes("essay") ||
-    req.label?.toLowerCase().includes("essay") ||
-    req.label?.toLowerCase().includes("motivation") ||
-    req.label?.toLowerCase().includes("statement") ||
-    req.label?.toLowerCase().includes("why")
-  ) || []
+  includeDocuments,
+  uploadedDocs = {}
+}: ApplicationPreviewProps) {
+  // Get all requirements that need file uploads during application
+  const applicationRequirements = readinessData?.requirements?.filter((req: any) => {
+    const status = req.status?.toLowerCase() || ""
+    return status === "pending_upload" || status === "missing"
+  }) || []
 
-  const useDynamicEssays = essayRequirements.length > 0 && readinessData && essayAnswers
+  // Check which requirements have been uploaded locally
+  const getUploadStatus = (req: any) => {
+    const reqLabel = req.label || ""
+    // Check if file was uploaded locally
+    const hasLocalUpload = uploadedDocs[reqLabel] !== undefined
+    // Check if satisfied from profile
+    const isSatisfiedFromProfile = req.status === "satisfied"
+
+    return hasLocalUpload || isSatisfiedFromProfile
+  }
 
   return (
     <Card className="border-green-500">
@@ -33,44 +45,48 @@ export default function ApplicationPreview({
             <p className="text-sm font-semibold">Program:</p>
             <p className="text-gray-700">{program?.name}</p>
           </div>
-          
-          {useDynamicEssays ? (
-            <>
-              {essayRequirements.map((req: any) => {
-                const reqId = String(req.id)
-                const answer = essayAnswers[reqId]
-                if (!answer) return null
-                
+
+          {applicationRequirements.length > 0 && (
+            <div className="border-t pt-3">
+              <p className="text-sm font-semibold mb-2">Application Documents:</p>
+              {applicationRequirements.map((req: any) => {
+                const isUploaded = getUploadStatus(req)
+                const uploadedFile = uploadedDocs[req.label]
+
                 return (
-                  <div key={reqId} className="border-t pt-3">
-                    <p className="text-sm font-semibold mb-1">{req.label || "Essay"}:</p>
-                    <p className="text-gray-700 whitespace-pre-wrap text-sm">{answer}</p>
+                  <div key={req.id} className="flex items-center gap-2 text-sm mb-1">
+                    {isUploaded ? (
+                      <>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <FileText className="h-4 w-4 text-gray-500" />
+                        <span className="text-gray-700">
+                          {req.label} - {uploadedFile ? uploadedFile.name : "Ready"}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="h-4 w-4 text-amber-600" />
+                        <span className="text-amber-600">
+                          {req.label} - Not uploaded
+                        </span>
+                      </>
+                    )}
                   </div>
                 )
               })}
-            </>
-          ) : (
-            <>
-              {motivation && (
-                <div>
-                  <p className="text-sm font-semibold">Motivation:</p>
-                  <p className="text-gray-700 whitespace-pre-wrap text-sm">{motivation}</p>
-                </div>
-              )}
-              {whyThisUniversity && (
-                <div>
-                  <p className="text-sm font-semibold">Why this university:</p>
-                  <p className="text-gray-700 whitespace-pre-wrap text-sm">{whyThisUniversity}</p>
-                </div>
-              )}
-            </>
+            </div>
           )}
-          
+
           <div className="border-t pt-3">
             <p className="text-sm font-semibold mb-2">Documents Included:</p>
             <ul className="text-sm mt-1 space-y-1">
               {Object.entries(includeDocuments || {}).map(([key, val]) =>
-                val ? <li key={key} className="text-gray-700">✓ {key.replace(/([A-Z])/g, ' $1').trim()}</li> : null
+                val ? (
+                  <li key={key} className="text-gray-700 flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3 text-green-600" />
+                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                  </li>
+                ) : null
               )}
             </ul>
           </div>

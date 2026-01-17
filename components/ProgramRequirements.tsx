@@ -29,41 +29,26 @@ export default function ProgramRequirements({
   // Use readinessData from props if available, otherwise use hook data
   const activeReadiness = readinessData || readiness
   
-  // Get all document requirements from API (exclude pure text essays)
+  // Get all document requirements from API
+  // All program requirements are file uploads (including motivation letter)
   const allDocumentRequirements = React.useMemo(() => {
     if (!activeReadiness || !activeReadiness.requirements) return []
 
-    // Filter requirements that need file uploads (not pure text essays)
+    // Include all requirements - they all need file uploads
     return activeReadiness.requirements.filter((req: any) => {
       const reqType = req.requirementType?.toLowerCase() || ""
-      const label = req.label?.toLowerCase() || ""
 
-      // If explicitly marked as document type, include it (even if label contains "statement")
-      if (reqType === "document" || reqType === "file" || reqType === "upload") {
-        return true
+      // Skip text-only fields (like passport number entry)
+      if (reqType === "text") {
+        const label = req.label?.toLowerCase() || ""
+        // Only skip if it's a pure text input field
+        if (!label.includes("document") && !label.includes("file") &&
+            !label.includes("letter") && !label.includes("statement")) {
+          return false
+        }
       }
 
-      // Pure essays (text type or essay type) should be excluded
-      const isPureEssay = reqType === "essay" || reqType === "text" ||
-                         (label.includes("essay") && reqType !== "document") ||
-                         (label.includes("motivation") && reqType !== "document") ||
-                         (label.includes("why") && !label.includes("document") && reqType !== "document")
-
-      if (isPureEssay) return false
-
-      // Include based on label keywords for other document types
-      return (
-        label.includes("document") ||
-        label.includes("file") ||
-        label.includes("upload") ||
-        label.includes("certificate") ||
-        label.includes("diploma") ||
-        label.includes("transcript") ||
-        label.includes("passport") ||
-        label.includes("photo") ||
-        label.includes("statement") ||
-        label.includes("purpose")
-      )
+      return true
     })
   }, [activeReadiness])
   
@@ -133,16 +118,19 @@ export default function ProgramRequirements({
               const reqId = req.id || req.label
               const reqLabel = req.label || req.name || "Document"
               const isUploaded = uploadedDocs[reqLabel] !== undefined
-              const isMissing = req.status === "missing" || activeReadiness?.missing_required?.includes(req.id)
+              const isPendingUpload = req.status === "pending_upload"
+              const isMissing = (req.status === "missing" || activeReadiness?.missing_required?.includes(req.id)) && !isPendingUpload
               const isSatisfied = req.status === "satisfied" || activeReadiness?.satisfied?.includes(req.id)
               const isRequired = req.required !== false
               
               return (
-                <div 
-                  key={reqId} 
+                <div
+                  key={reqId}
                   className={`space-y-2 p-4 border rounded-lg ${
-                    isSatisfied ? "bg-green-50 border-green-200" : 
-                    isMissing && isRequired ? "bg-amber-50 border-amber-200" : 
+                    isSatisfied ? "bg-green-50 border-green-200" :
+                    isUploaded ? "bg-blue-50 border-blue-200" :
+                    isMissing && isRequired ? "bg-amber-50 border-amber-200" :
+                    isPendingUpload ? "bg-gray-50 border-gray-200" :
                     "bg-gray-50"
                   }`}
                 >
@@ -156,23 +144,23 @@ export default function ProgramRequirements({
                         {isSatisfied && (
                           <CheckCircle className="h-4 w-4 text-green-600" />
                         )}
-                        {isMissing && isRequired && (
+                        {isUploaded && !isSatisfied && (
+                          <CheckCircle className="h-4 w-4 text-blue-600" />
+                        )}
+                        {isMissing && isRequired && !isUploaded && (
                           <AlertCircle className="h-4 w-4 text-amber-600" />
                         )}
                       </div>
                       {req.note && (
                         <p className="text-sm text-gray-600 mt-1">{req.note}</p>
                       )}
-                      {req.reason && (
+                      {req.reason && !isPendingUpload && !isUploaded && (
                         <p className="text-xs text-amber-600 mt-1 italic">{req.reason}</p>
                       )}
-                      {req.requirementType && (
-                        <p className="text-xs text-gray-500 mt-1">Type: {req.requirementType}</p>
+                      {isUploaded && !isSatisfied && (
+                        <p className="text-xs text-blue-600 mt-1">Ready to upload with application</p>
                       )}
                     </div>
-                    {isUploaded && !isSatisfied && (
-                      <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
-                    )}
                   </div>
                   {!isSatisfied && (
                     <div className="flex items-center gap-3">
