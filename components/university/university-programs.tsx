@@ -19,6 +19,7 @@ import {
   Clock,
   GraduationCap,
   FileText,
+  CheckCircle2,
 } from "lucide-react";
 import clsx from "clsx";
 import type { AcademicProgram } from "@/types/academic";
@@ -27,12 +28,14 @@ interface UniversityProgramsProps {
   programs?: AcademicProgram[];
   onProgramSelect?: (programId: string) => void;
   selectedProgramId?: string;
+  appliedProgramIds?: Set<number>;
 }
 
-export function UniversityPrograms({ 
-  programs = [], 
+export function UniversityPrograms({
+  programs = [],
   onProgramSelect,
-  selectedProgramId 
+  selectedProgramId,
+  appliedProgramIds = new Set()
 }: UniversityProgramsProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -134,6 +137,7 @@ export function UniversityPrograms({
             ) : filteredPrograms.length > 0 ? (
               filteredPrograms.map((program) => {
                 const isExpanded = expandedProgramId === program.id;
+                const isAlreadyApplied = appliedProgramIds.has(program.id);
                 const englishRequirements =
                   program.requirements?.filter(
                     (r) => r.requirementType === "english"
@@ -158,6 +162,12 @@ export function UniversityPrograms({
                             <Badge variant="outline">
                               {program.degreeType}
                             </Badge>
+                            {isAlreadyApplied && (
+                              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                                <CheckCircle2 className="w-3 h-3 mr-1" />
+                                Already Applied
+                              </Badge>
+                            )}
                           </div>
                           <h3 className="text-xl font-bold text-purple-900 mb-2">
                             {program.name}
@@ -248,14 +258,25 @@ export function UniversityPrograms({
                         </div>
 
                         <div className="flex flex-col gap-2 min-w-[120px] mt-4 md:mt-0">
-                          <Button 
-                            className={`bg-purple-900 hover:bg-purple-800 ${
-                              selectedProgramId === String(program.id) ? 'ring-2 ring-purple-400' : ''
-                            }`}
-                            onClick={() => onProgramSelect?.(String(program.id))}
-                          >
-                            {selectedProgramId === String(program.id) ? 'Selected' : 'Select Program'}
-                          </Button>
+                          {isAlreadyApplied ? (
+                            <Button
+                              variant="outline"
+                              className="border-green-500 text-green-700 cursor-default"
+                              disabled
+                            >
+                              <CheckCircle2 className="w-4 h-4 mr-1" />
+                              Applied
+                            </Button>
+                          ) : (
+                            <Button
+                              className={`bg-purple-900 hover:bg-purple-800 ${
+                                selectedProgramId === String(program.id) ? 'ring-2 ring-purple-400' : ''
+                              }`}
+                              onClick={() => onProgramSelect?.(String(program.id))}
+                            >
+                              {selectedProgramId === String(program.id) ? 'Selected' : 'Select Program'}
+                            </Button>
+                          )}
                           <Button variant="outline">Details</Button>
                         </div>
                       </div>

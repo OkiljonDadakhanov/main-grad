@@ -12,14 +12,13 @@ import { useCustomToast } from "@/components/custom-toast"
 import { authFetch, BASE_URL } from "@/lib/auth"
 import { UniversityPrograms } from "@/components/university/university-programs"
 import DocumentsSelector from "@/components/DocumentsSelector"
-import EssaysSection from "@/components/EssaysSection"
 import ProgramRequirements from "@/components/ProgramRequirements"
 import ApplicationPreview from "@/components/ApplicationPreview"
 import SubmitSection from "@/components/SubmitSection"
 import { useDocumentStatus } from "@/hooks/useDocumentStatus"
+import { useAppliedPrograms } from "@/hooks/useAppliedPrograms"
 import {
   uploadAttachments,
-  uploadEssays,
   finalizeApplication,
 } from "@/hooks/useApplicationFlow"
 
@@ -36,8 +35,6 @@ export default function ApplyToUniversityPage({
   const [university, setUniversity] = useState<any>(null)
   const [selectedProgram, setSelectedProgram] = useState<string>("")
   const [activeTab, setActiveTab] = useState("programs")
-  const [motivation, setMotivation] = useState("")
-  const [whyThisUniversity, setWhyThisUniversity] = useState("")
   const [uploadedDocs, setUploadedDocs] = useState<Record<string, File>>({})
   const [includeDocuments, setIncludeDocuments] = useState({
     personalInfo: true,
@@ -52,9 +49,9 @@ export default function ApplyToUniversityPage({
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
-  const [essayAnswers, setEssayAnswers] = useState<Record<string, string>>({})
 
   const { documentStatus, checkingDocuments } = useDocumentStatus()
+  const { appliedProgramIds, hasAppliedToProgram } = useAppliedPrograms()
 
   // 🎓 Fetch University Data
   useEffect(() => {
@@ -78,12 +75,11 @@ export default function ApplyToUniversityPage({
     fetchUniversity()
   }, [universityId])
 
-  // 🧩 Fetch student-readiness data (includes essays and requirements)
+  // 🧩 Fetch student-readiness data (includes requirements)
   useEffect(() => {
     if (!selectedProgram) {
       setMissingRequirements([])
       setReadinessData(null)
-      setEssayAnswers({})
       return
     }
 
@@ -91,63 +87,30 @@ export default function ApplyToUniversityPage({
       try {
         const res = await authFetch(`${BASE_URL}/api/programmes/${selectedProgram}/student-readiness/`)
         if (!res.ok) return
-        
+
         const data = await res.json()
         setReadinessData(data)
-        
+
         // Get missing required requirements from API (for document uploads)
-        // Only include document-type requirements, exclude pure text essays
+        // Exclude essay/motivation letter requirements - those are handled by EssaysSection
         const missingReqs = (data.requirements || []).filter((req: any) => {
           if (!req.required || req.status !== "missing" || !data.missing_required?.includes(req.id)) {
             return false
           }
           const reqType = req.requirementType?.toLowerCase() || ""
-          // Include document type requirements (even if label contains "statement")
-          if (reqType === "document" || reqType === "file" || reqType === "upload") {
-            return true
-          }
-          // Exclude pure essay types
-          if (reqType === "essay" || reqType === "text") {
+          const label = req.label?.toLowerCase() || ""
+
+          // Exclude essay/motivation letter requirements
+          if (reqType === "essay") {
             return false
           }
-          // For other types, exclude based on essay-related labels
-          const label = req.label?.toLowerCase() || ""
-          return !(label.includes("essay") || label.includes("motivation letter"))
+          if (label.includes("motivation letter") || label.includes("personal statement")) {
+            return false
+          }
+
+          return true
         })
         setMissingRequirements(missingReqs)
-
-        // Initialize essay answers from existing data if available
-        // Only include pure essay type requirements
-        const essayReqs = (data.requirements || []).filter((req: any) => {
-          const reqType = req.requirementType?.toLowerCase() || ""
-          const label = req.label?.toLowerCase() || ""
-
-          // Skip document type requirements
-          if (reqType === "document" || reqType === "file" || reqType === "upload") {
-            return false
-          }
-
-          // Include essay/text type requirements
-          if (reqType === "essay" || reqType === "text") {
-            return true
-          }
-
-          // Include based on label only if NOT a document type
-          return (
-            label.includes("essay") ||
-            label.includes("motivation letter") ||
-            (label.includes("why") && !label.includes("document"))
-          )
-        })
-        
-        // Initialize with existing values if they exist
-        const initialEssays: Record<string, string> = {}
-        essayReqs.forEach((req: any) => {
-          if (req.matched_record?.answer || req.matched_record?.content) {
-            initialEssays[String(req.id)] = req.matched_record.answer || req.matched_record.content || ""
-          }
-        })
-        setEssayAnswers(initialEssays)
       } catch (err) {
         console.error("Error fetching readiness:", err)
         setMissingRequirements([])
@@ -236,45 +199,6 @@ export default function ApplyToUniversityPage({
   const handleCheckDocuments = async () => {
     if (!selectedProgram) return error("Please select a program first")
 
-    // Check if all required essays are filled (only pure text essays, not document uploads)
-    if (readinessData) {
-      const essayReqs = (readinessData.requirements || []).filter((req: any) => {
-        if (!req.required) return false
-        const reqType = req.requirementType?.toLowerCase() || ""
-        const label = req.label?.toLowerCase() || ""
-
-        // Skip document type requirements - those are file uploads, not text
-        if (reqType === "document" || reqType === "file" || reqType === "upload") {
-          return false
-        }
-
-        // Include essay/text type requirements
-        if (reqType === "essay" || reqType === "text") {
-          return true
-        }
-
-        // Include based on label only if NOT a document type
-        return (
-          label.includes("essay") ||
-          label.includes("motivation letter") ||
-          (label.includes("why") && !label.includes("document"))
-        )
-      })
-
-      const missingEssays = essayReqs.filter((req: any) => {
-        const answer = essayAnswers[String(req.id)]
-        return !answer || answer.trim().length === 0
-      })
-
-      if (missingEssays.length > 0) {
-        error(`Please fill in all required essays: ${missingEssays.map((r: any) => r.label).join(", ")}`)
-        return
-      }
-    } else {
-      // Fallback to old validation
-      if (!motivation || !whyThisUniversity) return error("Please fill in all required essays")
-    }
-
     // Server-side readiness check using API
     const isReady = await checkStudentReadiness(selectedProgram)
     if (!isReady) return
@@ -286,45 +210,6 @@ export default function ApplyToUniversityPage({
   const handleSubmitApplication = async () => {
     if (!selectedProgram) return error("Select a program before submitting.")
 
-    // Check if all required essays are filled (only pure text essays, not document uploads)
-    if (readinessData) {
-      const essayReqs = (readinessData.requirements || []).filter((req: any) => {
-        if (!req.required) return false
-        const reqType = req.requirementType?.toLowerCase() || ""
-        const label = req.label?.toLowerCase() || ""
-
-        // Skip document type requirements - those are file uploads, not text
-        if (reqType === "document" || reqType === "file" || reqType === "upload") {
-          return false
-        }
-
-        // Include essay/text type requirements
-        if (reqType === "essay" || reqType === "text") {
-          return true
-        }
-
-        // Include based on label only if NOT a document type
-        return (
-          label.includes("essay") ||
-          label.includes("motivation letter") ||
-          (label.includes("why") && !label.includes("document"))
-        )
-      })
-
-      const missingEssays = essayReqs.filter((req: any) => {
-        const answer = essayAnswers[String(req.id)]
-        return !answer || answer.trim().length === 0
-      })
-
-      if (missingEssays.length > 0) {
-        error(`Please fill in all required essays: ${missingEssays.map((r: any) => r.label).join(", ")}`)
-        return
-      }
-    } else {
-      // Fallback to old validation
-      if (!motivation || !whyThisUniversity) return error("Please fill in all required essays")
-    }
-    
     setSubmitting(true)
     try {
       // First check readiness
@@ -342,8 +227,45 @@ export default function ApplyToUniversityPage({
       })
 
       if (!createRes.ok) {
-        const text = await createRes.text().catch(() => null)
-        throw new Error(text || "Failed to create application")
+        // Parse error response for user-friendly message
+        let errorMessage = "Failed to create application"
+        try {
+          const errorData = await createRes.json()
+          // Handle various error formats from DRF
+          if (typeof errorData === "string") {
+            errorMessage = errorData
+          } else if (errorData.detail) {
+            errorMessage = errorData.detail
+          } else if (errorData.non_field_errors) {
+            errorMessage = Array.isArray(errorData.non_field_errors)
+              ? errorData.non_field_errors.join(", ")
+              : errorData.non_field_errors
+          } else if (errorData.programme_id) {
+            errorMessage = Array.isArray(errorData.programme_id)
+              ? errorData.programme_id.join(", ")
+              : errorData.programme_id
+          } else {
+            // Collect all error messages
+            const messages = Object.values(errorData).flat()
+            if (messages.length > 0) {
+              errorMessage = messages.join(", ")
+            }
+          }
+        } catch {
+          // If JSON parsing fails, try text
+          const text = await createRes.text().catch(() => null)
+          if (text) errorMessage = text
+        }
+
+        // Check if this is an "already applied" error and redirect
+        if (errorMessage.toLowerCase().includes("already") &&
+            errorMessage.toLowerCase().includes("appl")) {
+          warning(errorMessage)
+          router.push("/student/my-applications")
+          return
+        }
+
+        throw new Error(errorMessage)
       }
 
       const created = await createRes.json()
@@ -351,44 +273,10 @@ export default function ApplyToUniversityPage({
       if (!appId) throw new Error("Application created but no ID returned")
 
       await uploadAttachments(appId, uploadedDocs)
-      
-      // Upload essays dynamically based on readiness data (only pure text essays)
-      if (readinessData && Object.keys(essayAnswers).length > 0) {
-        const essayReqs = (readinessData.requirements || []).filter((req: any) => {
-          const reqType = req.requirementType?.toLowerCase() || ""
-          const label = req.label?.toLowerCase() || ""
 
-          // Skip document type requirements
-          if (reqType === "document" || reqType === "file" || reqType === "upload") {
-            return false
-          }
+      // Note: Motivation letters are now uploaded as files in important_documents
+      // The application will automatically include them via the student profile
 
-          // Include essay/text type requirements
-          if (reqType === "essay" || reqType === "text") {
-            return true
-          }
-
-          // Include based on label only if NOT a document type
-          return (
-            label.includes("essay") ||
-            label.includes("motivation letter") ||
-            (label.includes("why") && !label.includes("document"))
-          )
-        })
-        
-        // Upload each essay requirement
-        for (const req of essayReqs) {
-          const answer = essayAnswers[String(req.id)]
-          if (answer && answer.trim()) {
-            // Use the requirement ID and answer to upload
-            await uploadEssays(appId, answer, undefined, req.id)
-          }
-        }
-      } else {
-        // Fallback to old method
-        await uploadEssays(appId, motivation, whyThisUniversity)
-      }
-      
       await finalizeApplication(appId)
       success("Your application has been successfully submitted!")
       router.push("/student/my-applications")
@@ -449,101 +337,121 @@ export default function ApplyToUniversityPage({
         </TabsList>
 
         <TabsContent value="programs" className="space-y-6">
-          <UniversityPrograms 
+          <UniversityPrograms
             programs={activePrograms}
             onProgramSelect={handleProgramSelect}
             selectedProgramId={selectedProgram}
+            appliedProgramIds={appliedProgramIds}
           />
         </TabsContent>
 
         {selectedProgram && (
           <TabsContent value="apply" className="space-y-6">
-            {selectedProgramObj && (
-              <Card>
+            {selectedProgramObj && hasAppliedToProgram(selectedProgram) ? (
+              <Card className="border-green-200 bg-green-50">
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-purple-900">
-                        {selectedProgramObj.name}
-                      </h3>
-                      <div className="flex gap-2 mt-2">
-                        <Badge className="bg-purple-100 text-purple-800">
-                          {selectedProgramObj.field_of_study}
-                        </Badge>
-                        <Badge variant="outline">
-                          {selectedProgramObj.degreeType}
-                        </Badge>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
                     </div>
-                    {selectedProgramObj.contractPrice && (
-                      <div className="text-right">
-                        <p className="text-sm text-gray-600">Contract Price</p>
-                        <p className="text-2xl font-bold text-purple-600">
-                          ${parseFloat(selectedProgramObj.contractPrice).toLocaleString()}
-                        </p>
-                      </div>
-                    )}
+                    <div>
+                      <h3 className="text-lg font-semibold text-green-800">
+                        You have already applied to this program
+                      </h3>
+                      <p className="text-green-700 mt-1">
+                        You have already submitted an application for <strong>{selectedProgramObj.name}</strong>.
+                        You can track its status in your applications dashboard.
+                      </p>
+                      <Link href="/student/my-applications" className="inline-block mt-3">
+                        <Button variant="outline" className="border-green-500 text-green-700 hover:bg-green-100">
+                          View My Applications
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
+            ) : (
+              <>
+                {selectedProgramObj && (
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-xl font-bold text-purple-900">
+                            {selectedProgramObj.name}
+                          </h3>
+                          <div className="flex gap-2 mt-2">
+                            <Badge className="bg-purple-100 text-purple-800">
+                              {selectedProgramObj.field_of_study}
+                            </Badge>
+                            <Badge variant="outline">
+                              {selectedProgramObj.degreeType}
+                            </Badge>
+                          </div>
+                        </div>
+                        {selectedProgramObj.contractPrice && (
+                          <div className="text-right">
+                            <p className="text-sm text-gray-600">Contract Price</p>
+                            <p className="text-2xl font-bold text-purple-600">
+                              ${parseFloat(selectedProgramObj.contractPrice).toLocaleString()}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <DocumentsSelector
+                  includeDocuments={includeDocuments}
+                  setIncludeDocuments={setIncludeDocuments}
+                  documentStatus={documentStatus}
+                  programmeId={selectedProgram || null}
+                />
+
+                {/* EssaysSection deprecated - all requirements handled by ProgramRequirements */}
+
+                <ProgramRequirements
+                  selectedProgramObj={selectedProgramObj}
+                  uploadedDocs={uploadedDocs}
+                  handleFileUpload={handleFileUpload}
+                  missingRequirements={missingRequirements}
+                  readinessData={readinessData}
+                  programmeId={selectedProgram || null}
+                />
+
+                {missingRequirements.length === 0 && selectedProgram && (
+                  <Card>
+                    <CardContent className="p-4">
+                      <p className="text-green-600 font-medium">
+                        All required documents are already uploaded.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {showPreview && selectedProgramObj && (
+                  <ApplicationPreview
+                    program={selectedProgramObj}
+                    readinessData={readinessData}
+                    includeDocuments={includeDocuments}
+                    uploadedDocs={uploadedDocs}
+                  />
+                )}
+
+                <SubmitSection
+                  showPreview={showPreview}
+                  handleCheckDocuments={handleCheckDocuments}
+                  handleSubmitApplication={handleSubmitApplication}
+                  submitting={submitting}
+                  checkingDocuments={checkingDocuments}
+                  selectedProgram={selectedProgram}
+                />
+              </>
             )}
-
-            <DocumentsSelector
-              includeDocuments={includeDocuments}
-              setIncludeDocuments={setIncludeDocuments}
-              documentStatus={documentStatus}
-              programmeId={selectedProgram || null}
-            />
-
-            <EssaysSection
-              university={university}
-              readinessData={readinessData}
-              essayAnswers={essayAnswers}
-              setEssayAnswers={setEssayAnswers}
-              motivation={motivation}
-              setMotivation={setMotivation}
-              whyThisUniversity={whyThisUniversity}
-              setWhyThisUniversity={setWhyThisUniversity}
-            />
-
-            <ProgramRequirements
-              selectedProgramObj={selectedProgramObj}
-              uploadedDocs={uploadedDocs}
-              handleFileUpload={handleFileUpload}
-              missingRequirements={missingRequirements}
-              readinessData={readinessData}
-              programmeId={selectedProgram || null}
-            />
-
-            {missingRequirements.length === 0 && selectedProgram && (
-              <Card>
-                <CardContent className="p-4">
-                  <p className="text-green-600 font-medium">
-                    ✅ All required documents are already uploaded.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {showPreview && selectedProgramObj && (
-              <ApplicationPreview
-                program={selectedProgramObj}
-                motivation={motivation}
-                whyThisUniversity={whyThisUniversity}
-                essayAnswers={essayAnswers}
-                readinessData={readinessData}
-                includeDocuments={includeDocuments}
-              />
-            )}
-
-            <SubmitSection
-              showPreview={showPreview}
-              handleCheckDocuments={handleCheckDocuments}
-              handleSubmitApplication={handleSubmitApplication}
-              submitting={submitting}
-              checkingDocuments={checkingDocuments}
-              selectedProgram={selectedProgram}
-            />
           </TabsContent>
         )}
       </Tabs>
