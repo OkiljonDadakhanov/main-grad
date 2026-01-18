@@ -26,8 +26,6 @@ export interface ApplicationEntry {
     | "Offer Received"
     | "Resend"
     | "Interview"
-    | "Confirmed"
-    | "Visa Taken"
     | "Studying"
   statusDate: string
   remarks?: string
@@ -50,10 +48,10 @@ const mockApplications: ApplicationEntry[] = [
     universityName: "KAIST (Korea Advanced Institute of Science and Technology)",
     programName: "PhD in Robotics",
     applicationDate: "2024-02-20",
-    status: "Confirmed",
+    status: "Accepted",
     statusDate: "2024-05-10",
     applicationId: "KAIST2024ROB005",
-    remarks: "Admission confirmed. Scholarship awarded. Prepare visa documents.",
+    remarks: "Congratulations! Your application has been accepted.",
   },
   {
     id: "app3",
@@ -160,8 +158,8 @@ export default function MyApplicationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">My Applications</h1>
-          <p className="text-sm text-gray-500">Track and manage your university applications</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">My Applications</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Track and manage your university applications</p>
         </div>
         <Button onClick={() => setIsAddModalOpen(true)} className="bg-purple-600 hover:bg-purple-700">
           <PlusCircle className="mr-2 h-4 w-4" /> Add Application
@@ -172,7 +170,7 @@ export default function MyApplicationsPage() {
       <Card>
         <CardContent className="pt-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5 lg:grid-cols-11 gap-2">
+            <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9 gap-2">
               <TabsTrigger value="all" className="text-xs">
                 All
                 <Badge variant="secondary" className="ml-1 text-xs">
@@ -209,18 +207,6 @@ export default function MyApplicationsPage() {
                   {getStatusCount("accepted")}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="confirmed" className="text-xs">
-                Confirmed
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("confirmed")}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="visa taken" className="text-xs">
-                Visa Taken
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("visa taken")}
-                </Badge>
-              </TabsTrigger>
               <TabsTrigger value="studying" className="text-xs">
                 Studying
                 <Badge variant="secondary" className="ml-1 text-xs">
@@ -254,7 +240,7 @@ export default function MyApplicationsPage() {
       ) : (
         <Card>
           <CardContent className="pt-6">
-            <p className="text-center text-gray-500">
+            <p className="text-center text-gray-500 dark:text-gray-400">
               {activeTab === "all"
                 ? "You haven't added any applications to track yet. Click 'Add Application' to get started."
                 : `No applications with status "${activeTab}".`}

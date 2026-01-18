@@ -1,27 +1,20 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-
-const LANGUAGES = [
-  { id: "en", name: "English", flag: "🇺🇸" },
-  { id: "ko", name: "한국어 (Korean)", flag: "🇰🇷" },
-  { id: "ru", name: "Русский (Russian)", flag: "🇷🇺" },
-  { id: "uz", name: "O'zbek (Uzbek)", flag: "🇺🇿" },
-]
+import { useI18n, SUPPORTED_LOCALES } from "@/lib/i18n"
 
 export function LanguageSettings() {
   const { toast } = useToast()
-  const [language, setLanguage] = useState("en")
+  const { locale, setLocale, t } = useI18n()
 
-  const handleSave = () => {
-    // In a real app, this would call an API to save the settings
+  const handleLanguageChange = (newLocale: string) => {
+    setLocale(newLocale)
     toast({
-      title: "Language updated",
-      description: "Your language preference has been saved.",
+      title: t("common.success"),
+      description: t("profile.saveSuccess"),
       variant: "success",
     })
   }
@@ -34,11 +27,11 @@ export function LanguageSettings() {
         <div>
           <p className="text-sm text-gray-500 mb-4">Select your preferred language for the interface</p>
 
-          <RadioGroup value={language} onValueChange={setLanguage} className="space-y-3">
-            {LANGUAGES.map((lang) => (
-              <div key={lang.id} className="flex items-center space-x-2 border p-3 rounded-md">
-                <RadioGroupItem value={lang.id} id={`lang-${lang.id}`} />
-                <Label htmlFor={`lang-${lang.id}`} className="flex items-center">
+          <RadioGroup value={locale} onValueChange={handleLanguageChange} className="space-y-3">
+            {SUPPORTED_LOCALES.map((lang) => (
+              <div key={lang.code} className="flex items-center space-x-2 border p-3 rounded-md">
+                <RadioGroupItem value={lang.code} id={`lang-${lang.code}`} />
+                <Label htmlFor={`lang-${lang.code}`} className="flex items-center">
                   <span className="mr-2 text-xl">{lang.flag}</span>
                   {lang.name}
                 </Label>
@@ -46,10 +39,6 @@ export function LanguageSettings() {
             ))}
           </RadioGroup>
         </div>
-
-        <Button onClick={handleSave} className="bg-purple-900 hover:bg-purple-800">
-          Save Changes
-        </Button>
       </div>
     </div>
   )

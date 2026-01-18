@@ -26,6 +26,7 @@ import {
 import { authFetch, BASE_URL } from "@/lib/auth"
 import { useCustomToast } from "@/components/custom-toast"
 import { Loader2 } from "lucide-react"
+import { useI18n } from "@/lib/i18n"
 
 interface UploadCertificateModalProps {
   isOpen: boolean
@@ -71,6 +72,7 @@ export default function UploadCertificateModal({
   onCreated,
 }: UploadCertificateModalProps) {
   const { success, error } = useCustomToast()
+  const { t } = useI18n()
   const [certificateType, setCertificateType] = useState<string>("")
   const [schema, setSchema] = useState<z.ZodType<any> | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -155,12 +157,12 @@ export default function UploadCertificateModal({
         throw new Error(errorData.error || "Failed to upload certificate")
       }
 
-      success("Certificate uploaded successfully")
+      success(t("certificates.certificateUploaded"))
       reset()
       setCertificateType("")
       await onCreated()
     } catch (e) {
-      error("Failed to upload certificate")
+      error(t("certificates.uploadFailed"))
     } finally {
       setIsLoading(false)
     }
@@ -170,16 +172,16 @@ export default function UploadCertificateModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Upload New Certificate/Document</DialogTitle>
+          <DialogTitle>{t("certificates.uploadNewCertificate")}</DialogTitle>
           <DialogDescription>
-            Add details and upload your document file.
+            {t("certificates.modalDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
           {/* Document Type */}
           <div>
-            <Label htmlFor="type">Document Type</Label>
+            <Label htmlFor="type">{t("certificates.documentType")}</Label>
             <Select
               onValueChange={(value) => {
                 setCertificateType(value)
@@ -187,7 +189,7 @@ export default function UploadCertificateModal({
               }}
             >
               <SelectTrigger id="type">
-                <SelectValue placeholder="Select document type" />
+                <SelectValue placeholder={t("certificates.selectDocumentType")} />
               </SelectTrigger>
               <SelectContent>
                 {certificateTypes.map((type) => (
@@ -206,11 +208,11 @@ export default function UploadCertificateModal({
 
           {/* Document Name */}
           <div>
-            <Label htmlFor="name">Document Name</Label>
+            <Label htmlFor="name">{t("certificates.documentName")}</Label>
             <Input
               id="name"
               {...register("name")}
-              placeholder="e.g., IELTS Certificate, Academic Transcript"
+              placeholder={t("certificates.documentNamePlaceholder")}
             />
             {errors.name?.message && (
               <p className="text-sm text-red-500">
@@ -224,10 +226,10 @@ export default function UploadCertificateModal({
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="language">Language</Label>
+                  <Label htmlFor="language">{t("certificates.language")}</Label>
                   <Select onValueChange={(value) => setValue("language", value)}>
                     <SelectTrigger id="language">
-                      <SelectValue placeholder="Select language" />
+                      <SelectValue placeholder={t("certificates.selectLanguage")} />
                     </SelectTrigger>
                     <SelectContent>
                       {languageOptions.map((lang) => (
@@ -239,12 +241,12 @@ export default function UploadCertificateModal({
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="certificate">Certificate Type</Label>
+                  <Label htmlFor="certificate">{t("certificates.certificateType")}</Label>
                   <Select
                     onValueChange={(value) => setValue("certificate", value)}
                   >
                     <SelectTrigger id="certificate">
-                      <SelectValue placeholder="Select certificate" />
+                      <SelectValue placeholder={t("certificates.selectCertificate")} />
                     </SelectTrigger>
                     <SelectContent>
                       {certificateOptions.map((cert) => (
@@ -257,11 +259,11 @@ export default function UploadCertificateModal({
                 </div>
               </div>
               <div>
-                <Label htmlFor="score">Score/Level</Label>
+                <Label htmlFor="score">{t("certificates.scoreLevel")}</Label>
                 <Input
                   id="score"
                   {...register("score")}
-                  placeholder="e.g., 7.5, Level 5, B2"
+                  placeholder={t("certificates.scoreLevelPlaceholder")}
                 />
               </div>
             </>
@@ -269,7 +271,7 @@ export default function UploadCertificateModal({
 
           {/* Issue Date */}
           <div>
-            <Label htmlFor="issueDate">Issue Date</Label>
+            <Label htmlFor="issueDate">{t("certificates.issueDate")}</Label>
             <Input id="issueDate" type="date" {...register("issueDate")} />
             {errors.issueDate?.message && (
               <p className="text-sm text-red-500">
@@ -280,7 +282,7 @@ export default function UploadCertificateModal({
 
           {/* File Upload */}
           <div>
-            <Label htmlFor="file">Upload File (PDF, JPG, PNG - Max 5MB)</Label>
+            <Label htmlFor="file">{t("certificates.uploadFile")}</Label>
             <Input
               id="file"
               type="file"
@@ -296,11 +298,11 @@ export default function UploadCertificateModal({
 
           {/* Description */}
           <div>
-            <Label htmlFor="description">Description (Optional)</Label>
+            <Label htmlFor="description">{t("education.descriptionOptional")}</Label>
             <Textarea
               id="description"
               {...register("description")}
-              placeholder="Any notes about this document..."
+              placeholder={t("certificates.descriptionPlaceholder")}
             />
           </div>
 
@@ -316,7 +318,7 @@ export default function UploadCertificateModal({
               }}
               disabled={isLoading}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
 
             <Button
@@ -327,10 +329,10 @@ export default function UploadCertificateModal({
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Uploading...
+                  {t("common.uploading")}
                 </>
               ) : (
-                "Upload Document"
+                t("certificates.uploadDocument")
               )}
             </Button>
           </DialogFooter>

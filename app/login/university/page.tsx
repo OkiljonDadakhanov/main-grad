@@ -73,7 +73,7 @@ export default function UniversityLoginPage() {
       // Redirect to university dashboard if configured, otherwise stay in app
       const universityDashboardUrl = process.env.NEXT_PUBLIC_UNIVERSITY_DASHBOARD_URL;
       if (universityDashboardUrl) {
-        window.location.href = `${universityDashboardUrl}/profile?token=${data.access}`;
+        window.location.href = `${universityDashboardUrl}/profile?token=${data.access}&refresh=${data.refresh}`;
       } else {
         // Fallback: redirect to home with success state
         router.push("/");

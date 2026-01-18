@@ -65,43 +65,42 @@ export function FeaturedUniversities() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {universities.map((university) => (
-            <Card key={university.id} className="overflow-hidden border hover:shadow-md transition-shadow">
-              <div className="relative h-48">
-                <img
-                  src={university.image || "/placeholder.svg"}
-                  alt={university.name}
-                  className="w-full h-full object-cover"
-                />
-                {university.featured && <Badge className="absolute top-2 right-2 bg-purple-600">Featured</Badge>}
-              </div>
-              <CardContent className="p-4">
-                <h3 className="font-bold text-lg mb-1 text-purple-900">{university.name}</h3>
-                <div className="flex items-center text-gray-500 text-sm mb-3">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  <span>{university.location}</span>
+            <Link key={university.id} href={`/universities/${university.id}`} className="block">
+              <Card className="overflow-hidden border hover:shadow-lg hover:border-purple-300 transition-all cursor-pointer h-full">
+                <div className="relative h-48">
+                  <img
+                    src={university.image || "/placeholder.svg"}
+                    alt={university.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {university.featured && <Badge className="absolute top-2 right-2 bg-purple-600">Featured</Badge>}
                 </div>
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {university.categories.map((category) => (
-                    <Badge key={category} variant="outline" className="bg-purple-50">
-                      {category}
-                    </Badge>
-                  ))}
-                </div>
-                <div className="flex justify-between text-sm text-gray-600 mb-4">
-                  <div className="flex items-center">
-                    <GraduationCap className="h-4 w-4 mr-1" />
-                    <span>{university.programs} Programs</span>
+                <CardContent className="p-4">
+                  <h3 className="font-bold text-lg mb-1 text-purple-900">{university.name}</h3>
+                  <div className="flex items-center text-gray-500 text-sm mb-3">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    <span>{university.location}</span>
                   </div>
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-1" />
-                    <span>{university.students.toLocaleString()} Students</span>
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {university.categories.map((category) => (
+                      <Badge key={category} variant="outline" className="bg-purple-50">
+                        {category}
+                      </Badge>
+                    ))}
                   </div>
-                </div>
-                <Button className="w-full bg-purple-900 hover:bg-purple-800" asChild>
-                  <Link href={`/universities/${university.id}`}>View Details</Link>
-                </Button>
-              </CardContent>
-            </Card>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <div className="flex items-center">
+                      <GraduationCap className="h-4 w-4 mr-1" />
+                      <span>{university.programs} Programs</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-1" />
+                      <span>{university.students.toLocaleString()} Students</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 

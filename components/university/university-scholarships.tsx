@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Calendar, DollarSign, Award } from "lucide-react";
 import clsx from "clsx";
+import { BASE_URL } from "@/lib/auth";
 
 interface Scholarship {
   id: number;
@@ -36,7 +37,7 @@ export function UniversityScholarships({
     async function fetchScholarships() {
       try {
         const res = await fetch(
-          `https://api.gradabroad.net/api/auth/universities/${universityId}`
+          `${BASE_URL}/api/auth/universities/${universityId}`
         );
         if (!res.ok) throw new Error("Failed to fetch university data");
 

@@ -11,9 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Upload, FileText, Trash2, Download, Loader2 } from "lucide-react";
+import { Upload, FileText, Trash2, Loader2 } from "lucide-react";
 import { useCustomToast } from "@/components/custom-toast";
 import { authFetch, BASE_URL } from "@/lib/auth";
+import { useI18n } from "@/lib/i18n";
 
 interface PersonalDocument {
   id: string;
@@ -53,6 +54,7 @@ const DOCUMENT_TYPES: DocumentType[] = [
 
 export default function PersonalDocuments() {
   const { success, error } = useCustomToast();
+  const { t } = useI18n();
   const [documents, setDocuments] = useState<PersonalDocument[]>([]);
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
@@ -101,7 +103,7 @@ export default function PersonalDocuments() {
       setDocuments(normalized);
     } catch (err) {
       console.error("Error loading documents:", err);
-      error("Failed to load documents");
+      error(t("documents.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -121,15 +123,15 @@ export default function PersonalDocuments() {
       });
 
       if (response.ok) {
-        success(`${docType.replaceAll("_", " ")} uploaded successfully`);
+        success(`${docType.replaceAll("_", " ")} ${t("documents.uploadSuccess")}`);
         await loadDocuments();
       } else {
         const errData = await response.json().catch(() => ({}));
-        error(errData.error || "Failed to upload document");
+        error(errData.error || t("documents.uploadFailed"));
       }
     } catch (err) {
       console.error("Upload error:", err);
-      error("Upload failed");
+      error(t("documents.uploadFailed"));
     } finally {
       setUploading((prev) => ({ ...prev, [docType]: false }));
     }
@@ -144,14 +146,14 @@ export default function PersonalDocuments() {
         }
       );
       if (response.ok) {
-        success("Document deleted successfully");
+        success(t("documents.deleteSuccess"));
         setDocuments((prev) => prev.filter((d) => d.id !== id));
       } else {
-        error("Failed to delete document");
+        error(t("documents.deleteFailed"));
       }
     } catch (err) {
       console.error("Delete error:", err);
-      error("Delete failed");
+      error(t("documents.deleteFailed"));
     }
   };
 
@@ -162,14 +164,14 @@ export default function PersonalDocuments() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Required Documents</CardTitle>
+          <CardTitle>{t("documents.requiredDocuments")}</CardTitle>
           <CardDescription>
-            Upload your identification and personal documents
+            {t("documents.requiredDocsDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center items-center py-10">
           <Loader2 className="animate-spin h-5 w-5 text-gray-500" />
-          <span className="ml-2 text-sm text-gray-500">Loading...</span>
+          <span className="ml-2 text-sm text-gray-500">{t("common.loading")}</span>
         </CardContent>
       </Card>
     );
@@ -178,9 +180,9 @@ export default function PersonalDocuments() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Required Documents</CardTitle>
+        <CardTitle>{t("documents.requiredDocuments")}</CardTitle>
         <CardDescription>
-          Upload and manage your personal identification files
+          {t("documents.manageDocsDesc")}
         </CardDescription>
       </CardHeader>
 
@@ -192,7 +194,19 @@ export default function PersonalDocuments() {
           return (
             <div
               key={docType.key}
-              className="flex items-center justify-between p-4 border rounded-lg"
+              className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+                uploaded
+                  ? "cursor-pointer hover:bg-purple-50 hover:border-purple-300"
+                  : ""
+              }`}
+              onClick={() => {
+                if (uploaded) {
+                  window.open(
+                    uploaded.signed_file_url || uploaded.file_url,
+                    "_blank"
+                  );
+                }
+              }}
             >
               <div className="flex items-start gap-3 w-full">
                 <FileText className="h-5 w-5 text-gray-500 mt-1 shrink-0" />
@@ -217,7 +231,7 @@ export default function PersonalDocuments() {
                     </div>
                   ) : (
                     <p className="mt-1 text-xs text-gray-400">
-                      Not uploaded yet
+                      {t("common.notUploaded")}
                     </p>
                   )}
                 </div>
@@ -225,31 +239,23 @@ export default function PersonalDocuments() {
 
               <div className="flex items-center gap-2 shrink-0">
                 {uploaded ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        window.open(
-                          uploaded.signed_file_url || uploaded.file_url,
-                          "_blank"
-                        )
-                      }
-                    >
-                      <Download className="h-4 w-4 mr-1" />
-                      View
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteDocument(uploaded.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteDocument(uploaded.id);
+                    }}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 ) : (
-                  <Label htmlFor={docType.key} className="cursor-pointer">
+                  <Label
+                    htmlFor={docType.key}
+                    className="cursor-pointer"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div
                       className={`flex items-center gap-2 px-3 py-2 rounded-md text-white transition-colors ${
                         isUploading
@@ -260,12 +266,12 @@ export default function PersonalDocuments() {
                       {isUploading ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />
-                          <span>Uploading...</span>
+                          <span>{t("common.uploading")}</span>
                         </>
                       ) : (
                         <>
                           <Upload className="h-4 w-4" />
-                          <span>Upload</span>
+                          <span>{t("common.upload")}</span>
                         </>
                       )}
                     </div>

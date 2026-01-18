@@ -1,7 +1,9 @@
 import type React from "react"
 import StudentSidebar from "@/components/student-dashboard/student-sidebar"
 import NotificationBell from "@/components/student-dashboard/notification-bell"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { LanguageSwitcher } from "@/components/layout/language-switcher"
+import { ThemeToggle } from "@/components/layout/theme-toggle"
+import { UserDropdown } from "@/components/layout/user-dropdown"
 
 export default function StudentDashboardLayout({
   children,
@@ -9,24 +11,21 @@ export default function StudentDashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen bg-gray-50/50">
+    <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-950">
       <StudentSidebar />
 
       {/* Main content shifted right by sidebar width */}
       <div className="flex-1 pl-64">
         {/* Top header */}
-        <header className="flex items-center justify-between p-4 border-b bg-white sticky top-0 z-20">
-          <h1 className="text-lg font-semibold text-gray-800">
+        <header className="flex items-center justify-between p-4 border-b bg-white dark:bg-gray-900 dark:border-gray-800 sticky top-0 z-20 shadow-sm dark:shadow-gray-950/50">
+          <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
             Graduate in Korea
           </h1>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LanguageSwitcher />
             <NotificationBell />
-            <div className="flex items-center gap-2 cursor-pointer">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="https://flagcdn.com/us.svg" alt="USA Flag" />
-                <AvatarFallback>US</AvatarFallback>
-              </Avatar>
-            </div>
+            <UserDropdown />
           </div>
         </header>
 

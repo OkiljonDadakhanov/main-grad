@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { authFetch, BASE_URL } from "@/lib/auth"
 import { useCustomToast } from "@/components/custom-toast"
+import { useI18n } from "@/lib/i18n"
 
 interface AddEducationModalProps {
   isOpen: boolean
@@ -43,6 +44,7 @@ type EducationFormData = z.infer<typeof educationSchema>
 
 export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEducationModalProps) {
   const { success, error } = useCustomToast()
+  const { t } = useI18n()
   const {
     register,
     handleSubmit,
@@ -77,11 +79,11 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
         body: JSON.stringify(payload),
       })
       if (!response.ok) throw new Error("Failed to create education")
-      success("Education added")
+      success(t("education.educationAdded"))
       reset()
       await onCreated()
     } catch (e) {
-      error("Failed to add education")
+      error(t("education.addFailed"))
     }
   }
 
@@ -89,16 +91,16 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Add New Education</DialogTitle>
+          <DialogTitle>{t("education.addNewEducation")}</DialogTitle>
           <DialogDescription>
-            Enter your academic qualification and upload related documents.
+            {t("education.modalDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
           {/* Institution */}
           <div>
-            <Label htmlFor="institution">Institution Name</Label>
+            <Label htmlFor="institution">{t("education.institutionName")}</Label>
             <Input id="institution" {...register("institution")} />
             {errors.institution && (
               <p className="text-sm text-red-500">{errors.institution.message}</p>
@@ -108,41 +110,38 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
           {/* Type and Location */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="type">Degree</Label>
+              <Label htmlFor="type">{t("education.degree")}</Label>
               <Select onValueChange={(value) => setValue("type", value)} defaultValue="primary">
                 <SelectTrigger id="type">
-                  <SelectValue placeholder="Select education type" />
+                  <SelectValue placeholder={t("education.selectDegree")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="primary">Primary</SelectItem>
-                  <SelectItem value="secondary">Secondary</SelectItem>
-                  <SelectItem value="vocational">Vocational</SelectItem>
-                  <SelectItem value="higher_bachelor">Higher (Bachelor’s)</SelectItem>
-                  <SelectItem value="graduate_master">Graduate (Master’s)</SelectItem>
-                  <SelectItem value="postgraduate_doctoral">Postgraduate / Doctoral</SelectItem>
-                  <SelectItem value="foundation_preparatory">Foundation / Preparatory</SelectItem>
-                  <SelectItem value="professional_certificate">Professional / Certificate</SelectItem>
+                  <SelectItem value="primary">{t("education.primary")}</SelectItem>
+                  <SelectItem value="secondary">{t("education.secondary")}</SelectItem>
+                  <SelectItem value="vocational">{t("education.vocational")}</SelectItem>
+                  <SelectItem value="higher_bachelor">{t("education.higherBachelor")}</SelectItem>
+                  <SelectItem value="graduate_master">{t("education.graduateMaster")}</SelectItem>
+                  <SelectItem value="postgraduate_doctoral">{t("education.postgraduateDoctoral")}</SelectItem>
+                  <SelectItem value="foundation_preparatory">{t("education.foundationPreparatory")}</SelectItem>
+                  <SelectItem value="professional_certificate">{t("education.professionalCertificate")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label htmlFor="country">Country</Label>
+              <Label htmlFor="country">{t("profile.country")}</Label>
               <Input id="country" placeholder="Uzbekistan" {...register("country")} />
             </div>
 
             <div>
-              <Label htmlFor="city">City</Label>
+              <Label htmlFor="city">{t("profile.city")}</Label>
               <Input id="city" placeholder="Tashkent" {...register("city")} />
             </div>
           </div>
 
-          {/* Degree */}
-        
-
           {/* Field of Study */}
           <div>
-            <Label htmlFor="fieldOfStudy">Field of Study</Label>
+            <Label htmlFor="fieldOfStudy">{t("education.fieldOfStudy")}</Label>
             <Input id="fieldOfStudy" {...register("fieldOfStudy")} />
             {errors.fieldOfStudy && (
               <p className="text-sm text-red-500">{errors.fieldOfStudy.message}</p>
@@ -152,34 +151,34 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="startDate">Start Date</Label>
+              <Label htmlFor="startDate">{t("education.startDate")}</Label>
               <Input id="startDate" type="date" {...register("startDate")} />
             </div>
             <div>
-              <Label htmlFor="endDate">End Date</Label>
+              <Label htmlFor="endDate">{t("education.endDate")}</Label>
               <Input id="endDate" type="date" {...register("endDate")} />
             </div>
           </div>
 
           {/* Graduation Year */}
           <div>
-            <Label htmlFor="graduationYear">Graduation Year</Label>
+            <Label htmlFor="graduationYear">{t("education.graduationYear")}</Label>
             <Input id="graduationYear" placeholder="2024" {...register("graduationYear")} />
           </div>
 
           {/* GPA */}
           <div>
-            <Label htmlFor="gpa">GPA (Optional)</Label>
-            <Input id="gpa" {...register("gpa")} placeholder="e.g., 3.8/4.0 or 85%" />
+            <Label htmlFor="gpa">{t("education.gpaOptional")}</Label>
+            <Input id="gpa" {...register("gpa")} placeholder={t("education.gpaPlaceholder")} />
           </div>
 
           {/* Description */}
           <div>
-            <Label htmlFor="description">Description (Optional)</Label>
+            <Label htmlFor="description">{t("education.descriptionOptional")}</Label>
             <Textarea
               id="description"
               {...register("description")}
-              placeholder="Any additional details or achievements..."
+              placeholder={t("education.descriptionPlaceholder")}
             />
           </div>
 
@@ -193,10 +192,10 @@ export default function AddEducationModal({ isOpen, onClose, onCreated }: AddEdu
                 onClose()
               }}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
-              Add Education
+              {t("education.addEducation")}
             </Button>
           </DialogFooter>
         </form>

@@ -18,6 +18,7 @@ import * as z from "zod"
 import type { FamilyMember } from "@/app/student/my-family/page"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
+import { useI18n } from "@/lib/i18n"
 
 interface AddFamilyMemberModalProps {
   isOpen: boolean
@@ -50,6 +51,7 @@ export default function AddFamilyMemberModal({
   onClose,
   onAddMember,
 }: AddFamilyMemberModalProps) {
+  const { t } = useI18n()
   const {
     register,
     handleSubmit,
@@ -91,26 +93,26 @@ export default function AddFamilyMemberModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Add Family Member</DialogTitle>
+          <DialogTitle>{t("family.addFamilyMember")}</DialogTitle>
           <DialogDescription>
-            Enter the details of the family member and upload their passport copy.
+            {t("family.modalDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
           {/* Full Name */}
           <div>
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="fullName">{t("profile.fullName")}</Label>
             <Input id="fullName" {...register("fullName")} />
             {errors.fullName && <p className="text-sm text-red-500">{errors.fullName.message}</p>}
           </div>
 
           {/* Relationship */}
           <div>
-            <Label htmlFor="relationship">Relationship</Label>
+            <Label htmlFor="relationship">{t("profile.relationship")}</Label>
             <Select onValueChange={(value) => setValue("relationship", value)}>
               <SelectTrigger id="relationship">
-                <SelectValue placeholder="Select relationship" />
+                <SelectValue placeholder={t("family.selectRelationship")} />
               </SelectTrigger>
               <SelectContent>
                 {relationshipTypes.map((type) => (
@@ -127,7 +129,7 @@ export default function AddFamilyMemberModal({
 
           {/* Date of Birth */}
           <div>
-            <Label htmlFor="dateOfBirth">Date of Birth</Label>
+            <Label htmlFor="dateOfBirth">{t("profile.dateOfBirth")}</Label>
             <Input id="dateOfBirth" type="date" {...register("dateOfBirth")} />
             {errors.dateOfBirth && (
               <p className="text-sm text-red-500">{errors.dateOfBirth.message}</p>
@@ -136,20 +138,20 @@ export default function AddFamilyMemberModal({
 
           {/* Occupation */}
           <div>
-            <Label htmlFor="occupation">Occupation</Label>
+            <Label htmlFor="occupation">{t("family.occupation")}</Label>
             <Input id="occupation" {...register("occupation")} />
           </div>
 
           {/* Contact Number */}
           <div>
-            <Label htmlFor="contactNumber">Contact Number</Label>
+            <Label htmlFor="contactNumber">{t("family.contactNumber")}</Label>
             <Input id="contactNumber" {...register("contactNumber")} />
           </div>
 
-          {/* 📄 Passport Copy Upload */}
+          {/* Passport Copy Upload */}
           <div className="border-t pt-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Passport Copy</h3>
-            <Label htmlFor="passportFile">Upload Passport Copy (PDF, JPG, or PNG)</Label>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">{t("family.passportCopy")}</h3>
+            <Label htmlFor="passportFile">{t("family.uploadPassportCopy")}</Label>
             <Input
               id="passportFile"
               type="file"
@@ -158,10 +160,10 @@ export default function AddFamilyMemberModal({
             />
             {passportFile ? (
               <p className="text-xs text-gray-500 mt-1">
-                Uploaded: <span className="font-medium">{passportFile.name}</span>
+                {t("family.uploaded")}: <span className="font-medium">{passportFile.name}</span>
               </p>
             ) : (
-              <p className="text-xs text-gray-400 mt-1">No passport copy uploaded yet.</p>
+              <p className="text-xs text-gray-400 mt-1">{t("family.noPassportYet")}</p>
             )}
           </div>
 
@@ -179,7 +181,7 @@ export default function AddFamilyMemberModal({
               }}
               disabled={isSubmitting}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
@@ -189,10 +191,10 @@ export default function AddFamilyMemberModal({
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Adding...
+                  {t("family.adding")}
                 </span>
               ) : (
-                "Add Member"
+                t("family.addMember")
               )}
             </Button>
           </DialogFooter>

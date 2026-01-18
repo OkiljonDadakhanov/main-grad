@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, MapPin } from "lucide-react";
+import { BASE_URL } from "@/lib/auth";
 
 interface University {
   id: number;
@@ -31,7 +32,7 @@ export default function SearchResultsPage() {
       const query = new URLSearchParams(searchParams.toString());
       try {
         const res = await fetch(
-          `https://api.gradabroad.net/api/auth/universities/?${query}`
+          `${BASE_URL}/api/auth/universities/?${query}`
         );
         const data = await res.json();
         setUniversities(Array.isArray(data) ? data : []);

@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import type { FamilyMember } from "@/app/student/my-family/page"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useI18n } from "@/lib/i18n"
 
 interface EditFamilyMemberModalProps {
   isOpen: boolean
@@ -51,6 +52,7 @@ export default function EditFamilyMemberModal({
   onUpdateMember,
   member,
 }: EditFamilyMemberModalProps) {
+  const { t } = useI18n()
   const {
     register,
     handleSubmit,
@@ -104,27 +106,27 @@ export default function EditFamilyMemberModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Edit Family Member</DialogTitle>
-          <DialogDescription>Update the details and passport copy of this family member.</DialogDescription>
+          <DialogTitle>{t("family.editFamilyMember")}</DialogTitle>
+          <DialogDescription>{t("family.modalDescription")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
           {/* Full Name */}
           <div>
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="fullName">{t("profile.fullName")}</Label>
             <Input id="fullName" {...register("fullName")} />
             {errors.fullName && <p className="text-sm text-red-500">{errors.fullName.message}</p>}
           </div>
 
           {/* Relationship */}
           <div>
-            <Label htmlFor="relationship">Relationship</Label>
+            <Label htmlFor="relationship">{t("profile.relationship")}</Label>
             <Select
               defaultValue={member.relationship}
               onValueChange={(value) => setValue("relationship", value)}
             >
               <SelectTrigger id="relationship">
-                <SelectValue placeholder="Select relationship" />
+                <SelectValue placeholder={t("family.selectRelationship")} />
               </SelectTrigger>
               <SelectContent>
                 {relationshipTypes.map((type) => (
@@ -139,47 +141,46 @@ export default function EditFamilyMemberModal({
 
           {/* Date of Birth */}
           <div>
-            <Label htmlFor="dateOfBirth">Date of Birth</Label>
+            <Label htmlFor="dateOfBirth">{t("profile.dateOfBirth")}</Label>
             <Input id="dateOfBirth" type="date" {...register("dateOfBirth")} />
             {errors.dateOfBirth && <p className="text-sm text-red-500">{errors.dateOfBirth.message}</p>}
           </div>
 
           {/* Occupation */}
           <div>
-            <Label htmlFor="occupation">Occupation (Optional)</Label>
+            <Label htmlFor="occupation">{t("family.occupation")} ({t("common.optional")})</Label>
             <Input id="occupation" {...register("occupation")} />
           </div>
 
           {/* Contact Number */}
           <div>
-            <Label htmlFor="contactNumber">Contact Number (Optional)</Label>
+            <Label htmlFor="contactNumber">{t("family.contactNumber")} ({t("common.optional")})</Label>
             <Input id="contactNumber" {...register("contactNumber")} />
           </div>
 
           {/* Passport File */}
           <div className="border-t pt-4 space-y-2">
-            <h3 className="text-sm font-medium text-gray-700">Passport Copy</h3>
-            <Label htmlFor="passportFile">Upload New Passport Copy (PDF, JPG, or PNG)</Label>
+            <h3 className="text-sm font-medium text-gray-700">{t("family.passportCopy")}</h3>
+            <Label htmlFor="passportFile">{t("family.uploadPassportCopy")}</Label>
             <Input id="passportFile" type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handlePassportChange} />
 
             {passportFile ? (
               <p className="text-xs text-gray-500 mt-1">
-                New file selected: <span className="font-medium">{passportFile.name}</span>
+                {t("family.uploaded")}: <span className="font-medium">{passportFile.name}</span>
               </p>
             ) : existingPassportUrl ? (
               <p className="text-xs mt-1">
-                Current:{" "}
                 <a
                   href={existingPassportUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-purple-600 hover:underline"
                 >
-                  View current passport copy
+                  {t("common.viewFile")}
                 </a>
               </p>
             ) : (
-              <p className="text-xs text-gray-400 mt-1">No passport copy uploaded yet.</p>
+              <p className="text-xs text-gray-400 mt-1">{t("family.noPassportYet")}</p>
             )}
           </div>
 
@@ -193,10 +194,10 @@ export default function EditFamilyMemberModal({
                 onClose()
               }}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
-              Save Changes
+              {t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </form>

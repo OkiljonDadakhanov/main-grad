@@ -1,6 +1,11 @@
+"use client"
+
 import { Sparkles } from "lucide-react"
+import { useI18n } from "@/lib/i18n"
 
 export default function ProfileBanner() {
+  const { t } = useI18n()
+
   return (
     <div className="relative bg-purple-600 rounded-lg p-8 text-white overflow-hidden">
       <div
@@ -13,7 +18,7 @@ export default function ProfileBanner() {
       <div className="absolute top-0 right-0 h-full w-1/3 bg-gradient-to-l from-purple-600 to-transparent"></div>
       <div className="relative z-10">
         <h2 className="text-3xl font-bold mb-2 flex items-center">
-          Apply to the university of your dreams
+          {t("profile.banner")}
           <Sparkles className="ml-3 h-8 w-8 text-yellow-300" />
         </h2>
       </div>

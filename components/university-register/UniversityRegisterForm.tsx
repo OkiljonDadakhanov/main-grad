@@ -19,6 +19,7 @@ import { useCustomToast } from "@/components/custom-toast";
 
 import { FormSection } from "./FormSection";
 import { provinceCityData } from "@/constants/constants";
+import { BASE_URL } from "@/lib/auth";
 
 interface FormData {
   university_name: string;
@@ -151,7 +152,7 @@ export default function UniversityRegisterForm() {
 
     try {
       const response = await fetch(
-        "https://api.gradabroad.net/api/auth/register/university/",
+        `${BASE_URL}/api/auth/register/university/`,
         {
           method: "POST",
           body: formData,

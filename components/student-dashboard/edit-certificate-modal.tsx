@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useEffect } from "react"
 import { authFetch, BASE_URL } from "@/lib/auth"
 import { useCustomToast } from "@/components/custom-toast"
+import { useI18n } from "@/lib/i18n"
 
 interface EditCertificateModalProps {
   isOpen: boolean
@@ -78,6 +79,7 @@ export default function EditCertificateModal({
   certificate,
 }: EditCertificateModalProps) {
   const { success, error } = useCustomToast()
+  const { t } = useI18n()
   const {
     register,
     handleSubmit,
@@ -131,12 +133,12 @@ export default function EditCertificateModal({
       })
 
       if (!response.ok) throw new Error("Failed to update certificate")
-      
-      success("Certificate updated")
+
+      success(t("certificates.certificateUpdated"))
       reset()
       await onUpdated()
     } catch (e) {
-      error("Failed to update certificate")
+      error(t("certificates.updateFailed"))
     }
   }
 
@@ -148,21 +150,21 @@ export default function EditCertificateModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Edit Certificate/Document</DialogTitle>
-          <DialogDescription>Update the details of your document.</DialogDescription>
+          <DialogTitle>{t("certificates.editCertificate")}</DialogTitle>
+          <DialogDescription>{t("certificates.modalDescription")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
           <div>
-            <Label htmlFor="name">Document Name</Label>
-            <Input id="name" {...register("name")} placeholder="e.g., IELTS Certificate" />
+            <Label htmlFor="name">{t("certificates.documentName")}</Label>
+            <Input id="name" {...register("name")} placeholder={t("certificates.documentNamePlaceholder")} />
             {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
           </div>
-          
+
           <div>
-            <Label htmlFor="type">Document Type</Label>
+            <Label htmlFor="type">{t("certificates.documentType")}</Label>
             <Select defaultValue={certificate.type} onValueChange={(value) => setValue("type", value)}>
               <SelectTrigger id="type">
-                <SelectValue placeholder="Select document type" />
+                <SelectValue placeholder={t("certificates.selectDocumentType")} />
               </SelectTrigger>
               <SelectContent>
                 {certificateTypes.map((type) => (
@@ -180,10 +182,10 @@ export default function EditCertificateModal({
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="language">Language</Label>
+                  <Label htmlFor="language">{t("certificates.language")}</Label>
                   <Select defaultValue={certificate.language || ""} onValueChange={(value) => setValue("language", value)}>
                     <SelectTrigger id="language">
-                      <SelectValue placeholder="Select language" />
+                      <SelectValue placeholder={t("certificates.selectLanguage")} />
                     </SelectTrigger>
                     <SelectContent>
                       {languageOptions.map((lang) => (
@@ -195,10 +197,10 @@ export default function EditCertificateModal({
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="certificate">Certificate Type</Label>
+                  <Label htmlFor="certificate">{t("certificates.certificateType")}</Label>
                   <Select defaultValue={certificate.certificate || ""} onValueChange={(value) => setValue("certificate", value)}>
                     <SelectTrigger id="certificate">
-                      <SelectValue placeholder="Select certificate" />
+                      <SelectValue placeholder={t("certificates.selectCertificate")} />
                     </SelectTrigger>
                     <SelectContent>
                       {certificateOptions.map((cert) => (
@@ -211,29 +213,29 @@ export default function EditCertificateModal({
                 </div>
               </div>
               <div>
-                <Label htmlFor="score">Score/Level</Label>
+                <Label htmlFor="score">{t("certificates.scoreLevel")}</Label>
                 <Input
                   id="score"
                   {...register("score")}
-                  placeholder="e.g., 7.5, Level 5, B2"
+                  placeholder={t("certificates.scoreLevelPlaceholder")}
                 />
               </div>
             </>
           )}
-          
+
           <div>
-            <Label htmlFor="issueDate">Issue Date</Label>
+            <Label htmlFor="issueDate">{t("certificates.issueDate")}</Label>
             <Input id="issueDate" type="date" {...register("issueDate")} />
             {errors.issueDate && <p className="text-sm text-red-500">{errors.issueDate.message}</p>}
           </div>
-          
+
           {certificate.fileName && <p className="text-sm text-gray-500">Current file: {certificate.fileName}</p>}
-          
+
           <div>
-            <Label htmlFor="description">Description (Optional)</Label>
-            <Textarea id="description" {...register("description")} placeholder="Any notes about this document..." />
+            <Label htmlFor="description">{t("education.descriptionOptional")}</Label>
+            <Textarea id="description" {...register("description")} placeholder={t("certificates.descriptionPlaceholder")} />
           </div>
-          
+
           <DialogFooter>
             <Button
               type="button"
@@ -243,10 +245,10 @@ export default function EditCertificateModal({
                 onClose()
               }}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
-              Save Changes
+              {t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </form>

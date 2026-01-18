@@ -175,8 +175,8 @@ export default function EducationalInformationPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Educational Information</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Educational Information</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Manage your academic background and upload diploma/attestat and apostille translation documents.
           </p>
         </div>
@@ -188,13 +188,13 @@ export default function EducationalInformationPage() {
       {loading ? (
         <Card>
           <CardContent className="pt-6">
-            <p className="text-center text-gray-500">Loading educational information...</p>
+            <p className="text-center text-gray-500 dark:text-gray-400">Loading educational information...</p>
           </CardContent>
         </Card>
       ) : hasEntries ? (
         <div className="space-y-4">
           {educationEntries.map((entry) => (
-            <Card key={entry.id} className="border border-gray-200 shadow-sm">
+            <Card key={entry.id} className="border border-gray-200 dark:border-gray-700 shadow-sm">
               <CardContent className="pt-6 space-y-3">
                 <EducationItem
                   entry={entry}
@@ -202,8 +202,8 @@ export default function EducationalInformationPage() {
                   onEdit={handleOpenEditModal}
                 />
 
-                <div className="mt-4 border-t pt-4 space-y-3">
-                  <h3 className="text-sm font-medium text-gray-700">Educational Documents</h3>
+                <div className="mt-4 border-t dark:border-gray-700 pt-4 space-y-3">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Educational Documents</h3>
                   <div className="flex items-center gap-2">
                     <Label htmlFor={`file-${entry.id}`} className="cursor-pointer">
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${uploadingFor[entry.id] ? "bg-gray-400 text-white cursor-not-allowed" : "bg-purple-600 text-white hover:bg-purple-700"}`}>
@@ -215,19 +215,19 @@ export default function EducationalInformationPage() {
                   </div>
                   <div className="space-y-2">
                     {(filesByEducationId[entry.id] || []).length === 0 ? (
-                      <p className="text-xs text-gray-400">No files uploaded.</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">No files uploaded.</p>
                     ) : (
                       (filesByEducationId[entry.id] || []).map((f) => (
-                        <div key={f.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-md border border-gray-200">
+                        <div key={f.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded-md border border-gray-200 dark:border-gray-700">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <FileText className="h-4 w-4 text-purple-600 flex-shrink-0" />
-                            <span className="text-sm text-gray-700 truncate">{getDisplayName(f)}</span>
+                            <FileText className="h-4 w-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300 truncate">{getDisplayName(f)}</span>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                              className="text-purple-600 dark:text-purple-400 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/30"
                               onClick={() => window.open(f.file_url, '_blank')}
                             >
                               <ExternalLink className="h-4 w-4 mr-1" />
@@ -236,7 +236,7 @@ export default function EducationalInformationPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              className="text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30"
                               onClick={() => handleDeleteFile(f.id, entry.id)}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -254,7 +254,7 @@ export default function EducationalInformationPage() {
       ) : (
         <Card>
           <CardContent className="pt-6">
-            <p className="text-center text-gray-500">
+            <p className="text-center text-gray-500 dark:text-gray-400">
               No educational information added yet. Click "Add New Education" to get started.
             </p>
           </CardContent>

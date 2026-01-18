@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { BASE_URL } from "@/lib/auth";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function ResetPasswordPage() {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://api.gradabroad.net/api/auth/password-reset/confirm/",
+        `${BASE_URL}/api/auth/password-reset/confirm/`,
         {
           method: "POST",
           headers: {

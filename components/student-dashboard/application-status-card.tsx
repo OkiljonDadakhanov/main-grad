@@ -1,69 +1,124 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import type { ApplicationEntry } from "@/app/student/my-applications/page" // Adjust path
+import type { ApplicationEntry } from "@/app/student/my-applications/page"
 import { cn } from "@/lib/utils"
-import { ExternalLink, FileText } from "lucide-react"
+import { ExternalLink, FileText, Calendar, Clock, Video } from "lucide-react"
+import { useI18n } from "@/lib/i18n"
 
 interface ApplicationStatusCardProps {
   application: ApplicationEntry
-  onViewDetails: (application: ApplicationEntry) => void // New prop
+  onViewDetails: (application: ApplicationEntry) => void
 }
 
-const statusColors: Record<ApplicationEntry["status"], string> = {
-  Submitted: "bg-blue-100 text-blue-700",
-  "Under Review": "bg-yellow-100 text-yellow-700",
-  Accepted: "bg-green-100 text-green-700",
-  "Offer Received": "bg-emerald-100 text-emerald-700",
-  Rejected: "bg-red-100 text-red-700",
-  Waitlisted: "bg-orange-100 text-orange-700",
+const statusColors: Record<string, string> = {
+  Submitted: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  submitted: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  "Under Review": "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
+  under_review: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
+  Accepted: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+  accepted: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+  "Offer Received": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+  Rejected: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+  rejected: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+  Waitlisted: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
+  Interview: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+  interview: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+  Resend: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+  resend: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+  Studying: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
+  studying: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
+}
+
+// Parse interview details from remarks
+function parseInterviewDetails(remarks: string) {
+  const dateMatch = remarks.match(/Interview scheduled for ([^.]+)\./i)
+  const linkMatch = remarks.match(/Interview link:\s*(https?:\/\/[^\s]+)/i)
+
+  return {
+    dateTime: dateMatch ? dateMatch[1] : null,
+    link: linkMatch ? linkMatch[1] : null,
+  }
 }
 
 export default function ApplicationStatusCard({ application, onViewDetails }: ApplicationStatusCardProps) {
+  const { t } = useI18n()
+  const isInterview = application.status.toLowerCase() === "interview"
+  const interviewDetails = isInterview && application.remarks ? parseInterviewDetails(application.remarks) : null
+
   return (
-    <Card>
+    <Card
+      className={`cursor-pointer hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all ${
+        isInterview ? "border-purple-300 dark:border-purple-600 bg-purple-50/30 dark:bg-purple-900/20" : ""
+      }`}
+      onClick={() => onViewDetails(application)}
+    >
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <FileText className="h-7 w-7 text-purple-600" />
+            <FileText className="h-7 w-7 text-purple-600 dark:text-purple-400" />
             <div>
               <CardTitle>{application.universityName}</CardTitle>
               <CardDescription>{application.programName}</CardDescription>
             </div>
           </div>
-          <Badge className={cn("text-xs", statusColors[application.status])}>{application.status}</Badge>
+          <Badge className={cn("text-xs", statusColors[application.status] || "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300")}>
+            {application.status}
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
         <p>
-          <span className="font-medium">Application ID:</span> {application.applicationId || "N/A"}
+          <span className="font-medium">{t("applications.applicationId")}:</span> {application.applicationId || "N/A"}
         </p>
         <p>
-          <span className="font-medium">Submitted On:</span>{" "}
+          <span className="font-medium">{t("applications.submittedOn")}:</span>{" "}
           {new Date(application.applicationDate).toLocaleDateString()}
         </p>
         <p>
-          <span className="font-medium">Last Status Update:</span>{" "}
+          <span className="font-medium">{t("applications.lastStatusUpdate")}:</span>{" "}
           {new Date(application.statusDate).toLocaleDateString()}
         </p>
-        {application.remarks && (
-          <p className="mt-2 text-gray-600">
-            <span className="font-medium">Remarks:</span> {application.remarks}
+
+        {/* Interview Details Section */}
+        {isInterview && interviewDetails && (
+          <div className="mt-4 p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
+            <h4 className="font-semibold text-purple-800 dark:text-purple-300 mb-2 flex items-center gap-2">
+              <Video className="h-4 w-4" />
+              {t("applications.interviewScheduled")}
+            </h4>
+            {interviewDetails.dateTime && (
+              <p className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
+                <Calendar className="h-4 w-4" />
+                <span className="font-medium">{interviewDetails.dateTime}</span>
+              </p>
+            )}
+            {interviewDetails.link && (
+              <Button
+                variant="default"
+                size="sm"
+                className="mt-2 bg-purple-600 hover:bg-purple-700"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(interviewDetails.link!, "_blank")
+                }}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                {t("applications.joinInterview")}
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Regular remarks for non-interview statuses */}
+        {!isInterview && application.remarks && (
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            <span className="font-medium">{t("common.remarks")}:</span> {application.remarks}
           </p>
         )}
       </CardContent>
-      <CardFooter className="flex justify-end">
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-purple-600 border-purple-600 hover:bg-purple-50"
-          onClick={() => onViewDetails(application)} // Call onViewDetails
-        >
-          View Details <ExternalLink className="h-3 w-3 ml-2" />
-        </Button>
-      </CardFooter>
     </Card>
   )
 }

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, MapPin, GraduationCap, BookOpen } from "lucide-react";
+import { MapPin, GraduationCap, BookOpen } from "lucide-react";
 import { BASE_URL } from "@/lib/auth";
 
 interface University {
@@ -203,72 +202,61 @@ export function FeaturedLocations() {
             const imageSrc = imageExists ? location.image : "/images/cities/default.jpg";
 
             return (
-              <Card
-                key={location.id}
-                className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="relative h-64 overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100">
-                  {imageExists ? (
-                    <img
-                      src={imageSrc}
-                      alt={`${location.name} cityscape`}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-200 to-blue-200">
-                      <MapPin className="h-24 w-24 text-purple-400 opacity-50" />
+              <Link key={location.id} href={`/locations/${location.id}`} className="block">
+                <Card className="group overflow-hidden border-0 shadow-lg hover:shadow-2xl hover:border-purple-300 transition-all duration-300 cursor-pointer h-full">
+                  <div className="relative h-64 overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100">
+                    {imageExists ? (
+                      <img
+                        src={imageSrc}
+                        alt={`${location.name} cityscape`}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-200 to-blue-200">
+                        <MapPin className="h-24 w-24 text-purple-400 opacity-50" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                    <div className="absolute bottom-0 left-0 p-6 text-white">
+                      <h3 className="text-3xl font-bold mb-1 drop-shadow-lg">
+                        {location.name}
+                      </h3>
+                      <p className="text-sm opacity-90 flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {location.country}
+                      </p>
                     </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                  <div className="absolute bottom-0 left-0 p-6 text-white">
-                    <h3 className="text-3xl font-bold mb-1 drop-shadow-lg">
-                      {location.name}
-                    </h3>
-                    <p className="text-sm opacity-90 flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {location.country}
+                  </div>
+
+                  <CardContent className="p-6">
+                    <p className="text-gray-700 mb-6 leading-relaxed">
+                      {location.description}
                     </p>
-                  </div>
-                </div>
 
-                <CardContent className="p-6">
-                  <p className="text-gray-700 mb-6 leading-relaxed">
-                    {location.description}
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-purple-50 rounded-lg p-4 text-center">
-                      <div className="flex items-center justify-center mb-2">
-                        <GraduationCap className="h-5 w-5 text-purple-600" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-purple-50 rounded-lg p-4 text-center">
+                        <div className="flex items-center justify-center mb-2">
+                          <GraduationCap className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <p className="text-sm text-gray-600 mb-1">Universities</p>
+                        <p className="text-2xl font-bold text-purple-900">
+                          {location.universities}
+                        </p>
                       </div>
-                      <p className="text-sm text-gray-600 mb-1">Universities</p>
-                      <p className="text-2xl font-bold text-purple-900">
-                        {location.universities}
-                      </p>
-                    </div>
-                    <div className="bg-blue-50 rounded-lg p-4 text-center">
-                      <div className="flex items-center justify-center mb-2">
-                        <BookOpen className="h-5 w-5 text-blue-600" />
+                      <div className="bg-blue-50 rounded-lg p-4 text-center">
+                        <div className="flex items-center justify-center mb-2">
+                          <BookOpen className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <p className="text-sm text-gray-600 mb-1">Programs</p>
+                        <p className="text-2xl font-bold text-blue-900">
+                          {location.programs}
+                        </p>
                       </div>
-                      <p className="text-sm text-gray-600 mb-1">Programs</p>
-                      <p className="text-2xl font-bold text-blue-900">
-                        {location.programs}
-                      </p>
                     </div>
-                  </div>
-
-                  <Button
-                    className="w-full bg-gradient-to-r from-purple-900 to-purple-700 hover:from-purple-800 hover:to-purple-600 transition-all duration-300 shadow-md hover:shadow-lg"
-                    asChild
-                  >
-                    <Link href={`/locations/${location.id}`}>
-                      Explore Universities
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>

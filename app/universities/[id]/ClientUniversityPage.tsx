@@ -18,6 +18,7 @@ import { UniversityPrograms } from "@/components/university/university-programs"
 import { UniversityScholarships } from "@/components/university/university-scholarships";
 import { UniversityGallery } from "@/components/university/university-gallery";
 import { UniversityFAQs } from "@/components/university/university-faqs";
+import { BASE_URL } from "@/lib/auth";
 
 export function ClientUniversityPage({
   universityId,
@@ -40,7 +41,7 @@ export function ClientUniversityPage({
       try {
         setLoading(true);
         const res = await fetch(
-          `https://api.gradabroad.net/api/auth/universities/${universityId}/`
+          `${BASE_URL}/api/auth/universities/${universityId}/`
         );
         if (!res.ok) throw new Error("Failed to fetch university");
         const data = await res.json();

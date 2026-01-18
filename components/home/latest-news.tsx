@@ -53,27 +53,23 @@ export function LatestNews() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {news.map((item) => (
-            <Card key={item.id} className="overflow-hidden border-0 shadow-md">
-              <div className="relative h-48 overflow-hidden">
-                <img src={item.image || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" />
-                <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 bg-purple-900 text-white text-sm font-medium rounded-full">
-                    {item.category}
-                  </span>
+            <Link key={item.id} href={`/news/${item.id}`} className="block">
+              <Card className="overflow-hidden border-0 shadow-md hover:shadow-lg hover:border-purple-300 transition-all cursor-pointer h-full">
+                <div className="relative h-48 overflow-hidden">
+                  <img src={item.image || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" />
+                  <div className="absolute top-4 left-4">
+                    <span className="px-3 py-1 bg-purple-900 text-white text-sm font-medium rounded-full">
+                      {item.category}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <CardContent className="p-6">
-                <div className="text-sm text-gray-500 mb-2">{item.date}</div>
-                <h3 className="text-xl font-bold text-purple-900 mb-2 line-clamp-2">{item.title}</h3>
-                <p className="text-gray-600 mb-4 line-clamp-3">{item.excerpt}</p>
-                <Link
-                  href={`/news/${item.id}`}
-                  className="text-purple-900 font-medium inline-flex items-center hover:underline"
-                >
-                  Read More <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </CardContent>
-            </Card>
+                <CardContent className="p-6">
+                  <div className="text-sm text-gray-500 mb-2">{item.date}</div>
+                  <h3 className="text-xl font-bold text-purple-900 mb-2 line-clamp-2">{item.title}</h3>
+                  <p className="text-gray-600 line-clamp-3">{item.excerpt}</p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 

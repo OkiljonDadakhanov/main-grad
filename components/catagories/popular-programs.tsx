@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { TrendingUp, Users, Clock } from "lucide-react"
 import Link from "next/link"
 
@@ -81,42 +80,40 @@ export function PopularPrograms() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {popularPrograms.map((program) => (
-          <Card key={program.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{program.name}</CardTitle>
-                <Badge variant="outline" className="text-green-600 border-green-600">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  {program.trend}
+          <Link key={program.id} href={`/programs/${program.id}`} className="block">
+            <Card className="hover:shadow-lg hover:border-purple-300 transition-all cursor-pointer h-full">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg">{program.name}</CardTitle>
+                  <Badge variant="outline" className="text-green-600 border-green-600">
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    {program.trend}
+                  </Badge>
+                </div>
+                <Badge variant="secondary" className="w-fit">
+                  {program.category}
                 </Badge>
-              </div>
-              <Badge variant="secondary" className="w-fit">
-                {program.category}
-              </Badge>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-700 text-sm mb-4">{program.description}</p>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 text-sm mb-4">{program.description}</p>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Users className="h-4 w-4" />
-                  {program.students} Uzbek students enrolled
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Users className="h-4 w-4" />
+                    {program.students} Uzbek students enrolled
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    {program.duration} program
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <TrendingUp className="h-4 w-4" />
+                    Available at {program.universities} universities
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Clock className="h-4 w-4" />
-                  {program.duration} program
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <TrendingUp className="h-4 w-4" />
-                  Available at {program.universities} universities
-                </div>
-              </div>
-
-              <Button asChild className="w-full">
-                <Link href={`/programs/${program.id}`}>View Program Details</Link>
-              </Button>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>

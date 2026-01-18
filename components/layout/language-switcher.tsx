@@ -1,43 +1,31 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Globe } from "lucide-react"
-
-const languages = [
-  { code: "uz", name: "O'zbek", flag: "🇺🇿" },
-  { code: "ko", name: "한국어", flag: "🇰🇷" },
-  { code: "ru", name: "Русский", flag: "🇷🇺" },
-  { code: "en", name: "English", flag: "🇺🇸" },
-]
+import { useI18n, SUPPORTED_LOCALES } from "@/lib/i18n"
 
 export function LanguageSwitcher() {
-  const [currentLanguage, setCurrentLanguage] = useState(languages[0])
+  const { locale, setLocale } = useI18n()
 
-  const handleLanguageChange = (language: (typeof languages)[0]) => {
-    setCurrentLanguage(language)
-    // In a real app, this would update the app's locale
-  }
+  const currentLang = SUPPORTED_LOCALES.find((l) => l.code === locale) || SUPPORTED_LOCALES[0]
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Globe className="h-5 w-5" />
-          <span className="sr-only">Switch language</span>
-        </Button>
+        <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-1">
+          <Globe size={20} className="text-gray-600 dark:text-gray-400" />
+          <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">{currentLang.flag}</span>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {languages.map((language) => (
+      <DropdownMenuContent align="end" className="dark:bg-gray-900 dark:border-gray-800">
+        {SUPPORTED_LOCALES.map((language) => (
           <DropdownMenuItem
             key={language.code}
-            onClick={() => handleLanguageChange(language)}
-            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => setLocale(language.code)}
+            className={locale === language.code ? "bg-purple-50 dark:bg-purple-500/10" : ""}
           >
-            <span>{language.flag}</span>
-            <span>{language.name}</span>
-            {currentLanguage.code === language.code && <span className="ml-auto h-2 w-2 rounded-full bg-purple-500" />}
+            <span className="mr-2">{language.flag}</span>
+            {language.name}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

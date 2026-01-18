@@ -6,6 +6,7 @@ import { UniversitiesHero } from "@/components/universities/universities-hero";
 import { UniversitiesFilter } from "@/components/universities/universities-filter";
 import { UniversitiesGrid } from "@/components/universities/universities-grid";
 import { UniversitiesPagination } from "@/components/universities/universities-pagination";
+import { BASE_URL } from "@/lib/auth";
 
 export default function UniversitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,7 +23,7 @@ export default function UniversitiesPage() {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "https://api.gradabroad.net/api/auth/universities/"
+          `${BASE_URL}/api/auth/universities/`
         );
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();

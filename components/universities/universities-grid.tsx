@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, GraduationCap, Star } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { BASE_URL } from "@/lib/auth";
 
 interface UniversitiesGridProps {
   searchQuery: string;
@@ -23,6 +24,7 @@ export function UniversitiesGrid({
   selectedRanking,
   currentPage,
 }: UniversitiesGridProps) {
+  const router = useRouter();
   const [universities, setUniversities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +38,7 @@ export function UniversitiesGrid({
         if (selectedCity) params.append("city", selectedCity);
         if (selectedType) params.append("types_of_schools", selectedType);
 
-        const url = `https://api.gradabroad.net/api/auth/universities/${
+        const url = `${BASE_URL}/api/auth/universities/${
           params.toString() ? `?${params.toString()}` : ""
         }`;
 
@@ -85,7 +87,8 @@ export function UniversitiesGrid({
         {universities.map((university) => (
           <Card
             key={university.id}
-            className="overflow-hidden hover:shadow-lg transition-shadow"
+            className="overflow-hidden hover:shadow-lg hover:border-purple-300 transition-all cursor-pointer"
+            onClick={() => router.push(`/universities/${university.id}`)}
           >
             <div className="relative h-48">
               <Image
@@ -137,16 +140,13 @@ export function UniversitiesGrid({
                 )}
               </div>
 
-              <div className="flex gap-2">
-                <Button asChild className="flex-1">
-                  <Link href={`/universities/${university.id}`}>
-                    View Details
-                  </Link>
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  Compare
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Compare
+              </Button>
             </CardContent>
           </Card>
         ))}

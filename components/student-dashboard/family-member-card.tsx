@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import type { FamilyMember } from "@/app/student/my-family/page"
 import { Edit, Trash2, User, FileText } from "lucide-react"
+import { useI18n } from "@/lib/i18n"
 
 interface FamilyMemberCardProps {
   member: FamilyMember
@@ -12,6 +13,8 @@ interface FamilyMemberCardProps {
 }
 
 export default function FamilyMemberCard({ member, onDelete, onEdit }: FamilyMemberCardProps) {
+  const { t } = useI18n()
+
   return (
     <Card>
       <CardHeader>
@@ -46,27 +49,27 @@ export default function FamilyMemberCard({ member, onDelete, onEdit }: FamilyMem
 
       <CardContent className="space-y-1 text-sm">
         <p>
-          <span className="font-medium">Date of Birth:</span>{" "}
+          <span className="font-medium">{t("profile.dateOfBirth")}:</span>{" "}
           {new Date(member.dateOfBirth).toLocaleDateString()}
         </p>
 
         {member.occupation && (
           <p>
-            <span className="font-medium">Occupation:</span> {member.occupation}
+            <span className="font-medium">{t("family.occupation")}:</span> {member.occupation}
           </p>
         )}
 
         {member.contactNumber && (
           <p>
-            <span className="font-medium">Contact:</span> {member.contactNumber}
+            <span className="font-medium">{t("family.contact")}:</span> {member.contactNumber}
           </p>
         )}
 
-        {/* 📄 Passport Copy Section */}
+        {/* Passport Copy Section */}
         <div className="pt-2 border-t mt-2">
           <p className="flex items-center gap-2 text-sm">
             <FileText className="h-4 w-4 text-purple-600" />
-            <span className="font-medium">Passport Copy:</span>
+            <span className="font-medium">{t("family.passportCopy")}:</span>
             {member.passportCopyUrl ? (
               <a
                 href={member.passportCopyUrl}
@@ -74,10 +77,10 @@ export default function FamilyMemberCard({ member, onDelete, onEdit }: FamilyMem
                 rel="noopener noreferrer"
                 className="text-purple-600 hover:underline"
               >
-                View File
+                {t("common.viewFile")}
               </a>
             ) : (
-              <span className="text-gray-400">No passport uploaded</span>
+              <span className="text-gray-400">{t("common.noPassportUploaded")}</span>
             )}
           </p>
         </div>
