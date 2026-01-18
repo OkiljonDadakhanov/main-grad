@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Calendar, DollarSign, Award } from "lucide-react";
 import clsx from "clsx";
-import { BASE_URL } from "@/lib/auth";
+import { BASE_URL, getAccessTokenFromStorage } from "@/lib/auth";
 
 interface Scholarship {
   id: number;
@@ -28,10 +29,21 @@ interface UniversityScholarshipsProps {
 export function UniversityScholarships({
   universityId,
 }: UniversityScholarshipsProps) {
+  const router = useRouter();
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [expandedMap, setExpandedMap] = useState<Record<number, boolean>>({}); // ✅
+
+  const handleApplyNow = () => {
+    const token = getAccessTokenFromStorage();
+    if (token) {
+      router.push(`/student/apply/${universityId}`);
+    } else {
+      const returnUrl = encodeURIComponent(`/student/apply/${universityId}`);
+      router.push(`/login?redirect=${returnUrl}`);
+    }
+  };
 
   useEffect(() => {
     async function fetchScholarships() {
@@ -164,7 +176,10 @@ export function UniversityScholarships({
                             </div>
 
                             <div className="flex flex-col gap-2 min-w-[120px] mt-4 md:mt-0">
-                              <Button className="bg-purple-900 hover:bg-purple-800">
+                              <Button
+                                className="bg-purple-900 hover:bg-purple-800"
+                                onClick={handleApplyNow}
+                              >
                                 Apply Now
                               </Button>
                               <Button variant="outline">Details</Button>

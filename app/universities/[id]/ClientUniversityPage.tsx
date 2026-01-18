@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   MapPin,
   Calendar,
@@ -18,16 +19,29 @@ import { UniversityPrograms } from "@/components/university/university-programs"
 import { UniversityScholarships } from "@/components/university/university-scholarships";
 import { UniversityGallery } from "@/components/university/university-gallery";
 import { UniversityFAQs } from "@/components/university/university-faqs";
-import { BASE_URL } from "@/lib/auth";
+import { BASE_URL, getAccessTokenFromStorage } from "@/lib/auth";
 
 export function ClientUniversityPage({
   universityId,
 }: {
   universityId: string;
 }) {
+  const router = useRouter();
   const [university, setUniversity] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("overview"); // ✅ controlled tab
+
+  const handleApplyNow = () => {
+    const token = getAccessTokenFromStorage();
+    if (token) {
+      // User is logged in, go to apply page
+      router.push(`/student/apply/${universityId}`);
+    } else {
+      // User is not logged in, go to login with redirect
+      const returnUrl = encodeURIComponent(`/student/apply/${universityId}`);
+      router.push(`/login?redirect=${returnUrl}`);
+    }
+  };
 
   useEffect(() => {
     if (!universityId) {
@@ -238,6 +252,7 @@ export function ClientUniversityPage({
               <Button
                 className="w-full bg-purple-900 hover:bg-purple-800"
                 size="lg"
+                onClick={handleApplyNow}
               >
                 Apply Now
               </Button>
