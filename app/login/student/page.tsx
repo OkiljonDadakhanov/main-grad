@@ -34,6 +34,7 @@ export default function StudentLoginPage() {
         return;
       }
       saveAuthToStorage(data);
+      localStorage.setItem("account_type", "student");
       success("Muvaffaqiyatli kirdingiz.");
       router.push("/student/profile");
     } catch {
