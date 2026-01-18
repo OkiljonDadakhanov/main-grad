@@ -1,4 +1,135 @@
 {
+  "landing": {
+    "hero": {
+      "badge": "한국 유학 · 우즈베키스탄 맞춤",
+      "title": "우즈베키스탄에서",
+      "titleHighlight": "한국 명문 대학으로",
+      "subtitle": "우즈벡 학생을 위한 대학, 프로그램, 장학금 정보를 발견하세요. 지원 방법과 성공 전략을 배워보세요.",
+      "exploreBtn": "대학 탐색",
+      "howToApplyBtn": "지원 방법",
+      "searchPlaceholder": "대학, 프로그램 또는 장학금 검색...",
+      "searchBtn": "검색",
+      "stats": {
+        "universities": "대학",
+        "programs": "프로그램",
+        "scholarships": "장학금",
+        "students": "우즈벡 학생"
+      },
+      "helperText": "최신 정보가 정기적으로 업데이트됩니다. 프로그램 검색부터 시작하여 단계별 가이드를 따라하세요."
+    },
+    "locations": {
+      "title": "한국 유학 도시",
+      "subtitle": "한국의 역동적인 도시에서 명문 대학을 탐험하세요. 각 도시는 독특한 학문적 우수성과 문화 경험을 제공합니다.",
+      "universities": "대학",
+      "programs": "프로그램",
+      "noLocations": "위치를 찾을 수 없습니다",
+      "loadError": "현재 위치 데이터를 불러올 수 없습니다."
+    },
+    "search": {
+      "title": "완벽한 한국 대학 찾기",
+      "subtitle": "선호도에 따라 한국 대학, 프로그램 또는 장학금을 검색하세요",
+      "tabs": {
+        "universities": "대학",
+        "programs": "프로그램",
+        "scholarships": "장학금"
+      },
+      "city": "도시",
+      "selectCity": "도시 선택",
+      "allCities": "모든 도시",
+      "fieldOfStudy": "전공 분야",
+      "selectField": "전공 분야 선택",
+      "allCategories": "모든 카테고리",
+      "degree": "학위",
+      "selectDegree": "학위 선택",
+      "allDegrees": "모든 학위",
+      "type": "유형",
+      "selectType": "유형 선택",
+      "allTypes": "모든 유형",
+      "meritBased": "성적 기반",
+      "needBased": "필요 기반",
+      "research": "연구",
+      "government": "정부",
+      "searchUniversities": "대학 검색",
+      "searchPrograms": "프로그램 검색",
+      "searchScholarships": "장학금 검색"
+    },
+    "howItWorks": {
+      "title": "이용 방법",
+      "subtitle": "우즈벡 학생을 위한 한국 유학 단계별 가이드",
+      "step": "단계",
+      "steps": {
+        "find": {
+          "title": "대학 찾기",
+          "description": "포괄적인 한국 대학 목록을 탐색하여 학업 목표에 맞는 완벽한 대학을 찾으세요."
+        },
+        "choose": {
+          "title": "프로그램 선택",
+          "description": "진로 목표에 맞는 한국 대학의 다양한 학술 프로그램을 탐색하세요."
+        },
+        "prepare": {
+          "title": "서류 준비",
+          "description": "우즈벡 학생을 위한 필요 서류 및 지원 절차에 대한 상세 정보를 확인하세요."
+        },
+        "visa": {
+          "title": "비자 신청",
+          "description": "우즈벡 시민을 위한 한국 학생 비자 절차를 배우고 준비하세요."
+        },
+        "begin": {
+          "title": "여정 시작",
+          "description": "우즈벡 학생을 위한 포괄적인 지원과 자료로 한국에서의 학업 여정을 시작하세요."
+        }
+      }
+    },
+    "testimonials": {
+      "title": "성공 스토리",
+      "subtitle": "한국에서 성공적으로 교육을 받은 우즈벡 학생들의 이야기를 들어보세요"
+    },
+    "news": {
+      "title": "최신 뉴스",
+      "subtitle": "우즈벡 학생을 위한 한국 유학 최신 뉴스를 확인하세요",
+      "viewAll": "모든 뉴스 보기"
+    },
+    "newsletter": {
+      "title": "최신 정보 받기",
+      "subtitle": "한국 유학, 새로운 장학금, 지원 마감일에 대한 최신 업데이트를 받으려면 뉴스레터를 구독하세요",
+      "placeholder": "이메일 주소",
+      "subscribe": "구독",
+      "thankYou": "구독해 주셔서 감사합니다!",
+      "thankYouDesc": "이제 한국 대학 및 우즈벡 학생 기회에 대한 업데이트를 받으실 수 있습니다.",
+      "languages": "지원 언어"
+    },
+    "navbar": {
+      "about": "소개",
+      "information": "정보",
+      "applicationProcess": "지원 절차",
+      "visaRequirements": "비자 요건",
+      "livingInKorea": "한국 생활",
+      "partners": "파트너",
+      "faqs": "자주 묻는 질문",
+      "contact": "문의하기",
+      "login": "로그인",
+      "register": "회원가입"
+    },
+    "footer": {
+      "title": "Graduate in Korea",
+      "description": "더 밝은 학문적 미래를 위해 한국과 우즈베키스탄의 명문 대학과 학생을 연결합니다.",
+      "quickLinks": "빠른 링크",
+      "information": "정보",
+      "contact": "연락처",
+      "aboutUs": "소개",
+      "universities": "대학",
+      "categories": "카테고리",
+      "faqs": "자주 묻는 질문",
+      "contactUs": "문의하기",
+      "applicationProcess": "지원 절차",
+      "visaRequirements": "비자 요건",
+      "livingCosts": "생활비",
+      "scholarships": "장학금",
+      "privacyPolicy": "개인정보 처리방침",
+      "termsOfService": "이용약관",
+      "copyright": "모든 권리 보유."
+    }
+  },
   "common": {
     "save": "저장",
     "saveChanges": "변경 사항 저장",

@@ -1,4 +1,135 @@
 {
+  "landing": {
+    "hero": {
+      "badge": "Study in Korea \u00b7 Tailored for Uzbekistan",
+      "title": "Your Path from Uzbekistan to",
+      "titleHighlight": "Top Korean Universities",
+      "subtitle": "Discover universities, programs, and scholarships\u2014curated for Uzbek students. Learn exactly how to apply and succeed.",
+      "exploreBtn": "Explore Universities",
+      "howToApplyBtn": "How to Apply",
+      "searchPlaceholder": "Search for universities, programs, or scholarships...",
+      "searchBtn": "Search",
+      "stats": {
+        "universities": "Universities",
+        "programs": "Programs",
+        "scholarships": "Scholarships",
+        "students": "Uzbek Students"
+      },
+      "helperText": "Up-to-date entries are added regularly. Start with a program search, then follow our step-by-step guide."
+    },
+    "locations": {
+      "title": "Study Destinations in South Korea",
+      "subtitle": "Explore prestigious universities across Korea's vibrant cities, each offering unique academic excellence and cultural experiences.",
+      "universities": "Universities",
+      "programs": "Programs",
+      "noLocations": "No Locations Found",
+      "loadError": "Unable to load location data at this time."
+    },
+    "search": {
+      "title": "Find Your Perfect Korean University",
+      "subtitle": "Search for Korean universities, programs, or scholarships based on your preferences",
+      "tabs": {
+        "universities": "Universities",
+        "programs": "Programs",
+        "scholarships": "Scholarships"
+      },
+      "city": "City",
+      "selectCity": "Select city",
+      "allCities": "All Cities",
+      "fieldOfStudy": "Field of Study",
+      "selectField": "Select field of study",
+      "allCategories": "All Categories",
+      "degree": "Degree",
+      "selectDegree": "Select degree",
+      "allDegrees": "All Degrees",
+      "type": "Type",
+      "selectType": "Select type",
+      "allTypes": "All Types",
+      "meritBased": "Merit-based",
+      "needBased": "Need-based",
+      "research": "Research",
+      "government": "Government",
+      "searchUniversities": "Search Universities",
+      "searchPrograms": "Search Programs",
+      "searchScholarships": "Search Scholarships"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Your step-by-step guide to studying in Korea as an Uzbek student",
+      "step": "Step",
+      "steps": {
+        "find": {
+          "title": "Find Your University",
+          "description": "Browse through our comprehensive list of Korean universities and find the perfect match for your academic goals."
+        },
+        "choose": {
+          "title": "Choose a Program",
+          "description": "Explore various academic programs offered by Korean universities that align with your career aspirations."
+        },
+        "prepare": {
+          "title": "Prepare Documents",
+          "description": "Get detailed information about required documents and application procedures for Uzbek students."
+        },
+        "visa": {
+          "title": "Apply for Visa",
+          "description": "Learn about the Korean student visa process specifically for Uzbek citizens and prepare accordingly."
+        },
+        "begin": {
+          "title": "Begin Your Journey",
+          "description": "Start your academic journey in Korea with comprehensive support and resources for Uzbek students."
+        }
+      }
+    },
+    "testimonials": {
+      "title": "Success Stories",
+      "subtitle": "Hear from Uzbek students who have successfully pursued their education in Korea"
+    },
+    "news": {
+      "title": "Latest News",
+      "subtitle": "Stay updated with the latest news about studying in Korea for Uzbek students",
+      "viewAll": "View All News"
+    },
+    "newsletter": {
+      "title": "Stay Updated",
+      "subtitle": "Subscribe to our newsletter to receive the latest updates about studying in Korea, new scholarships, and application deadlines",
+      "placeholder": "Your email address",
+      "subscribe": "Subscribe",
+      "thankYou": "Thank You for Subscribing!",
+      "thankYouDesc": "You'll now receive updates about Korean universities and opportunities for Uzbek students.",
+      "languages": "Available in"
+    },
+    "navbar": {
+      "about": "About Us",
+      "information": "Information",
+      "applicationProcess": "Application Process",
+      "visaRequirements": "Visa Requirements",
+      "livingInKorea": "Living in Korea",
+      "partners": "Partners",
+      "faqs": "FAQs",
+      "contact": "Contact Us",
+      "login": "Log in",
+      "register": "Register"
+    },
+    "footer": {
+      "title": "Graduate in Korea",
+      "description": "Connecting students with top universities in Korea and Uzbekistan for a brighter academic future.",
+      "quickLinks": "Quick Links",
+      "information": "Information",
+      "contact": "Contact",
+      "aboutUs": "About Us",
+      "universities": "Universities",
+      "categories": "Categories",
+      "faqs": "FAQs",
+      "contactUs": "Contact Us",
+      "applicationProcess": "Application Process",
+      "visaRequirements": "Visa Requirements",
+      "livingCosts": "Living Costs",
+      "scholarships": "Scholarships",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "copyright": "All rights reserved."
+    }
+  },
   "common": {
     "save": "Save",
     "saveChanges": "Save Changes",

@@ -1,4 +1,135 @@
 {
+  "landing": {
+    "hero": {
+      "badge": "Koreyada o'qish · O'zbekiston uchun",
+      "title": "O'zbekistondan",
+      "titleHighlight": "Koreyaning eng yaxshi universitetlariga",
+      "subtitle": "O'zbek talabalar uchun universitetlar, dasturlar va stipendiyalarni kashf eting. Ariza topshirish va muvaffaqiyatga erishish yo'llarini o'rganing.",
+      "exploreBtn": "Universitetlarni ko'rish",
+      "howToApplyBtn": "Qanday ariza topshirish",
+      "searchPlaceholder": "Universitetlar, dasturlar yoki stipendiyalarni qidirish...",
+      "searchBtn": "Qidirish",
+      "stats": {
+        "universities": "Universitetlar",
+        "programs": "Dasturlar",
+        "scholarships": "Stipendiyalar",
+        "students": "O'zbek talabalar"
+      },
+      "helperText": "Dolzarb ma'lumotlar muntazam yangilanadi. Dastur qidirishdan boshlang, so'ng bosqichma-bosqich qo'llanmaga amal qiling."
+    },
+    "locations": {
+      "title": "Janubiy Koreyada o'qish yo'nalishlari",
+      "subtitle": "Koreyaning jonli shaharlarida nufuzli universitetlarni o'rganing, har biri noyob akademik mukammallik va madaniy tajribalarni taklif qiladi.",
+      "universities": "Universitetlar",
+      "programs": "Dasturlar",
+      "noLocations": "Joylar topilmadi",
+      "loadError": "Joylashuv ma'lumotlarini yuklashning iloji bo'lmadi."
+    },
+    "search": {
+      "title": "O'zingizga mos Koreya universitetini toping",
+      "subtitle": "O'z xohishingizga ko'ra Koreya universitetlari, dasturlari yoki stipendiyalarini qidiring",
+      "tabs": {
+        "universities": "Universitetlar",
+        "programs": "Dasturlar",
+        "scholarships": "Stipendiyalar"
+      },
+      "city": "Shahar",
+      "selectCity": "Shaharni tanlang",
+      "allCities": "Barcha shaharlar",
+      "fieldOfStudy": "O'qish yo'nalishi",
+      "selectField": "Yo'nalishni tanlang",
+      "allCategories": "Barcha toifalar",
+      "degree": "Daraja",
+      "selectDegree": "Darajani tanlang",
+      "allDegrees": "Barcha darajalar",
+      "type": "Tur",
+      "selectType": "Turni tanlang",
+      "allTypes": "Barcha turlar",
+      "meritBased": "Yutuqlarga asoslangan",
+      "needBased": "Ehtiyojga asoslangan",
+      "research": "Tadqiqot",
+      "government": "Davlat",
+      "searchUniversities": "Universitetlarni qidirish",
+      "searchPrograms": "Dasturlarni qidirish",
+      "searchScholarships": "Stipendiyalarni qidirish"
+    },
+    "howItWorks": {
+      "title": "Qanday ishlaydi",
+      "subtitle": "O'zbek talabalar uchun Koreyada o'qish bo'yicha bosqichma-bosqich qo'llanma",
+      "step": "Qadam",
+      "steps": {
+        "find": {
+          "title": "Universitetingizni toping",
+          "description": "Koreya universitetlarining to'liq ro'yxatini ko'rib chiqing va akademik maqsadlaringizga mos keladigan mukammal universitetni toping."
+        },
+        "choose": {
+          "title": "Dasturni tanlang",
+          "description": "Karerangiz intilishlariga mos keladigan Koreya universitetlari tomonidan taklif qilinadigan turli akademik dasturlarni o'rganing."
+        },
+        "prepare": {
+          "title": "Hujjatlarni tayyorlang",
+          "description": "O'zbek talabalar uchun zarur hujjatlar va ariza topshirish tartiblari haqida batafsil ma'lumot oling."
+        },
+        "visa": {
+          "title": "Vizaga ariza bering",
+          "description": "O'zbekiston fuqarolari uchun Koreyaga talaba vizasi olish jarayonini o'rganing va tayyorgarlik ko'ring."
+        },
+        "begin": {
+          "title": "Sayohatingizni boshlang",
+          "description": "O'zbek talabalar uchun keng qamrovli yordam va resurslar bilan Koreyada akademik sayohatingizni boshlang."
+        }
+      }
+    },
+    "testimonials": {
+      "title": "Muvaffaqiyat tarixi",
+      "subtitle": "Koreyada muvaffaqiyatli ta'lim olgan o'zbek talabalarning hikoyalarini eshiting"
+    },
+    "news": {
+      "title": "So'nggi yangiliklar",
+      "subtitle": "O'zbek talabalar uchun Koreyada o'qish haqidagi so'nggi yangiliklardan xabardor bo'ling",
+      "viewAll": "Barcha yangiliklarni ko'rish"
+    },
+    "newsletter": {
+      "title": "Xabardor bo'ling",
+      "subtitle": "Koreyada o'qish, yangi stipendiyalar va ariza topshirish muddatlari haqida so'nggi yangilanishlarni olish uchun obuna bo'ling",
+      "placeholder": "Email manzilingiz",
+      "subscribe": "Obuna bo'lish",
+      "thankYou": "Obuna bo'lganingiz uchun rahmat!",
+      "thankYouDesc": "Endi siz Koreya universitetlari va o'zbek talabalar uchun imkoniyatlar haqida yangilanishlarni olasiz.",
+      "languages": "Mavjud tillarda"
+    },
+    "navbar": {
+      "about": "Biz haqimizda",
+      "information": "Ma'lumot",
+      "applicationProcess": "Ariza topshirish jarayoni",
+      "visaRequirements": "Viza talablari",
+      "livingInKorea": "Koreyada yashash",
+      "partners": "Hamkorlar",
+      "faqs": "Savol-javoblar",
+      "contact": "Bog'lanish",
+      "login": "Kirish",
+      "register": "Ro'yxatdan o'tish"
+    },
+    "footer": {
+      "title": "Graduate in Korea",
+      "description": "Yorqin akademik kelajak uchun talabalarni Koreya va O'zbekistonning eng yaxshi universitetlari bilan bog'laymiz.",
+      "quickLinks": "Tezkor havolalar",
+      "information": "Ma'lumot",
+      "contact": "Aloqa",
+      "aboutUs": "Biz haqimizda",
+      "universities": "Universitetlar",
+      "categories": "Toifalar",
+      "faqs": "Savol-javoblar",
+      "contactUs": "Biz bilan bog'laning",
+      "applicationProcess": "Ariza topshirish jarayoni",
+      "visaRequirements": "Viza talablari",
+      "livingCosts": "Yashash xarajatlari",
+      "scholarships": "Stipendiyalar",
+      "privacyPolicy": "Maxfiylik siyosati",
+      "termsOfService": "Foydalanish shartlari",
+      "copyright": "Barcha huquqlar himoyalangan."
+    }
+  },
   "common": {
     "save": "Saqlash",
     "saveChanges": "O'zgarishlarni saqlash",

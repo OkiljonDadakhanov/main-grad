@@ -1,10 +1,15 @@
 // components/home/hero-section.tsx
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/home/search-bar";
 import { TashkentSeoulClock } from "./tashkent-seoul-clock";
+import { useI18n } from "@/lib/i18n";
 
 export function HeroSection() {
+  const { t } = useI18n();
+
   return (
     <section className="relative flex items-center justify-center  overflow-hidden">
       {/* Background: vivid photo with subtle gradient + radial glow (no blur) */}
@@ -51,22 +56,21 @@ export function HeroSection() {
           {/* Eyebrow / badge */}
           <div className="mb-4 flex items-center justify-center">
             <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium tracking-wide">
-              Study in Korea · Tailored for Uzbekistan
+              {t("landing.hero.badge")}
             </span>
           </div>
 
           {/* Title */}
           <h1 className="mx-auto max-w-4xl text-balance text-4xl font-extrabold leading-tight md:text-5xl lg:text-6xl">
-            Your Path from Uzbekistan to
+            {t("landing.hero.title")}
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-blue-200">
-              Top Korean Universities
+              {t("landing.hero.titleHighlight")}
             </span>
           </h1>
 
           {/* Subtitle */}
           <p className="mx-auto mt-5 max-w-2xl text-pretty text-base text-white/90 md:mt-6 md:text-lg">
-            Discover universities, programs, and scholarships—curated for Uzbek
-            students. Learn exactly how to apply and succeed.
+            {t("landing.hero.subtitle")}
           </p>
 
           {/* CTA Buttons */}
@@ -76,7 +80,7 @@ export function HeroSection() {
               className="min-w-[190px] bg-white text-purple-900 hover:bg-white/90"
               asChild
             >
-              <Link href="/universities">Explore Universities</Link>
+              <Link href="/universities">{t("landing.hero.exploreBtn")}</Link>
             </Button>
 
             <Button
@@ -85,7 +89,7 @@ export function HeroSection() {
               className="min-w-[190px] border-white/60 bg-white/90 text-purple-900 hover:bg-white"
               asChild
             >
-              <Link href="/application-process">How to Apply</Link>
+              <Link href="/application-process">{t("landing.hero.howToApplyBtn")}</Link>
             </Button>
           </div>
 
@@ -97,10 +101,10 @@ export function HeroSection() {
           {/* Stats: clean cards with light transparency, no blur */}
           <div className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-4 md:mt-12 md:grid-cols-4">
             {[
-              { label: "Universities", value: "50+" },
-              { label: "Programs", value: "500+" },
-              { label: "Scholarships", value: "200+" },
-              { label: "Uzbek Students", value: "2,500+" },
+              { label: t("landing.hero.stats.universities"), value: "50+" },
+              { label: t("landing.hero.stats.programs"), value: "500+" },
+              { label: t("landing.hero.stats.scholarships"), value: "200+" },
+              { label: t("landing.hero.stats.students"), value: "2,500+" },
             ].map((item) => (
               <div
                 key={item.label}
@@ -118,8 +122,7 @@ export function HeroSection() {
 
           {/* Helper text */}
           <p className="mx-auto mt-6 max-w-xl text-xs text-white/80">
-            Up-to-date entries are added regularly. Start with a program search,
-            then follow our step-by-step guide.
+            {t("landing.hero.helperText")}
           </p>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image"; // ✅ add this
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,36 +18,37 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
-
-const navItems = [
-  { title: "About Us", href: "/about" },
-  {
-    title: "Information",
-    href: "/information",
-    subItems: [
-      { title: "Application Process", href: "/application-process" },
-      { title: "Visa Requirements", href: "/visa-requirements" },
-      { title: "Living in Korea", href: "/living-in-korea" },
-      // { title: "Scholarships", href: "/scholarships" },
-    ],
-  },
-  { title: "Partners", href: "/partners" },
-  { title: "FAQs", href: "/contact/#contact-faq" },
-  { title: "Contact Us", href: "/contact" },
-];
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { useI18n } from "@/lib/i18n";
 
 export function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useI18n();
+
+  const navItems = [
+    { title: t("landing.navbar.about"), href: "/about" },
+    {
+      title: t("landing.navbar.information"),
+      href: "/information",
+      subItems: [
+        { title: t("landing.navbar.applicationProcess"), href: "/application-process" },
+        { title: t("landing.navbar.visaRequirements"), href: "/visa-requirements" },
+        { title: t("landing.navbar.livingInKorea"), href: "/living-in-korea" },
+      ],
+    },
+    { title: t("landing.navbar.partners"), href: "/partners" },
+    { title: t("landing.navbar.faqs"), href: "/contact/#contact-faq" },
+    { title: t("landing.navbar.contact"), href: "/contact" },
+  ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b bg-white/80 dark:bg-gray-900/80 dark:border-gray-800 backdrop-blur-md">
       <div className="mx-auto w-full max-w-screen-xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Left: Logo and Nav */}
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2">
-              {/* ✅ Logo */}
               <Image
                 src="/logo.png"
                 alt="Graduate in Korea Logo"
@@ -55,7 +56,7 @@ export function Navbar() {
                 height={60}
                 className="rounded-md"
               />
-              <span className="text-xl font-bold text-purple-900">
+              <span className="text-xl font-bold text-purple-900 dark:text-purple-300">
                 Graduate in Korea
               </span>
             </Link>
@@ -65,14 +66,14 @@ export function Navbar() {
               <NavigationMenuList>
                 {navItems.map((item) =>
                   item.subItems ? (
-                    <NavigationMenuItem key={item.title}>
+                    <NavigationMenuItem key={item.href}>
                       <NavigationMenuTrigger>
                         {item.title}
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <ul className="grid w-[300px] gap-2 p-4 md:grid-cols-2">
                           {item.subItems.map((subItem) => (
-                            <li key={subItem.title}>
+                            <li key={subItem.href}>
                               <NavigationMenuLink asChild>
                                 <Link
                                   href={subItem.href}
@@ -87,7 +88,7 @@ export function Navbar() {
                       </NavigationMenuContent>
                     </NavigationMenuItem>
                   ) : (
-                    <NavigationMenuItem key={item.title}>
+                    <NavigationMenuItem key={item.href}>
                       <NavigationMenuLink asChild>
                         <Link
                           href={item.href}
@@ -107,19 +108,21 @@ export function Navbar() {
             </NavigationMenu>
           </div>
 
-          {/* Right: Lang Switch + Buttons */}
+          {/* Right: Theme + Lang Switch + Buttons */}
           <div className="hidden md:flex items-center gap-4">
+            <ThemeToggle />
             <LanguageSwitcher />
             <Button variant="outline" asChild>
-              <Link href="/login">Log in</Link>
+              <Link href="/login">{t("landing.navbar.login")}</Link>
             </Button>
             <Button className="bg-purple-900 hover:bg-purple-800" asChild>
-              <Link href="/register">Register</Link>
+              <Link href="/register">{t("landing.navbar.register")}</Link>
             </Button>
           </div>
 
           {/* Mobile Menu */}
           <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
             <LanguageSwitcher />
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
@@ -131,14 +134,14 @@ export function Navbar() {
               <SheetContent side="right">
                 <nav className="flex flex-col gap-4 mt-8">
                   {navItems.map((item) => (
-                    <div key={item.title}>
+                    <div key={item.href}>
                       {item.subItems ? (
                         <div className="space-y-2">
                           <div className="font-medium">{item.title}</div>
                           <div className="pl-4 space-y-1">
                             {item.subItems.map((subItem) => (
                               <Link
-                                key={subItem.title}
+                                key={subItem.href}
                                 href={subItem.href}
                                 className="block text-muted-foreground hover:text-foreground"
                                 onClick={() => setIsOpen(false)}
@@ -167,7 +170,7 @@ export function Navbar() {
                   <div className="flex flex-col gap-2 mt-4">
                     <Button variant="outline" asChild>
                       <Link href="/login" onClick={() => setIsOpen(false)}>
-                        Log in
+                        {t("landing.navbar.login")}
                       </Link>
                     </Button>
                     <Button
@@ -175,7 +178,7 @@ export function Navbar() {
                       asChild
                     >
                       <Link href="/register" onClick={() => setIsOpen(false)}>
-                        Register
+                        {t("landing.navbar.register")}
                       </Link>
                     </Button>
                   </div>
