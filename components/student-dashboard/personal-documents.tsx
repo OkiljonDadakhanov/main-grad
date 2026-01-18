@@ -58,6 +58,7 @@ export default function PersonalDocuments() {
   const [documents, setDocuments] = useState<PersonalDocument[]>([]);
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState<string | null>(null);
 
   useEffect(() => {
     loadDocuments();
@@ -160,6 +161,28 @@ export default function PersonalDocuments() {
   const getDocumentForType = (key: string) =>
     documents.find((doc) => doc.doc_type === key);
 
+  const handleViewDocument = async (docId: string) => {
+    setDownloading(docId);
+    try {
+      const response = await authFetch(`${BASE_URL}/api/personal-documents/${docId}/`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.signed_file_url) {
+          window.open(data.signed_file_url, "_blank");
+        } else {
+          error("Could not get document URL");
+        }
+      } else {
+        error("Failed to get document");
+      }
+    } catch (err) {
+      console.error("View error:", err);
+      error("Failed to open document");
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -195,18 +218,9 @@ export default function PersonalDocuments() {
             <div
               key={docType.key}
               className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
-                uploaded
-                  ? "cursor-pointer hover:bg-purple-50 hover:border-purple-300"
-                  : ""
-              }`}
-              onClick={() => {
-                if (uploaded) {
-                  window.open(
-                    uploaded.signed_file_url || uploaded.file_url,
-                    "_blank"
-                  );
-                }
-              }}
+                uploaded ? "cursor-pointer hover:bg-purple-50" : ""
+              } ${downloading === uploaded?.id ? "opacity-50" : ""}`}
+              onClick={() => uploaded && handleViewDocument(uploaded.id)}
             >
               <div className="flex items-start gap-3 w-full">
                 <FileText className="h-5 w-5 text-gray-500 mt-1 shrink-0" />
@@ -239,17 +253,22 @@ export default function PersonalDocuments() {
 
               <div className="flex items-center gap-2 shrink-0">
                 {uploaded ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteDocument(uploaded.id);
-                    }}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <>
+                    {downloading === uploaded.id && (
+                      <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteDocument(uploaded.id);
+                      }}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
                 ) : (
                   <Label
                     htmlFor={docType.key}

@@ -253,6 +253,8 @@
     "title": "Уведомления",
     "notification": "Уведомление",
     "new": "новых",
+    "unread": "непрочитанных",
+    "allNotifications": "Все уведомления",
     "markAllRead": "Прочитать все",
     "noNotifications": "Нет уведомлений",
     "checkBackLater": "Проверьте позже",

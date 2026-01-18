@@ -8,14 +8,19 @@ interface ApplicationPreviewProps {
   readinessData?: any
   includeDocuments?: Record<string, boolean>
   uploadedDocs?: Record<string, File>
+  paymentReceipt?: File | null
 }
 
 export default function ApplicationPreview({
   program,
   readinessData,
   includeDocuments,
-  uploadedDocs = {}
+  uploadedDocs = {},
+  paymentReceipt
 }: ApplicationPreviewProps) {
+  // Check if program has application fee
+  const hasFee = program?.platformApplicationFee &&
+    parseFloat(program.platformApplicationFee) > 0
   // Get all requirements that need file uploads during application
   const applicationRequirements = readinessData?.requirements?.filter((req: any) => {
     const status = req.status?.toLowerCase() || ""
@@ -45,6 +50,30 @@ export default function ApplicationPreview({
             <p className="text-sm font-semibold">Program:</p>
             <p className="text-gray-700">{program?.name}</p>
           </div>
+
+          {hasFee && (
+            <div className="border-t pt-3">
+              <p className="text-sm font-semibold mb-2">Application Fee:</p>
+              <div className="flex items-center gap-2 text-sm">
+                {paymentReceipt ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <FileText className="h-4 w-4 text-gray-500" />
+                    <span className="text-gray-700">
+                      Payment Receipt - {paymentReceipt.name}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="h-4 w-4 text-amber-600" />
+                    <span className="text-amber-600">
+                      Payment Receipt - Not uploaded (${parseFloat(program.platformApplicationFee).toFixed(2)} required)
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {applicationRequirements.length > 0 && (
             <div className="border-t pt-3">

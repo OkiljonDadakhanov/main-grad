@@ -253,6 +253,8 @@
     "title": "Bildirishnomalar",
     "notification": "Bildirishnoma",
     "new": "yangi",
+    "unread": "o'qilmagan",
+    "allNotifications": "Barcha bildirishnomalar",
     "markAllRead": "Barchasini o'qilgan deb belgilash",
     "noNotifications": "Bildirishnomalar yo'q",
     "checkBackLater": "Keyinroq tekshiring",

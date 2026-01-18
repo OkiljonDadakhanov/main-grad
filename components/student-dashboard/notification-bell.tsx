@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Bell, CheckCheck, FileText, MessageSquare, Info, Inbox, X } from "lucide-react"
 import {
   Popover,
@@ -41,6 +41,9 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [viewAllOpen, setViewAllOpen] = useState(false)
+  const initialLoadDone = useRef(false)
+  const prevUnreadCount = useRef(0)
 
   const fetchNotifications = async () => {
     try {
@@ -48,8 +51,19 @@ export default function NotificationBell() {
       if (res.ok) {
         const data = await res.json()
         const notifs = data.results || data || []
+
+        const newUnreadCount = notifs.filter((n: Notification) => !n.is_read).length
+
+        // Check if there are new notifications (only after initial load)
+        if (initialLoadDone.current && newUnreadCount > prevUnreadCount.current) {
+          // Broadcast event to refresh application data
+          window.dispatchEvent(new CustomEvent("application-status-changed"))
+        }
+
+        prevUnreadCount.current = newUnreadCount
+        initialLoadDone.current = true
         setNotifications(notifs)
-        setUnreadCount(notifs.filter((n: Notification) => !n.is_read).length)
+        setUnreadCount(newUnreadCount)
       }
     } catch (err) {
       console.error("Failed to fetch notifications:", err)
@@ -86,8 +100,21 @@ export default function NotificationBell() {
 
   useEffect(() => {
     fetchNotifications()
-    const interval = setInterval(fetchNotifications, 30000)
-    return () => clearInterval(interval)
+    // Poll every 10 seconds for faster notification updates
+    const interval = setInterval(fetchNotifications, 10000)
+
+    // Also fetch immediately when user returns to the tab
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchNotifications()
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
   }, [])
 
   const getNotificationContent = (notification: Notification) => {
@@ -162,7 +189,13 @@ export default function NotificationBell() {
 
   return (
     <>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={(isOpen) => {
+        setOpen(isOpen)
+        // Fetch fresh notifications when opening the popover
+        if (isOpen) {
+          fetchNotifications()
+        }
+      }}>
         <PopoverTrigger asChild>
           <button className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors">
             <Bell size={20} className="text-gray-600 dark:text-gray-400" />
@@ -266,7 +299,13 @@ export default function NotificationBell() {
           {/* Footer */}
           {notifications.length > 0 && (
             <div className="border-t dark:border-gray-800 px-4 py-2 bg-gray-50/50 dark:bg-gray-900">
-              <button className="w-full text-center text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium py-1 transition-colors">
+              <button
+                onClick={() => {
+                  setOpen(false)
+                  setViewAllOpen(true)
+                }}
+                className="w-full text-center text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium py-1 transition-colors"
+              >
                 {t("notifications.viewAll")}
               </button>
             </div>
@@ -304,6 +343,99 @@ export default function NotificationBell() {
               {selectedNotification && getNotificationContent(selectedNotification).message}
             </p>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* View All Notifications Modal */}
+      <Dialog open={viewAllOpen} onOpenChange={setViewAllOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] dark:bg-gray-900 dark:border-gray-800">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bell size={20} className="text-purple-600 dark:text-purple-400" />
+                <DialogTitle className="dark:text-gray-100">{t("notifications.allNotifications")}</DialogTitle>
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 rounded-full">
+                    {unreadCount} {t("notifications.unread")}
+                  </span>
+                )}
+              </div>
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium transition-colors"
+                >
+                  <CheckCheck size={14} />
+                  {t("notifications.markAllRead")}
+                </button>
+              )}
+            </div>
+          </DialogHeader>
+          <ScrollArea className="h-[60vh] mt-4 -mx-6 px-6">
+            {notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-400 dark:text-gray-500">
+                <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
+                  <Inbox size={28} className="text-gray-300 dark:text-gray-600" />
+                </div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t("notifications.noNotifications")}</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {notifications.map((notification) => {
+                  const { title, message } = getNotificationContent(notification)
+                  return (
+                    <div
+                      key={notification.id}
+                      className={cn(
+                        "p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-all duration-200 border",
+                        !notification.is_read
+                          ? "bg-purple-50/50 dark:bg-purple-500/5 border-purple-200 dark:border-purple-500/20"
+                          : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+                      )}
+                      onClick={() => {
+                        if (!notification.is_read) {
+                          markAsRead(notification.id)
+                        }
+                        setSelectedNotification(notification)
+                        setViewAllOpen(false)
+                        setDetailOpen(true)
+                      }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
+                          getTypeColor(notification.type)
+                        )}>
+                          {getTypeIcon(notification.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className={cn(
+                              "text-sm text-gray-900 dark:text-gray-100",
+                              !notification.is_read && "font-semibold"
+                            )}>
+                              {title}
+                            </p>
+                            {!notification.is_read && (
+                              <span className="w-2 h-2 bg-purple-500 dark:bg-purple-400 rounded-full flex-shrink-0 mt-1.5" />
+                            )}
+                          </div>
+                          {message && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                              {message}
+                            </p>
+                          )}
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                            {formatFullDate(notification.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </>

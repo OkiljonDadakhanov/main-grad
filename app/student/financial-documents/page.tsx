@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Upload, FileText, CheckCircle, Trash2, Eye, DollarSign } from "lucide-react"
+import { Upload, FileText, CheckCircle, Trash2, DollarSign } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useCustomToast } from "@/components/custom-toast"
 import { BASE_URL, authFetch, getAccessTokenFromStorage } from "@/lib/auth"
@@ -37,7 +37,11 @@ export default function FinancialDocumentsPage() {
   const { success, error, warning } = useCustomToast()
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [dragOver, setDragOver] = useState<string | null>(null)
+  const [viewingDoc, setViewingDoc] = useState<string | null>(null)
 
+  // Profile-level financial documents (reusable across all applications)
+  // Application-specific documents (fee receipts, scholarship letters) are uploaded during each application
   const [documents, setDocuments] = useState<Record<string, FinancialDocument>>({
     bankBalance: {
       name: "Bank Balance Certificate",
@@ -61,22 +65,8 @@ export default function FinancialDocumentsPage() {
       required: false,
       doc_type: "family_relationship_certificate",
     },
-    applicationFeeReceipt: {
-      name: "Application Fee Payment Receipt",
-      description: "Receipt showing proof of payment for the university application fee.",
-      uploaded: false,
-      required: false,
-      doc_type: "application_fee_receipt",
-    },
-    scholarshipProof: {
-      name: "Scholarship Award Letter",
-      description: "Upload your scholarship award letter if applicable.",
-      uploaded: false,
-      required: false,
-      doc_type: "scholarship_award_letter",
-    },
     taxDocuments: {
-      name: "Sponsor’s Tax Documents",
+      name: "Sponsor's Tax Documents",
       description: "Income tax return or employment certificate of your financial sponsor.",
       uploaded: false,
       required: false,
@@ -136,11 +126,104 @@ export default function FinancialDocumentsPage() {
     }
   }
 
-  const handleRemoveFile = (documentKey: string) => {
+  const handleRemoveFile = async (documentKey: string) => {
+    const doc = documents[documentKey]
+
+    // If document exists on server (has id), delete it from server first
+    if (doc.id) {
+      try {
+        const response = await authFetch(`${BASE_URL}/api/financial-documents/${doc.id}/`, {
+          method: "DELETE",
+        })
+        if (!response.ok && response.status !== 404) {
+          error("Failed to delete document from server")
+          return
+        }
+      } catch (err) {
+        console.error("Delete error:", err)
+        error("Failed to delete document")
+        return
+      }
+    }
+
+    // Clear local state
     setDocuments(prev => ({
       ...prev,
-      [documentKey]: { ...prev[documentKey], file: undefined, uploaded: false },
+      [documentKey]: {
+        ...prev[documentKey],
+        id: undefined,
+        file: undefined,
+        uploaded: false,
+        file_url: undefined,
+        created_at: undefined,
+        updated_at: undefined,
+      },
     }))
+    success("Document removed")
+  }
+
+  const handleDragOver = (e: React.DragEvent, documentKey: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(documentKey)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(null)
+  }
+
+  const handleDrop = (e: React.DragEvent, documentKey: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(null)
+
+    const files = e.dataTransfer.files
+    if (files && files.length > 0) {
+      const file = files[0]
+      const validTypes = ['application/pdf', 'image/jpeg', 'image/png']
+      if (!validTypes.includes(file.type)) {
+        error('Please upload a PDF, JPG, or PNG file')
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        error('File size must be less than 5MB')
+        return
+      }
+      handleFileUpload(documentKey, file)
+    }
+  }
+
+  const handleViewDocument = async (documentKey: string) => {
+    const doc = documents[documentKey]
+    if (!doc.id) {
+      // If document is only local (not saved yet), can't view
+      warning("Please save the document first to view it.")
+      return
+    }
+
+    setViewingDoc(documentKey)
+    try {
+      // Fetch fresh document data with new signed URL
+      const response = await authFetch(`${BASE_URL}/api/financial-documents/`)
+      if (response.ok) {
+        const data: ApiFinancialDocument[] = await response.json()
+        const apiDoc = data.find(d => d.id === doc.id)
+        if (apiDoc && apiDoc.signed_file_url) {
+          window.open(apiDoc.signed_file_url, "_blank")
+        } else {
+          error("Could not get document URL")
+        }
+      } else {
+        error("Failed to fetch document")
+      }
+    } catch (err) {
+      console.error("View error:", err)
+      error("Failed to view document")
+    } finally {
+      setViewingDoc(null)
+    }
   }
 
   const handleSave = async () => {
@@ -154,12 +237,14 @@ export default function FinancialDocumentsPage() {
     try {
       const uploadResults = []
       for (const [key, doc] of Object.entries(documents)) {
-        if (doc.file && doc.doc_type) {
+        // Only upload if there's a new file selected (not already saved to server)
+        if (doc.file && doc.doc_type && !doc.id) {
           const formData = new FormData()
           formData.append("doc_type", doc.doc_type)
           formData.append("file", doc.file)
 
-          const response = await authFetch(`${BASE_URL}/api/financial-documents/save-draft/`, {
+          // Use the correct endpoint for creating documents
+          const response = await authFetch(`${BASE_URL}/api/financial-documents/`, {
             method: "POST",
             body: formData,
           })
@@ -177,6 +262,7 @@ export default function FinancialDocumentsPage() {
               ...prev[key],
               id: uploadedDoc.id,
               uploaded: true,
+              file: undefined, // Clear the local file reference
               file_url: uploadedDoc.signed_file_url,
               created_at: uploadedDoc.uploaded_at,
               updated_at: uploadedDoc.uploaded_at,
@@ -188,9 +274,15 @@ export default function FinancialDocumentsPage() {
       }
 
       if (uploadResults.length > 0) {
-        success(`${uploadResults.length} document(s) uploaded successfully!`)
+        success(`${uploadResults.length} document(s) saved successfully!`)
       } else {
-        warning("Please select at least one file to upload.")
+        // Check if there are any pending files (selected but not yet saved)
+        const pendingFiles = Object.values(documents).filter(doc => doc.file && !doc.id)
+        if (pendingFiles.length === 0) {
+          warning("No new documents to save. All documents are already saved.")
+        } else {
+          warning("Please select at least one file to upload.")
+        }
       }
     } catch (err: any) {
       console.error("Upload error:", err)
@@ -269,13 +361,18 @@ export default function FinancialDocumentsPage() {
               </div>
             </div>
             <div>
-              <h3 className="font-semibold text-blue-900 mb-1">Financial Requirements (Recommended)</h3>
+              <h3 className="font-semibold text-blue-900 mb-1">Financial Documents</h3>
+              <p className="text-sm text-blue-800 mb-2">
+                These documents are saved to your profile and can be reused across multiple applications.
+              </p>
               <ul className="text-sm text-blue-800 space-y-1">
                 <li>• Minimum bank balance of USD $10,000 (or KRW 13,000,000 equivalent).</li>
                 <li>• Bank certificate should be issued within the last 3 months.</li>
-                <li>• Sponsor’s relationship certificate and tax documents are recommended.</li>
                 <li>• All documents should be officially translated into English or Korean.</li>
               </ul>
+              <p className="text-sm text-blue-700 mt-2 italic">
+                Note: Application-specific documents (fee receipts, scholarship letters) are uploaded during each application.
+              </p>
             </div>
           </div>
         </CardContent>
@@ -299,9 +396,18 @@ export default function FinancialDocumentsPage() {
             </CardHeader>
             <CardContent>
               {doc.uploaded ? (
-                <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50">
+                <div
+                  className={`flex items-center justify-between p-4 border rounded-lg bg-green-50 cursor-pointer hover:bg-green-100 transition-colors ${
+                    viewingDoc === key ? 'opacity-50' : ''
+                  }`}
+                  onClick={() => handleViewDocument(key)}
+                >
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="h-6 w-6 text-green-500" />
+                    {viewingDoc === key ? (
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
+                    ) : (
+                      <CheckCircle className="h-6 w-6 text-green-500" />
+                    )}
                     <div>
                       <p className="font-medium text-sm">
                         {doc.file ? doc.file.name : `${doc.name}`}
@@ -312,31 +418,35 @@ export default function FinancialDocumentsPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-purple-600 bg-transparent"
-                      onClick={() => doc.file_url && window.open(doc.file_url, "_blank")}
-                    >
-                      <Eye className="h-4 w-4 mr-1" /> View
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRemoveFile(key)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" /> Remove
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleRemoveFile(key)
+                    }}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" /> Remove
+                  </Button>
                 </div>
               ) : (
                 <Label htmlFor={key} className="cursor-pointer block">
-                  <div className="flex flex-col items-center justify-center gap-3 px-4 py-12 border-2 border-dashed rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors">
-                    <Upload className="h-8 w-8 text-gray-400" />
+                  <div
+                    className={`flex flex-col items-center justify-center gap-3 px-4 py-12 border-2 border-dashed rounded-lg transition-colors ${
+                      dragOver === key
+                        ? 'border-purple-500 bg-purple-100'
+                        : 'hover:border-purple-400 hover:bg-purple-50'
+                    }`}
+                    onDragOver={(e) => handleDragOver(e, key)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, key)}
+                  >
+                    <Upload className={`h-8 w-8 ${dragOver === key ? 'text-purple-500' : 'text-gray-400'}`} />
                     <div className="text-center">
-                      <p className="text-sm font-medium text-gray-700">Click or drag file to upload</p>
+                      <p className="text-sm font-medium text-gray-700">
+                        {dragOver === key ? 'Drop file here' : 'Click or drag file to upload'}
+                      </p>
                       <p className="text-xs text-gray-500 mt-1">Accepted: PDF, JPG, PNG (max 5MB)</p>
                     </div>
                   </div>
@@ -354,16 +464,13 @@ export default function FinancialDocumentsPage() {
         ))}
       </div>
 
-      <div className="flex justify-end gap-4 pt-6">
-        <Button variant="outline" onClick={handleSave} disabled={submitting}>
-          {submitting ? "Saving..." : "Save as Draft"}
-        </Button>
+      <div className="flex justify-end pt-6">
         <Button
-          onClick={handleSubmit}
+          onClick={handleSave}
           className="bg-purple-600 hover:bg-purple-700"
           disabled={submitting}
         >
-          {submitting ? "Submitting..." : "Submit Financial Documents"}
+          {submitting ? "Saving..." : "Save Documents"}
         </Button>
       </div>
     </div>

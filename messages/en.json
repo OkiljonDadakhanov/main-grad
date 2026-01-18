@@ -253,6 +253,8 @@
     "title": "Notifications",
     "notification": "Notification",
     "new": "new",
+    "unread": "unread",
+    "allNotifications": "All Notifications",
     "markAllRead": "Mark all read",
     "noNotifications": "No notifications",
     "checkBackLater": "Check back later for updates",

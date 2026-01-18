@@ -97,49 +97,74 @@ export default function MyApplicationsPage() {
     setApplications((prev) => [newApplication, ...prev])
   }
 
-  useEffect(() => {
-    const fetchMyApplications = async () => {
-      try {
-        setLoading(true)
-        const res = await authFetch(`${BASE_URL}/api/applications/mine/`)
-        if (!res.ok) throw new Error("Failed to load applications")
-        const data = await res.json()
-        if (!Array.isArray(data)) {
-          setApplications([])
-          return
-        }
+  const fetchMyApplications = async (showLoading = true) => {
+    try {
+      if (showLoading) setLoading(true)
+      const res = await authFetch(`${BASE_URL}/api/applications/mine/`)
+      if (!res.ok) throw new Error("Failed to load applications")
+      const data = await res.json()
+      if (!Array.isArray(data)) {
+        setApplications([])
+        return
+      }
 
-        const mapped = data.map((item: any) => {
-          const id = String(item.id ?? item.pk ?? item.application_id ?? item.uuid ?? "")
-          const universityName =
-            item.university?.university_name || item.university_name || item.university?.name || ""
-          const programName =
-            item.programme?.title || item.programme_name || item.programme?.name || item.program_name || ""
-          const applicationDate = item.created_at || item.application_date || item.created || ""
-          const status = item.status || item.application_status || "Submitted"
-          const statusDate = item.status_updated_at || item.updated_at || applicationDate
-          const remarks = item.remarks || item.note || item.comment || ""
-          const applicationId = item.application_id || item.id || item.pk || ""
-          return {
-            id,
-            universityName,
-            programName,
-            applicationDate,
-            status,
-            statusDate,
-            remarks,
-            applicationId,
-          } as ApplicationEntry
-        })
-        setApplications(mapped)
-      } catch (err) {
-        console.error(err)
-        error("Failed to load your applications.")
-      } finally {
-        setLoading(false)
+      const mapped = data.map((item: any) => {
+        const id = String(item.id ?? item.pk ?? item.application_id ?? item.uuid ?? "")
+        const universityName =
+          item.university_name || item.university?.university_name || item.university?.name || ""
+        const programName =
+          item.program_name || item.programme_name || item.programme?.title || item.programme?.name || ""
+        // Handle null/undefined dates - only use valid date strings
+        const applicationDate = item.submitted_on ?? item.applied_date ?? ""
+        const status = item.status || item.application_status || "Submitted"
+        const statusDate = item.last_status_update ?? item.status_updated_at ?? item.updated_at ?? ""
+        const remarks = item.remarks || item.note || item.comment || ""
+        const applicationId = String(item.id || item.application_id || item.pk || "")
+        return {
+          id,
+          universityName,
+          programName,
+          applicationDate: applicationDate || "",
+          status,
+          statusDate: statusDate || "",
+          remarks,
+          applicationId,
+        } as ApplicationEntry
+      })
+      setApplications(mapped)
+    } catch (err) {
+      console.error(err)
+      if (showLoading) error("Failed to load your applications.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchMyApplications()
+
+    // Poll every 30 seconds as backup
+    const interval = setInterval(() => fetchMyApplications(false), 30000)
+
+    // Refresh when user returns to the tab
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchMyApplications(false)
       }
     }
-    fetchMyApplications()
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    // Refresh immediately when notification bell detects a new notification
+    const handleStatusChange = () => {
+      fetchMyApplications(false)
+    }
+    window.addEventListener("application-status-changed", handleStatusChange)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+      window.removeEventListener("application-status-changed", handleStatusChange)
+    }
   }, [])
 
   const filterApplications = (status: string) => {

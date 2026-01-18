@@ -15,6 +15,7 @@ import DocumentsSelector from "@/components/DocumentsSelector"
 import ProgramRequirements from "@/components/ProgramRequirements"
 import ApplicationPreview from "@/components/ApplicationPreview"
 import SubmitSection from "@/components/SubmitSection"
+import { PaymentReceiptUpload } from "@/components/PaymentReceiptUpload"
 import { useDocumentStatus } from "@/hooks/useDocumentStatus"
 import { useAppliedPrograms } from "@/hooks/useAppliedPrograms"
 import {
@@ -49,6 +50,7 @@ export default function ApplyToUniversityPage({
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
+  const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null)
 
   const { documentStatus, checkingDocuments } = useDocumentStatus()
   const { appliedProgramIds, hasAppliedToProgram } = useAppliedPrograms()
@@ -199,6 +201,11 @@ export default function ApplyToUniversityPage({
   const handleCheckDocuments = async () => {
     if (!selectedProgram) return error("Please select a program first")
 
+    // Check payment receipt if fee is required
+    if (hasFee && !paymentReceipt) {
+      return error("Please upload a payment receipt before proceeding.")
+    }
+
     // Server-side readiness check using API
     const isReady = await checkStudentReadiness(selectedProgram)
     if (!isReady) return
@@ -209,6 +216,11 @@ export default function ApplyToUniversityPage({
   // 🚀 Submit Application (checks readiness first, then creates application)
   const handleSubmitApplication = async () => {
     if (!selectedProgram) return error("Select a program before submitting.")
+
+    // Check payment receipt if fee is required
+    if (hasFee && !paymentReceipt) {
+      return error("Please upload a payment receipt before submitting.")
+    }
 
     setSubmitting(true)
     try {
@@ -274,6 +286,11 @@ export default function ApplyToUniversityPage({
 
       await uploadAttachments(appId, uploadedDocs)
 
+      // Upload payment receipt if required
+      if (hasFee && paymentReceipt) {
+        await uploadAttachments(appId, { payment_receipt: paymentReceipt })
+      }
+
       // Note: Motivation letters are now uploaded as files in important_documents
       // The application will automatically include them via the student profile
 
@@ -312,6 +329,10 @@ export default function ApplyToUniversityPage({
   const selectedProgramObj = university?.programmes?.find(
     (p: any) => String(p.id) === selectedProgram
   )
+
+  // Check if program has application fee
+  const hasFee = selectedProgramObj?.platformApplicationFee &&
+    parseFloat(selectedProgramObj.platformApplicationFee) > 0
 
   const activePrograms = university?.programmes?.filter((p: any) => p.active) || []
 
@@ -405,6 +426,19 @@ export default function ApplyToUniversityPage({
                   </Card>
                 )}
 
+                {hasFee && selectedProgramObj && (
+                  <Card>
+                    <CardContent className="p-6">
+                      <PaymentReceiptUpload
+                        feeAmount={parseFloat(selectedProgramObj.platformApplicationFee).toFixed(2)}
+                        paymentInstructions={selectedProgramObj.payment_instructions || ""}
+                        receiptFile={paymentReceipt}
+                        onFileChange={setPaymentReceipt}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
+
                 <DocumentsSelector
                   includeDocuments={includeDocuments}
                   setIncludeDocuments={setIncludeDocuments}
@@ -439,6 +473,7 @@ export default function ApplyToUniversityPage({
                     readinessData={readinessData}
                     includeDocuments={includeDocuments}
                     uploadedDocs={uploadedDocs}
+                    paymentReceipt={paymentReceipt}
                   />
                 )}
 

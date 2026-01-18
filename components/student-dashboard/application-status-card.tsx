@@ -35,11 +35,24 @@ const statusColors: Record<string, string> = {
 // Parse interview details from remarks
 function parseInterviewDetails(remarks: string) {
   const dateMatch = remarks.match(/Interview scheduled for ([^.]+)\./i)
-  const linkMatch = remarks.match(/Interview link:\s*(https?:\/\/[^\s]+)/i)
+  // Be lenient with URL format - handle missing slashes
+  const linkMatch = remarks.match(/Interview link:\s*(https?:\/?\/?[^\s]+)/i)
+
+  let link: string | null = null
+  if (linkMatch && linkMatch[1]) {
+    link = linkMatch[1]
+    // Fix common URL issues - ensure proper protocol format
+    if (link.match(/^https?:\/[^/]/i)) {
+      link = link.replace(/^(https?:)\/([^/])/i, '$1//$2')
+    }
+    if (link.match(/^https?:[^/]/i)) {
+      link = link.replace(/^(https?:)([^/])/i, '$1//$2')
+    }
+  }
 
   return {
     dateTime: dateMatch ? dateMatch[1] : null,
-    link: linkMatch ? linkMatch[1] : null,
+    link: link,
   }
 }
 
@@ -102,7 +115,11 @@ export default function ApplicationStatusCard({ application, onViewDetails }: Ap
                 className="mt-2 bg-purple-600 hover:bg-purple-700"
                 onClick={(e) => {
                   e.stopPropagation()
-                  window.open(interviewDetails.link!, "_blank")
+                  let url = interviewDetails.link!
+                  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url
+                  }
+                  window.open(url, '_blank', 'noopener,noreferrer')
                 }}
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
