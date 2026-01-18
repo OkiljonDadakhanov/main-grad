@@ -1,4 +1,5 @@
 export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://api.gradabroad.net";
+export const UNIVERSITY_DASHBOARD_URL = process.env.NEXT_PUBLIC_UNIVERSITY_DASHBOARD_URL ?? "https://university.gradabroad.net";
 
 export interface AuthPayloadLike {
   access?: string;
@@ -120,14 +121,14 @@ async function refreshAccessToken(): Promise<string | null> {
 export async function authFetch(input: string, init: RequestInit = {}): Promise<Response> {
   let token = getAccessTokenFromStorage();
   const headers = new Headers(init.headers || {});
-  
+
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
   headers.set("Accept", "application/json");
-  
+
   let response = await fetch(input, { ...init, headers });
-  
+
   // If 401 Unauthorized, try to refresh token
   if (response.status === 401 && token) {
     const newToken = await refreshAccessToken();
@@ -137,8 +138,6 @@ export async function authFetch(input: string, init: RequestInit = {}): Promise<
       response = await fetch(input, { ...init, headers });
     }
   }
-  
+
   return response;
 }
-
-

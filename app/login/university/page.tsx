@@ -14,7 +14,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useCustomToast } from "@/components/custom-toast";
-import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
+import { BASE_URL, UNIVERSITY_DASHBOARD_URL, saveAuthToStorage } from "@/lib/auth";
 
 export default function UniversityLoginPage() {
   const router = useRouter();
@@ -70,14 +70,8 @@ export default function UniversityLoginPage() {
 
       success("Login successful!");
 
-      // Redirect to university dashboard if configured, otherwise stay in app
-      const universityDashboardUrl = process.env.NEXT_PUBLIC_UNIVERSITY_DASHBOARD_URL;
-      if (universityDashboardUrl) {
-        window.location.href = `${universityDashboardUrl}/profile?token=${data.access}&refresh=${data.refresh}`;
-      } else {
-        // Fallback: redirect to home with success state
-        router.push("/");
-      }
+      // Redirect to university dashboard
+      window.location.href = `${UNIVERSITY_DASHBOARD_URL}/profile?token=${data.access}&refresh=${data.refresh}`;
     } catch (err) {
       console.error("Login error:", err);
       error("An unexpected error occurred");
