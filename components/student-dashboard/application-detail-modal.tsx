@@ -13,8 +13,9 @@ import {
 import type { ApplicationEntry } from "@/app/student/my-applications/page"
 import { Badge } from "../ui/badge"
 import { cn } from "@/lib/utils"
-import { Calendar, ExternalLink, Video, Copy, Check, Download, FileText, Loader2, Clock } from "lucide-react"
+import { Calendar, ExternalLink, Video, Copy, Check, Download, FileText, Loader2, Clock, MessageSquare } from "lucide-react"
 import { authFetch, BASE_URL } from "@/lib/auth"
+import { ChatModal } from "@/components/chat/chat-modal"
 
 // Helper to safely format dates
 const formatDate = (dateStr: string | null | undefined): string | null => {
@@ -108,11 +109,14 @@ function parseInterviewDetails(remarks: string) {
 export default function ApplicationDetailModal({ isOpen, onClose, application }: ApplicationDetailModalProps) {
   const [copied, setCopied] = useState(false)
   const [downloadingAcceptanceLetter, setDownloadingAcceptanceLetter] = useState(false)
+  const [chatModalOpen, setChatModalOpen] = useState(false)
 
   if (!application) return null
 
   const isInterview = application.status.toLowerCase() === "interview"
   const isAccepted = ["accepted", "confirmed", "visa_taken", "studying"].includes(application.status.toLowerCase())
+  // Chat is available for submitted applications (not draft or document_saved)
+  const canChat = application.applicationId && !["draft", "document_saved"].includes(application.status.toLowerCase())
   const interviewDetails = isInterview && application.remarks ? parseInterviewDetails(application.remarks) : null
 
   const handleCopyLink = (link: string) => {
@@ -318,12 +322,29 @@ export default function ApplicationDetailModal({ isOpen, onClose, application }:
             </div>
           )}
         </div>
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-0">
+          {canChat && (
+            <Button onClick={() => setChatModalOpen(true)} variant="default" className="bg-blue-600 hover:bg-blue-700">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Messages
+            </Button>
+          )}
           <Button onClick={onClose} variant="outline">
             Close
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Chat Modal */}
+      {canChat && (
+        <ChatModal
+          applicationId={application.applicationId!}
+          universityName={application.universityName}
+          programName={application.programName}
+          open={chatModalOpen}
+          onOpenChange={setChatModalOpen}
+        />
+      )}
     </Dialog>
   )
 }
