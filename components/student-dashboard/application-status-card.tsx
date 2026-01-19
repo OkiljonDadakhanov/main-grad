@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { ApplicationEntry } from "@/app/student/my-applications/page"
 import { cn } from "@/lib/utils"
-import { ExternalLink, FileText, Calendar, Clock, Video } from "lucide-react"
+import { ExternalLink, FileText, Calendar, Clock, Video, Download } from "lucide-react"
 import { useI18n } from "@/lib/i18n"
 
 interface ApplicationStatusCardProps {
@@ -63,6 +63,8 @@ function parseInterviewDetails(remarks: string) {
 export default function ApplicationStatusCard({ application, onViewDetails }: ApplicationStatusCardProps) {
   const { t } = useI18n()
   const isInterview = application.status.toLowerCase() === "interview"
+  const isAccepted = ["accepted", "confirmed", "visa_taken", "studying"].includes(application.status.toLowerCase())
+  const hasAcceptanceLetter = isAccepted && !!application.acceptanceLetterUrl
   const interviewDetails = isInterview && application.remarks ? parseInterviewDetails(application.remarks) : null
 
   return (
@@ -146,6 +148,19 @@ export default function ApplicationStatusCard({ application, onViewDetails }: Ap
                 {t("applications.joinInterview")}
               </Button>
             )}
+          </div>
+        )}
+
+        {/* Acceptance Letter Available Indicator */}
+        {hasAcceptanceLetter && (
+          <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-700">
+            <p className="flex items-center gap-2 text-green-700 dark:text-green-300 font-medium">
+              <Download className="h-4 w-4" />
+              {t("applications.acceptanceLetterAvailable") || "Acceptance letter available"}
+            </p>
+            <p className="text-sm text-green-600 dark:text-green-400 mt-1">
+              {t("applications.clickToDownload") || "Click to view details and download"}
+            </p>
           </div>
         )}
 

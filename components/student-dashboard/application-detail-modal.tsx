@@ -13,7 +13,8 @@ import {
 import type { ApplicationEntry } from "@/app/student/my-applications/page"
 import { Badge } from "../ui/badge"
 import { cn } from "@/lib/utils"
-import { Calendar, ExternalLink, Video, Copy, Check } from "lucide-react"
+import { Calendar, ExternalLink, Video, Copy, Check, Download, FileText, Loader2 } from "lucide-react"
+import { authFetch, BASE_URL } from "@/lib/auth"
 
 // Helper to safely format dates
 const formatDate = (dateStr: string | null | undefined): string | null => {
@@ -102,10 +103,12 @@ function parseInterviewDetails(remarks: string) {
 
 export default function ApplicationDetailModal({ isOpen, onClose, application }: ApplicationDetailModalProps) {
   const [copied, setCopied] = useState(false)
+  const [downloadingAcceptanceLetter, setDownloadingAcceptanceLetter] = useState(false)
 
   if (!application) return null
 
   const isInterview = application.status.toLowerCase() === "interview"
+  const isAccepted = ["accepted", "confirmed", "visa_taken", "studying"].includes(application.status.toLowerCase())
   const interviewDetails = isInterview && application.remarks ? parseInterviewDetails(application.remarks) : null
 
   const handleCopyLink = (link: string) => {
@@ -121,6 +124,26 @@ export default function ApplicationDetailModal({ isOpen, onClose, application }:
       url = 'https://' + url
     }
     window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  const handleDownloadAcceptanceLetter = async () => {
+    if (!application.applicationId) return
+    setDownloadingAcceptanceLetter(true)
+    try {
+      const response = await authFetch(
+        `${BASE_URL}/api/applications/${application.applicationId}/acceptance-letter/download/`
+      )
+      if (response.ok) {
+        const data = await response.json()
+        window.open(data.signed_url, "_blank")
+      } else {
+        console.error("Failed to get acceptance letter URL")
+      }
+    } catch (error) {
+      console.error("Failed to download acceptance letter:", error)
+    } finally {
+      setDownloadingAcceptanceLetter(false)
+    }
   }
 
   return (
@@ -239,6 +262,31 @@ export default function ApplicationDetailModal({ isOpen, onClose, application }:
                 </p>
               )}
 
+            </div>
+          )}
+
+          {/* Acceptance Letter Section */}
+          {isAccepted && application.acceptanceLetterUrl && (
+            <div className="mt-4 p-4 bg-green-100 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-700">
+              <h4 className="font-semibold text-green-800 dark:text-green-300 mb-3 flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Acceptance Letter
+              </h4>
+              <p className="text-sm text-green-700 dark:text-green-300 mb-3">
+                Your acceptance letter is ready to download. This document confirms your admission to the program.
+              </p>
+              <Button
+                className="bg-green-600 hover:bg-green-700 w-full"
+                onClick={handleDownloadAcceptanceLetter}
+                disabled={downloadingAcceptanceLetter}
+              >
+                {downloadingAcceptanceLetter ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
+                Download Acceptance Letter
+              </Button>
             </div>
           )}
 

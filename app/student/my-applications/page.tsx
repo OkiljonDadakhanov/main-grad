@@ -30,6 +30,7 @@ export interface ApplicationEntry {
   statusDate: string
   remarks?: string
   applicationId?: string
+  acceptanceLetterUrl?: string | null
 }
 
 const mockApplications: ApplicationEntry[] = [
@@ -120,6 +121,7 @@ export default function MyApplicationsPage() {
         const statusDate = item.last_status_update ?? item.status_updated_at ?? item.updated_at ?? ""
         const remarks = item.remarks || item.note || item.comment || ""
         const applicationId = String(item.id || item.application_id || item.pk || "")
+        const acceptanceLetterUrl = item.acceptance_letter_url || null
         return {
           id,
           universityName,
@@ -129,6 +131,7 @@ export default function MyApplicationsPage() {
           statusDate: statusDate || "",
           remarks,
           applicationId,
+          acceptanceLetterUrl,
         } as ApplicationEntry
       })
       setApplications(mapped)
