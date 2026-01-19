@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCustomToast } from "@/components/custom-toast";
 import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
 import { GoogleLoginButton } from "@/components/auth/google-login-button";
@@ -14,7 +14,11 @@ export default function StudentLoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { success, error } = useCustomToast();
+
+  // Get redirect URL from query params
+  const redirectUrl = searchParams.get("redirect") || "/student/profile";
 
   const handleEmailLogin = async () => {
     if (!email || !password) {
@@ -35,8 +39,9 @@ export default function StudentLoginPage() {
         return;
       }
       saveAuthToStorage(data);
+      localStorage.setItem("account_type", "student");
       success("Muvaffaqiyatli kirdingiz.");
-      router.push("/student/profile");
+      router.push(redirectUrl);
     } catch {
       error("Server xatosi. Keyinroq urinib ko'ring.");
     } finally {

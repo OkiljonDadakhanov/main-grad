@@ -1,10 +1,15 @@
 // components/home/hero-section.tsx
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/home/search-bar";
 import { TashkentSeoulClock } from "./tashkent-seoul-clock";
+import { useI18n } from "@/lib/i18n";
 
 export function HeroSection() {
+  const { t } = useI18n();
+
   return (
     <section className="relative flex items-center justify-center  overflow-hidden">
       {/* Background: vivid photo with subtle gradient + radial glow (no blur) */}
@@ -41,75 +46,74 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="relative z-10 w-full px-6 py-24 md:py-28">
+      <div className="relative z-10 w-full px-4 sm:px-6 py-12 sm:py-16 md:py-24 lg:py-28">
         <div className="mx-auto max-w-7xl text-center text-white">
-          {/* Clock */}
-          <div className="mb-6 flex w-full justify-center">
+          {/* Clock - hidden on very small screens */}
+          <div className="mb-4 sm:mb-6 hidden sm:flex w-full justify-center">
             <TashkentSeoulClock />
           </div>
 
           {/* Eyebrow / badge */}
-          <div className="mb-4 flex items-center justify-center">
-            <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium tracking-wide">
-              Study in Korea · Tailored for Uzbekistan
+          <div className="mb-3 sm:mb-4 flex items-center justify-center">
+            <span className="rounded-full border border-white/30 bg-white/10 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium tracking-wide">
+              {t("landing.hero.badge")}
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="mx-auto max-w-4xl text-balance text-4xl font-extrabold leading-tight md:text-5xl lg:text-6xl">
-            Your Path from Uzbekistan to
+          <h1 className="mx-auto max-w-4xl text-balance text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight">
+            {t("landing.hero.title")}
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-blue-200">
-              Top Korean Universities
+              {t("landing.hero.titleHighlight")}
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="mx-auto mt-5 max-w-2xl text-pretty text-base text-white/90 md:mt-6 md:text-lg">
-            Discover universities, programs, and scholarships—curated for Uzbek
-            students. Learn exactly how to apply and succeed.
+          <p className="mx-auto mt-3 sm:mt-5 md:mt-6 max-w-2xl text-pretty text-sm sm:text-base md:text-lg text-white/90 px-2">
+            {t("landing.hero.subtitle")}
           </p>
 
           {/* CTA Buttons */}
-          <div className="mx-auto mt-8 flex max-w-lg flex-col items-center justify-center gap-3 sm:flex-row md:mt-10">
+          <div className="mx-auto mt-6 sm:mt-8 md:mt-10 flex max-w-lg flex-col items-center justify-center gap-2 sm:gap-3 sm:flex-row px-2">
             <Button
               size="lg"
-              className="min-w-[190px] bg-white text-purple-900 hover:bg-white/90"
+              className="w-full sm:w-auto sm:min-w-[190px] bg-white text-purple-900 hover:bg-white/90 text-sm sm:text-base"
               asChild
             >
-              <Link href="/universities">Explore Universities</Link>
+              <Link href="/universities">{t("landing.hero.exploreBtn")}</Link>
             </Button>
 
             <Button
               size="lg"
               variant="outline"
-              className="min-w-[190px] border-white/60 bg-white/90 text-purple-900 hover:bg-white"
+              className="w-full sm:w-auto sm:min-w-[190px] border-white/60 bg-white/90 text-purple-900 hover:bg-white text-sm sm:text-base"
               asChild
             >
-              <Link href="/application-process">How to Apply</Link>
+              <Link href="/application-process">{t("landing.hero.howToApplyBtn")}</Link>
             </Button>
           </div>
 
-          {/* Search Bar: crisp card (no blur), high contrast */}
-          <div className="mx-auto mt-10 w-full max-w-2xl rounded-xl border border-white/30 bg-white/90 p-5 shadow-lg md:mt-12">
+          {/* Search Bar */}
+          <div className="mx-auto mt-6 sm:mt-8 md:mt-10 lg:mt-12 w-full max-w-2xl rounded-xl border border-white/30 bg-white/90 p-3 sm:p-4 md:p-5 shadow-lg">
             <SearchBar />
           </div>
 
-          {/* Stats: clean cards with light transparency, no blur */}
-          <div className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-4 md:mt-12 md:grid-cols-4">
+          {/* Stats */}
+          <div className="mx-auto mt-6 sm:mt-8 md:mt-10 lg:mt-12 grid max-w-4xl grid-cols-2 gap-2 sm:gap-3 md:gap-4 md:grid-cols-4 px-2">
             {[
-              { label: "Universities", value: "50+" },
-              { label: "Programs", value: "500+" },
-              { label: "Scholarships", value: "200+" },
-              { label: "Uzbek Students", value: "2,500+" },
+              { label: t("landing.hero.stats.universities"), value: "50+" },
+              { label: t("landing.hero.stats.programs"), value: "500+" },
+              { label: t("landing.hero.stats.scholarships"), value: "200+" },
+              { label: t("landing.hero.stats.students"), value: "2,500+" },
             ].map((item) => (
               <div
                 key={item.label}
-                className="rounded-lg border border-white/30 bg-white/85 p-4 text-center shadow-md"
+                className="rounded-lg border border-white/30 bg-white/85 p-2.5 sm:p-3 md:p-4 text-center shadow-md"
               >
-                <p className="mb-1 text-sm font-medium text-purple-900/80">
+                <p className="mb-0.5 sm:mb-1 text-[10px] sm:text-xs md:text-sm font-medium text-purple-900/80">
                   {item.label}
                 </p>
-                <p className="text-2xl font-extrabold text-purple-900">
+                <p className="text-lg sm:text-xl md:text-2xl font-extrabold text-purple-900">
                   {item.value}
                 </p>
               </div>
@@ -117,9 +121,8 @@ export function HeroSection() {
           </div>
 
           {/* Helper text */}
-          <p className="mx-auto mt-6 max-w-xl text-xs text-white/80">
-            Up-to-date entries are added regularly. Start with a program search,
-            then follow our step-by-step guide.
+          <p className="mx-auto mt-4 sm:mt-6 max-w-xl text-[10px] sm:text-xs text-white/80 px-4">
+            {t("landing.hero.helperText")}
           </p>
         </div>
       </div>

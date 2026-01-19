@@ -38,7 +38,13 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
     const fetchLanguage = async () => {
       try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+        // First check localStorage for saved preference
+        const savedLocale = localStorage.getItem("preferred_language");
+        if (savedLocale && messages[savedLocale]) {
+          setLocaleState(savedLocale);
+        }
+
+        const token = localStorage.getItem("access_token");
         if (!token) {
           setIsLoading(false);
           return;
@@ -49,6 +55,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
           const data = await res.json();
           if (data.preferred_language && messages[data.preferred_language]) {
             setLocaleState(data.preferred_language);
+            localStorage.setItem("preferred_language", data.preferred_language);
           }
         }
       } catch (err) {
@@ -66,15 +73,21 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
     setLocaleState(newLocale);
 
-    // Save to API
-    try {
-      await authFetch(`${BASE_URL}/api/settings/language/`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ preferred_language: newLocale }),
-      });
-    } catch (err) {
-      console.error("Error saving language preference:", err);
+    // Always save to localStorage for persistence
+    localStorage.setItem("preferred_language", newLocale);
+
+    // Save to API if authenticated
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      try {
+        await authFetch(`${BASE_URL}/api/settings/language/`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ preferred_language: newLocale }),
+        });
+      } catch (err) {
+        console.error("Error saving language preference:", err);
+      }
     }
   }, []);
 
