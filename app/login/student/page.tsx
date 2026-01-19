@@ -7,6 +7,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { useCustomToast } from "@/components/custom-toast";
 import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
+import { GoogleLoginButton } from "@/components/auth/google-login-button";
 
 export default function StudentLoginPage() {
   const [email, setEmail] = useState("");
@@ -85,8 +86,10 @@ export default function StudentLoginPage() {
               variant="outline"
               className="w-full"
             >
-              Login with OneID 
+              Login with OneID
             </Button>
+            <div className="text-center text-gray-600 text-sm">or</div>
+            <GoogleLoginButton />
           </CardContent>
         </Card>
       </div>

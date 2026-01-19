@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { usePathname } from "next/navigation"
 import SplashScreen from "@/components/layout/splash-screen-loading"
 import { I18nProvider } from "@/lib/i18n"
+import { GoogleOAuthWrapper } from "@/components/providers/google-oauth-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -37,16 +38,18 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <SplashScreen />
-        <I18nProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="flex flex-col min-h-screen">
-              {!hideLayout && <Navbar />}
-              <main className="flex-1">{children}</main>
-              {!hideLayout && <Footer />}
-            </div>
-            <Toaster />
-          </ThemeProvider>
-        </I18nProvider>
+        <GoogleOAuthWrapper>
+          <I18nProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <div className="flex flex-col min-h-screen">
+                {!hideLayout && <Navbar />}
+                <main className="flex-1">{children}</main>
+                {!hideLayout && <Footer />}
+              </div>
+              <Toaster />
+            </ThemeProvider>
+          </I18nProvider>
+        </GoogleOAuthWrapper>
       </body>
     </html>
   )

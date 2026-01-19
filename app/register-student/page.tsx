@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCustomToast } from "@/components/custom-toast";
 import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
+import { GoogleLoginButton } from "@/components/auth/google-login-button";
 
 interface RegisterForm {
   first_name: string;
@@ -107,7 +108,9 @@ export default function RegisterStudentPage() {
               {loading ? "Yuborilmoqda..." : "Ro'yxatdan o'tish"}
             </Button>
 
-            {/* ✅ "Have an account? Sign in" section */}
+            <div className="text-center text-gray-600 text-sm">or</div>
+            <GoogleLoginButton />
+
             <p className="text-center text-sm text-gray-600 mt-4">
               Hisobingiz bormi?{" "}
               <Link
