@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Search, MapPin, Star, GraduationCap, Building2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -124,19 +125,39 @@ export default function BrowseUniversitiesPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Browse Universities</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Browse Universities</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Explore universities and start your application journey. Your profile information will be used automatically.
           </p>
         </div>
-        <Card>
-          <CardContent className="py-12">
-            <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-              <p className="ml-3 text-gray-600">Loading universities...</p>
+        {/* Skeleton filters */}
+        <Card className="dark:bg-gray-900 dark:border-gray-800">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           </CardContent>
         </Card>
+        {/* Skeleton cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="overflow-hidden dark:bg-gray-900 dark:border-gray-800">
+              <Skeleton className="h-48 w-full rounded-none" />
+              <CardContent className="p-6 space-y-4">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <div className="flex gap-2 pt-2">
+                  <Skeleton className="h-10 flex-1" />
+                  <Skeleton className="h-10 flex-1" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     )
   }
@@ -144,14 +165,14 @@ export default function BrowseUniversitiesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Browse Universities</h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Browse Universities</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Explore universities and start your application journey. Your profile information will be used automatically.
         </p>
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="dark:bg-gray-900 dark:border-gray-800">
         <CardContent className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
@@ -161,10 +182,11 @@ export default function BrowseUniversitiesPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
+                aria-label="Search universities"
               />
             </div>
             <Select value={cityFilter} onValueChange={setCityFilter}>
-              <SelectTrigger>
+              <SelectTrigger aria-label="Filter by city">
                 <SelectValue placeholder="Filter by city" />
               </SelectTrigger>
               <SelectContent>
@@ -177,7 +199,7 @@ export default function BrowseUniversitiesPage() {
               </SelectContent>
             </Select>
             <Select value={classificationFilter} onValueChange={setClassificationFilter}>
-              <SelectTrigger>
+              <SelectTrigger aria-label="Filter by type">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent>
@@ -193,8 +215,8 @@ export default function BrowseUniversitiesPage() {
       {/* Universities Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredUniversities.map((university) => (
-          <Card key={university.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="relative h-48 w-full bg-gray-100">
+          <Card key={university.id} className="overflow-hidden hover:shadow-lg transition-shadow dark:bg-gray-900 dark:border-gray-800">
+            <div className="relative h-48 w-full bg-gray-100 dark:bg-gray-800">
               {university.image ? (
                 <Image
                   src={university.image}
@@ -205,44 +227,44 @@ export default function BrowseUniversitiesPage() {
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <GraduationCap className="h-16 w-16 text-gray-300" />
+                  <GraduationCap className="h-16 w-16 text-gray-300 dark:text-gray-600" />
                 </div>
               )}
               {university.isVerified && (
                 <div className="absolute top-4 right-4 bg-green-500 px-3 py-1 rounded-full text-xs font-medium text-white flex items-center gap-1">
-                  <Star className="h-3 w-3 fill-white" />
+                  <Star className="h-3 w-3 fill-white" aria-hidden="true" />
                   Verified
                 </div>
               )}
               {university.ranking && (
-                <div className="absolute top-4 left-4 bg-white px-3 py-1 rounded-full text-sm font-medium shadow">
+                <div className="absolute top-4 left-4 bg-white dark:bg-gray-900 px-3 py-1 rounded-full text-sm font-medium shadow dark:text-gray-100">
                   Rank {university.ranking}
                 </div>
               )}
             </div>
 
             <CardContent className="p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{university.name}</h3>
-              <div className="flex items-center text-sm text-gray-600 mb-2">
-                <MapPin className="h-4 w-4 mr-1" />
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{university.name}</h3>
+              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+                <MapPin className="h-4 w-4 mr-1" aria-hidden="true" />
                 {university.city}, {university.country}
               </div>
               <div className="flex items-center gap-2 mb-3">
-                <Building2 className="h-4 w-4 text-purple-600" />
-                <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded">
+                <Building2 className="h-4 w-4 text-purple-600 dark:text-purple-400" aria-hidden="true" />
+                <span className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded">
                   {university.classification}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 mb-4 line-clamp-2">{university.description}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">{university.description}</p>
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <p className="text-xs text-gray-500">Programs</p>
-                  <p className="text-sm font-semibold">{university.programs}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500">Programs</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{university.programs}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Type</p>
-                  <p className="text-sm font-semibold">{university.classification}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500">Type</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{university.classification}</p>
                 </div>
               </div>
 
@@ -266,9 +288,9 @@ export default function BrowseUniversitiesPage() {
       </div>
 
       {filteredUniversities.length === 0 && (
-        <Card>
+        <Card className="dark:bg-gray-900 dark:border-gray-800">
           <CardContent className="py-12 text-center">
-            <p className="text-gray-500">No universities found matching your criteria.</p>
+            <p className="text-gray-500 dark:text-gray-400">No universities found matching your criteria.</p>
           </CardContent>
         </Card>
       )}

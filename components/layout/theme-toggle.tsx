@@ -1,6 +1,6 @@
 "use client"
 
-import { Moon, Sun, Monitor } from "lucide-react"
+import { Moon, Sun, Monitor, Check } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
   DropdownMenu,
@@ -20,9 +20,18 @@ export function ThemeToggle() {
     setMounted(true)
   }, [])
 
+  const getThemeLabel = () => {
+    if (theme === "dark") return t("theme.dark")
+    if (theme === "system") return t("theme.system")
+    return t("theme.light")
+  }
+
   if (!mounted) {
     return (
-      <button className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
+      <button
+        className="p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+        aria-label="Toggle theme"
+      >
         <Sun size={20} className="text-gray-600" />
       </button>
     )
@@ -31,7 +40,10 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors">
+        <button
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          aria-label={`Current theme: ${getThemeLabel()}. Click to change theme`}
+        >
           {theme === "dark" ? (
             <Moon size={20} className="text-gray-600 dark:text-gray-400" />
           ) : theme === "system" ? (
@@ -41,27 +53,36 @@ export function ThemeToggle() {
           )}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="dark:bg-gray-900 dark:border-gray-800">
+      <DropdownMenuContent align="end" className="dark:bg-gray-900 dark:border-gray-800 min-w-[160px]">
         <DropdownMenuItem
           onClick={() => setTheme("light")}
-          className={theme === "light" ? "bg-purple-50 dark:bg-purple-500/10" : ""}
+          className={`flex items-center justify-between ${theme === "light" ? "bg-purple-50 dark:bg-purple-500/10" : ""}`}
         >
-          <Sun size={16} className="mr-2" />
-          {t("theme.light")}
+          <span className="flex items-center">
+            <Sun size={16} className="mr-2" />
+            {t("theme.light")}
+          </span>
+          {theme === "light" && <Check size={16} className="text-purple-600" />}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setTheme("dark")}
-          className={theme === "dark" ? "bg-purple-50 dark:bg-purple-500/10" : ""}
+          className={`flex items-center justify-between ${theme === "dark" ? "bg-purple-50 dark:bg-purple-500/10" : ""}`}
         >
-          <Moon size={16} className="mr-2" />
-          {t("theme.dark")}
+          <span className="flex items-center">
+            <Moon size={16} className="mr-2" />
+            {t("theme.dark")}
+          </span>
+          {theme === "dark" && <Check size={16} className="text-purple-600" />}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setTheme("system")}
-          className={theme === "system" ? "bg-purple-50 dark:bg-purple-500/10" : ""}
+          className={`flex items-center justify-between ${theme === "system" ? "bg-purple-50 dark:bg-purple-500/10" : ""}`}
         >
-          <Monitor size={16} className="mr-2" />
-          {t("theme.system")}
+          <span className="flex items-center">
+            <Monitor size={16} className="mr-2" />
+            {t("theme.system")}
+          </span>
+          {theme === "system" && <Check size={16} className="text-purple-600" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
