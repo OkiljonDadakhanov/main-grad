@@ -5,8 +5,6 @@ import ApplicationDetailModal from "@/components/student-dashboard/application-d
 import AddApplicationModal from "@/components/student-dashboard/add-application-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
 import { PlusCircle } from "lucide-react"
 import React, { useState, useEffect } from "react"
 import { authFetch, BASE_URL } from "@/lib/auth"
@@ -170,14 +168,17 @@ export default function MyApplicationsPage() {
     }
   }, [])
 
+  // Normalize status for comparison (handle both underscores and spaces)
+  const normalizeStatus = (status: string) => status.toLowerCase().replace(/[\s_]/g, "_")
+
   const filterApplications = (status: string) => {
     if (status === "all") return applications
-    return applications.filter((app) => app.status.toLowerCase() === status.toLowerCase())
+    return applications.filter((app) => normalizeStatus(app.status) === normalizeStatus(status))
   }
 
   const getStatusCount = (status: string) => {
     if (status === "all") return applications.length
-    return applications.filter((app) => app.status.toLowerCase() === status.toLowerCase()).length
+    return applications.filter((app) => normalizeStatus(app.status) === normalizeStatus(status)).length
   }
 
   const filteredApplications = filterApplications(activeTab)
@@ -194,69 +195,45 @@ export default function MyApplicationsPage() {
         </Button>
       </div>
 
-      {/* Status Tabs */}
-      <Card>
-        <CardContent className="pt-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9 gap-2">
-              <TabsTrigger value="all" className="text-xs">
-                All
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("all")}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="submitted" className="text-xs">
-                Submitted
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("submitted")}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="under review" className="text-xs">
-                Under Review
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("under review")}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="resend" className="text-xs">
-                Resend
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("resend")}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="interview" className="text-xs">
-                Interview
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("interview")}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="accepted" className="text-xs">
-                Accepted
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("accepted")}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="studying" className="text-xs">
-                Studying
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("studying")}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="rejected" className="text-xs">
-                Rejected
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("rejected")}
-                </Badge>
-              </TabsTrigger>
-              <TabsTrigger value="waitlisted" className="text-xs">
-                Waitlisted
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {getStatusCount("waitlisted")}
-                </Badge>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </CardContent>
-      </Card>
+      {/* Status Filter */}
+      <div className="flex flex-wrap gap-2">
+        {[
+          { value: "all", label: "All" },
+          { value: "submitted", label: "Submitted" },
+          { value: "under_review", label: "Under Review" },
+          { value: "interview", label: "Interview" },
+          { value: "accepted", label: "Accepted" },
+          { value: "studying", label: "Studying" },
+          { value: "resend", label: "Resend" },
+          { value: "rejected", label: "Rejected" },
+          { value: "waitlisted", label: "Waitlisted" },
+        ].map((status) => {
+          const count = getStatusCount(status.value)
+          const isActive = activeTab === status.value
+          return (
+            <button
+              key={status.value}
+              onClick={() => setActiveTab(status.value)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                isActive
+                  ? "bg-purple-600 text-white shadow-md"
+                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+              }`}
+            >
+              {status.label}
+              {count > 0 && (
+                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                  isActive
+                    ? "bg-white/20 text-white"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                }`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
 
       {/* Applications List */}
       {filteredApplications.length > 0 ? (
