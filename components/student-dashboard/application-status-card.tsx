@@ -35,6 +35,8 @@ const statusColors: Record<string, string> = {
 // Parse interview details from remarks
 function parseInterviewDetails(remarks: string) {
   const dateMatch = remarks.match(/Interview scheduled for ([^.]+)\./i)
+  const koreanTimeMatch = remarks.match(/Korean Time \(KST\):\s*(\d{2}:\d{2})/i)
+  const uzbekTimeMatch = remarks.match(/Uzbekistan Time \(UZT\):\s*(\d{2}:\d{2})/i)
   // Be lenient with URL format - handle missing slashes
   const linkMatch = remarks.match(/Interview link:\s*(https?:\/?\/?[^\s]+)/i)
 
@@ -52,6 +54,8 @@ function parseInterviewDetails(remarks: string) {
 
   return {
     dateTime: dateMatch ? dateMatch[1] : null,
+    koreanTime: koreanTimeMatch ? koreanTimeMatch[1] : null,
+    uzbekTime: uzbekTimeMatch ? uzbekTimeMatch[1] : null,
     link: link,
   }
 }
@@ -103,10 +107,26 @@ export default function ApplicationStatusCard({ application, onViewDetails }: Ap
               {t("applications.interviewScheduled")}
             </h4>
             {interviewDetails.dateTime && (
-              <p className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
+              <p className="flex items-center gap-2 text-purple-700 dark:text-purple-400 mb-2">
                 <Calendar className="h-4 w-4" />
                 <span className="font-medium">{interviewDetails.dateTime}</span>
               </p>
+            )}
+            {(interviewDetails.koreanTime || interviewDetails.uzbekTime) && (
+              <div className="space-y-1 mb-2 text-sm">
+                {interviewDetails.koreanTime && (
+                  <p className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
+                    <Clock className="h-4 w-4" />
+                    <span>🇰🇷 Korean Time (KST): <span className="font-semibold">{interviewDetails.koreanTime}</span></span>
+                  </p>
+                )}
+                {interviewDetails.uzbekTime && (
+                  <p className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
+                    <Clock className="h-4 w-4" />
+                    <span>🇺🇿 Uzbekistan Time (UZT): <span className="font-semibold">{interviewDetails.uzbekTime}</span></span>
+                  </p>
+                )}
+              </div>
             )}
             {interviewDetails.link && (
               <Button
