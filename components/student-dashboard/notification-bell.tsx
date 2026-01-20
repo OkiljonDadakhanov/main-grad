@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Bell, CheckCheck, FileText, MessageSquare, Info, Inbox, X } from "lucide-react"
+import { useState } from "react"
+import { Bell, CheckCheck, FileText, MessageSquare, Info, Inbox } from "lucide-react"
 import {
   Popover,
   PopoverContent,
@@ -14,108 +14,25 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { authFetch, BASE_URL } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/lib/i18n"
-
-interface NotificationTranslation {
-  id: number
-  lang: string
-  title: string
-  message: string
-}
-
-interface Notification {
-  id: number
-  type: "system" | "application" | "message" | string
-  is_read: boolean
-  created_at: string
-  translations: NotificationTranslation[]
-}
+import { useNotifications, Notification } from "@/hooks/useNotifications"
 
 export default function NotificationBell() {
   const { locale, t } = useI18n()
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    markAsRead,
+    markAllAsRead,
+    refreshNotifications,
+  } = useNotifications()
+
   const [open, setOpen] = useState(false)
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [viewAllOpen, setViewAllOpen] = useState(false)
-  const initialLoadDone = useRef(false)
-  const prevUnreadCount = useRef(0)
-
-  const fetchNotifications = async () => {
-    try {
-      const res = await authFetch(`${BASE_URL}/api/notifications/`)
-      if (res.ok) {
-        const data = await res.json()
-        const notifs = data.results || data || []
-
-        const newUnreadCount = notifs.filter((n: Notification) => !n.is_read).length
-
-        // Check if there are new notifications (only after initial load)
-        if (initialLoadDone.current && newUnreadCount > prevUnreadCount.current) {
-          // Broadcast event to refresh application data
-          window.dispatchEvent(new CustomEvent("application-status-changed"))
-        }
-
-        prevUnreadCount.current = newUnreadCount
-        initialLoadDone.current = true
-        setNotifications(notifs)
-        setUnreadCount(newUnreadCount)
-      }
-    } catch (err) {
-      console.error("Failed to fetch notifications:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const markAsRead = async (id: number) => {
-    try {
-      await authFetch(`${BASE_URL}/api/notifications/${id}/read/`, {
-        method: "POST",
-      })
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
-      )
-      setUnreadCount((prev) => Math.max(0, prev - 1))
-    } catch (err) {
-      console.error("Failed to mark notification as read:", err)
-    }
-  }
-
-  const markAllAsRead = async () => {
-    try {
-      await authFetch(`${BASE_URL}/api/notifications/read-all/`, {
-        method: "POST",
-      })
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
-      setUnreadCount(0)
-    } catch (err) {
-      console.error("Failed to mark all as read:", err)
-    }
-  }
-
-  useEffect(() => {
-    fetchNotifications()
-    // Poll every 10 seconds for faster notification updates
-    const interval = setInterval(fetchNotifications, 10000)
-
-    // Also fetch immediately when user returns to the tab
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        fetchNotifications()
-      }
-    }
-    document.addEventListener("visibilitychange", handleVisibilityChange)
-
-    return () => {
-      clearInterval(interval)
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
-    }
-  }, [])
 
   const getNotificationContent = (notification: Notification) => {
     const translation = notification.translations.find((t) => t.lang === locale)
@@ -193,7 +110,7 @@ export default function NotificationBell() {
         setOpen(isOpen)
         // Fetch fresh notifications when opening the popover
         if (isOpen) {
-          fetchNotifications()
+          refreshNotifications()
         }
       }}>
         <PopoverTrigger asChild>
