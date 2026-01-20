@@ -123,7 +123,7 @@ export default function MyProfilePage() {
       <ProfileBanner />
       {/* Profile Picture Section */}
       <div className="bg-white dark:bg-gray-900 p-6 rounded-lg border dark:border-gray-800">
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           <div className="relative">
             {profile?.profile_picture_url ? (
               <div className="w-24 h-24 rounded-full overflow-hidden">
@@ -159,7 +159,7 @@ export default function MyProfilePage() {
               className="hidden"
             />
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               {profile?.full_name || "Student"}
             </h3>

@@ -185,12 +185,12 @@ export default function MyApplicationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">My Applications</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">Track and manage your university applications</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="bg-purple-600 hover:bg-purple-700">
+        <Button onClick={() => setIsAddModalOpen(true)} className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
           <PlusCircle className="mr-2 h-4 w-4" /> Add Application
         </Button>
       </div>
