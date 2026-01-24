@@ -1,41 +1,83 @@
-// app/login/page.tsx - Role selection
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { GraduationCap, Building2, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginRoleSelector() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Preserve redirect parameter when navigating to specific login pages
   const redirectParam = searchParams.get("redirect");
-  const redirectQuery = redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : "";
+  const redirectQuery = redirectParam
+    ? `?redirect=${encodeURIComponent(redirectParam)}`
+    : "";
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-700 to-purple-900 text-white px-4 py-16">
-      <div className="max-w-md w-full">
-        <Card className="bg-white text-black shadow-2xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Login As</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <Button
-              onClick={() => router.push(`/login/student${redirectQuery}`)}
-              className="w-full"
-            >
-              Student
-            </Button>
-            <Button
-              onClick={() => router.push("/login/university")}
-              className="w-full"
-            >
-              University
-            </Button>
-          </CardContent>
-        </Card>
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-10">
+          <Link href="/" className="inline-block mb-6">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Grad<span className="text-primary">Abroad</span>
+            </h1>
+          </Link>
+          <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
+            Welcome back
+          </h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">
+            Choose how you want to sign in
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <button
+            onClick={() => router.push(`/login/student${redirectQuery}`)}
+            className="group w-full flex items-center gap-4 p-5 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+          >
+            <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+              <GraduationCap className="w-6 h-6" />
+            </div>
+            <div className="flex-1 text-left">
+              <h3 className="font-semibold text-slate-900 dark:text-white">
+                Student
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Access your applications and profile
+              </p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+          </button>
+
+          <button
+            onClick={() => router.push("/login/university")}
+            className="group w-full flex items-center gap-4 p-5 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+          >
+            <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300">
+              <Building2 className="w-6 h-6" />
+            </div>
+            <div className="flex-1 text-left">
+              <h3 className="font-semibold text-slate-900 dark:text-white">
+                University
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Manage programs and applications
+              </p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300" />
+          </button>
+        </div>
+
+        <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-8">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/register"
+            className="text-primary hover:underline font-medium"
+          >
+            Create one
+          </Link>
+        </p>
       </div>
-    </section>
+    </main>
   );
 }

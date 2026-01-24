@@ -16,23 +16,27 @@ function StudentDashboardContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-950">
-      <StudentSidebar />
+      {/* Desktop Sidebar - hidden on mobile */}
+      <div className="hidden lg:block">
+        <StudentSidebar />
+      </div>
 
-      {/* Main content - no left padding on mobile, 64 on desktop */}
-      <div className="flex-1 md:pl-64">
+      {/* Main content - full width on mobile, shifted on desktop */}
+      <div className="flex-1 lg:pl-64">
         {/* Top header */}
-        <header className="flex items-center justify-between px-4 md:px-6 border-b bg-white dark:bg-gray-900 dark:border-gray-800 sticky top-0 z-20 shadow-sm dark:shadow-gray-950/50 h-16">
+        <header className="flex items-center justify-between px-4 lg:px-6 border-b bg-white dark:bg-gray-900 dark:border-gray-800 sticky top-0 z-20 shadow-sm dark:shadow-gray-950/50 h-16">
           <div className="flex items-center gap-3">
             {/* Hamburger menu for mobile */}
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="lg:hidden"
               onClick={open}
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
             </Button>
+
             <div className="w-10 h-10 rounded-lg overflow-hidden bg-purple-100 dark:bg-purple-500/15 flex items-center justify-center">
               <Image
                 src="/logo.png"
@@ -47,7 +51,7 @@ function StudentDashboardContent({ children }: { children: React.ReactNode }) {
               <p className="text-xs text-gray-500 dark:text-gray-400">Student Dashboard</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <ThemeToggle />
             <LanguageSwitcher />
             <NotificationBell />
@@ -55,8 +59,8 @@ function StudentDashboardContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* Page content - smaller padding on mobile */}
-        <main className="p-4 md:p-6">{children}</main>
+        {/* Page content - responsive padding */}
+        <main className="p-4 lg:p-6">{children}</main>
       </div>
     </div>
   )
