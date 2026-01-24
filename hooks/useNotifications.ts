@@ -51,6 +51,7 @@ export function useNotifications({
   const reconnectDelayRef = useRef(MIN_RECONNECT_DELAY);
   const initialLoadDone = useRef(false);
   const prevUnreadCount = useRef(0);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch notifications via REST API
   const fetchNotifications = useCallback(async () => {
@@ -100,6 +101,11 @@ export function useNotifications({
       setConnected(true);
       // Reset reconnect delay on successful connection
       reconnectDelayRef.current = MIN_RECONNECT_DELAY;
+      // Stop polling when WebSocket connects
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
     };
 
     ws.onmessage = (event) => {
@@ -157,7 +163,13 @@ export function useNotifications({
 
     ws.onerror = () => {
       // WebSocket errors are typically followed by onclose
-      console.log("Notifications WebSocket connection issue - will retry");
+      // Start polling fallback when WebSocket fails
+      if (!pollingIntervalRef.current && enabled) {
+        console.log("Notifications WebSocket unavailable - starting polling fallback");
+        pollingIntervalRef.current = setInterval(() => {
+          fetchNotifications();
+        }, 10000); // Poll every 10 seconds
+      }
     };
 
     wsRef.current = ws;
@@ -257,6 +269,11 @@ export function useNotifications({
 
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
+      }
+
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
       }
 
       if (wsRef.current) {
