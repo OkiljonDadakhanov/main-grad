@@ -9,6 +9,7 @@ import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
 import { GoogleLoginButton } from "@/components/auth/google-login-button";
 import { Mail, Lock, ArrowLeft, Loader2, GraduationCap } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function StudentLoginPage() {
   const [email, setEmail] = useState("");
@@ -162,17 +163,13 @@ export default function StudentLoginPage() {
               className="w-full h-12 text-base font-medium border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
               type="button"
             >
-              <svg
-                className="w-5 h-5 mr-2"
-                viewBox="0 0 32 32"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect width="32" height="32" rx="6" fill="#1E4BD2"/>
-                <path d="M10 8h2v16h-2V8z" fill="white"/>
-                <path d="M14 8h8c2.2 0 4 1.8 4 4v8c0 2.2-1.8 4-4 4h-8V8zm2 2v12h6c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-6z" fill="white"/>
-              </svg>
-              Login with OneID
+              <Image
+                src="/oneid-logo.png"
+                alt="OneID"
+                width={80}
+                height={32}
+                className="h-6 w-auto"
+              />
             </Button>
           </div>
         </div>
