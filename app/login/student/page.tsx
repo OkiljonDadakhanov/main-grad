@@ -165,10 +165,10 @@ export default function StudentLoginPage() {
             >
               <Image
                 src="/oneid-logo.png"
-                alt="OneID"
-                width={80}
-                height={32}
-                className="h-6 w-auto"
+                alt="Login with OneID"
+                width={500}
+                height={200}
+                className="h-[40px] w-auto"
               />
             </Button>
           </div>
