@@ -237,7 +237,7 @@ export default function UniversityLoginPage() {
         <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
           Want to list your university?{" "}
           <Link
-            href="/register/university"
+            href="/register-university"
             className="text-emerald-600 hover:underline font-medium"
           >
             Register here
