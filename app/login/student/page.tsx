@@ -157,20 +157,13 @@ export default function StudentLoginPage() {
           <div className="space-y-3">
             <GoogleLoginButton />
 
-            <Button
+            <button
               onClick={handleOneIdLogin}
-              variant="outline"
-              className="w-full h-12 text-base font-medium border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+              className="w-full h-12 flex items-center justify-center gap-2 rounded-lg bg-[#5B4BF5] hover:bg-[#4A3CE0] transition-colors text-white font-medium"
               type="button"
             >
-              <Image
-                src="/oneid-logo.png"
-                alt="Login with OneID"
-                width={500}
-                height={200}
-                className="h-[40px] w-auto"
-              />
-            </Button>
+              <span>ONE ID orqali kirish</span>
+            </button>
           </div>
         </div>
 
