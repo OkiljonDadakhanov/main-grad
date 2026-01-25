@@ -27,7 +27,7 @@ import {
 import clsx from "clsx";
 import type { AcademicProgram } from "@/types/academic";
 
-// Helper function to check application period status (ignores year, compares only month and day)
+// Helper function to check application period status
 function getApplicationStatus(startDate?: string, endDate?: string): {
   isOpen: boolean;
   status: "open" | "closed" | "upcoming" | "unknown";
@@ -38,33 +38,18 @@ function getApplicationStatus(startDate?: string, endDate?: string): {
   }
 
   const now = new Date();
+  // Reset time to start of day for accurate date comparison
+  now.setHours(0, 0, 0, 0);
+
   const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+
   const end = new Date(endDate);
+  end.setHours(0, 0, 0, 0);
 
-  // Get month and day only (ignore year)
-  const nowMonthDay = now.getMonth() * 100 + now.getDate();
-  const startMonthDay = start.getMonth() * 100 + start.getDate();
-  const endMonthDay = end.getMonth() * 100 + end.getDate();
-
-  // Handle cases where the period wraps around the year (e.g., Nov to Feb)
-  const wrapsAroundYear = startMonthDay > endMonthDay;
-
-  let isInPeriod: boolean;
-  let isBeforePeriod: boolean;
-
-  if (wrapsAroundYear) {
-    // Period wraps around year end (e.g., Nov 1 to Feb 28)
-    isInPeriod = nowMonthDay >= startMonthDay || nowMonthDay <= endMonthDay;
-    isBeforePeriod = nowMonthDay < startMonthDay && nowMonthDay > endMonthDay;
-  } else {
-    // Normal period within same year
-    isInPeriod = nowMonthDay >= startMonthDay && nowMonthDay <= endMonthDay;
-    isBeforePeriod = nowMonthDay < startMonthDay;
-  }
-
-  if (isBeforePeriod) {
+  if (now < start) {
     return { isOpen: false, status: "upcoming", label: "Opening Soon" };
-  } else if (isInPeriod) {
+  } else if (now >= start && now <= end) {
     return { isOpen: true, status: "open", label: "Open Now" };
   } else {
     return { isOpen: false, status: "closed", label: "Closed" };
