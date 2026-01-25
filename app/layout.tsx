@@ -20,14 +20,17 @@ export default function RootLayout({
 
   // 🔥 Hide layout for certain pages or route groups
   const hideLayoutOnExact = [
+    "/register",
+    "/register-student",
     "/register-university",
+    "/register-university/terms",
     "/success",
     "/login",
     "/login/student",
     "/login/university",
-    "/register-university/terms",
     "/login/reset-password",
     "/login/reset-confirm",
+    "/login/oneid/callback",
   ]
 
   // ✅ Check if current path is exactly in list OR starts with /student
