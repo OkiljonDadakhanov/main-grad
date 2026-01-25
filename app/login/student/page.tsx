@@ -10,7 +10,7 @@ import { GoogleLoginButton } from "@/components/auth/google-login-button";
 import { AuthControls } from "@/components/auth/auth-controls";
 import { Mail, Lock, ArrowLeft, Loader2, GraduationCap } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { useI18n } from "@/lib/i18n";
 
 export default function StudentLoginPage() {
   const [email, setEmail] = useState("");
@@ -19,13 +19,14 @@ export default function StudentLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { success, error } = useCustomToast();
+  const { t } = useI18n();
 
   const redirectUrl = searchParams.get("redirect") || "/student/profile";
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      error("Email va parolni kiriting.");
+      error(t("auth.studentLogin.enterEmailPassword"));
       return;
     }
     setLoading(true);
@@ -41,16 +42,16 @@ export default function StudentLoginPage() {
       const data = await res.json();
       if (!res.ok) {
         const msg =
-          typeof data?.detail === "string" ? data.detail : "Kirishda xatolik.";
+          typeof data?.detail === "string" ? data.detail : t("auth.studentLogin.loginError");
         error(msg);
         return;
       }
       saveAuthToStorage(data);
       localStorage.setItem("account_type", "student");
-      success("Muvaffaqiyatli kirdingiz.");
+      success(t("auth.studentLogin.loginSuccess"));
       router.push(redirectUrl);
     } catch {
-      error("Server xatosi. Keyinroq urinib ko'ring.");
+      error(t("auth.studentLogin.serverError"));
     } finally {
       setLoading(false);
     }
@@ -78,7 +79,7 @@ export default function StudentLoginPage() {
           className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to login options
+          {t("auth.login.backToOptions")}
         </Link>
 
         <div className="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
@@ -87,22 +88,22 @@ export default function StudentLoginPage() {
               <GraduationCap className="w-7 h-7" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-              Student Login
+              {t("auth.studentLogin.title")}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 mt-2">
-              Sign in to access your account
+              {t("auth.studentLogin.subtitle")}
             </p>
           </div>
 
           <form onSubmit={handleEmailLogin} className="space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Email
+                {t("auth.studentLogin.email")}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
-                  placeholder="student@example.com"
+                  placeholder={t("auth.studentLogin.emailPlaceholder")}
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -114,12 +115,12 @@ export default function StudentLoginPage() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Password
+                {t("auth.studentLogin.password")}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
-                  placeholder="Enter your password"
+                  placeholder={t("auth.studentLogin.passwordPlaceholder")}
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -137,10 +138,10 @@ export default function StudentLoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Signing in...
+                  {t("auth.studentLogin.signingIn")}
                 </>
               ) : (
-                "Sign in"
+                t("auth.studentLogin.signIn")
               )}
             </Button>
           </form>
@@ -151,7 +152,7 @@ export default function StudentLoginPage() {
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-4 bg-white dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
-                or continue with
+                {t("auth.studentLogin.orContinueWith")}
               </span>
             </div>
           </div>
@@ -164,18 +165,18 @@ export default function StudentLoginPage() {
               className="w-full h-12 flex items-center justify-center gap-2 rounded-lg bg-[#5B4BF5] hover:bg-[#4A3CE0] transition-colors text-white font-medium"
               type="button"
             >
-              <span>ONE ID orqali kirish</span>
+              <span>{t("auth.studentLogin.oneIdLogin")}</span>
             </button>
           </div>
         </div>
 
         <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
-          Don&apos;t have an account?{" "}
+          {t("auth.studentLogin.noAccount")}{" "}
           <Link
             href="/register"
             className="text-primary hover:underline font-medium"
           >
-            Register now
+            {t("auth.studentLogin.registerNow")}
           </Link>
         </p>
       </div>
