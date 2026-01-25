@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useCustomToast } from "@/components/custom-toast";
 import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
 import { GoogleLoginButton } from "@/components/auth/google-login-button";
+import { AuthControls } from "@/components/auth/auth-controls";
 
 interface RegisterForm {
   first_name: string;
@@ -70,7 +71,8 @@ export default function RegisterStudentPage() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-700 to-purple-900 text-white px-4 py-16">
+    <section className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-700 to-purple-900 text-white px-4 py-16 relative">
+      <AuthControls />
       <div className="max-w-md w-full">
         <Card className="bg-white text-black shadow-lg">
           <CardHeader className="text-center">

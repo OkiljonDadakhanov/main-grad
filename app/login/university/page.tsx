@@ -18,6 +18,7 @@ import {
   UNIVERSITY_DASHBOARD_URL,
   saveAuthToStorage,
 } from "@/lib/auth";
+import { AuthControls } from "@/components/auth/auth-controls";
 import { Mail, Lock, ArrowLeft, Loader2, Building2 } from "lucide-react";
 import Link from "next/link";
 
@@ -113,6 +114,7 @@ export default function UniversityLoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 px-4">
+      <AuthControls />
       <div className="w-full max-w-md">
         <Link
           href="/login"

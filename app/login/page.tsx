@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { GraduationCap, Building2, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { AuthControls } from "@/components/auth/auth-controls";
 
 export default function LoginRoleSelector() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function LoginRoleSelector() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 px-4">
+      <AuthControls />
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <Link href="/" className="inline-block mb-6">

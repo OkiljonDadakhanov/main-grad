@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCustomToast } from "@/components/custom-toast";
 import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
 import { GoogleLoginButton } from "@/components/auth/google-login-button";
+import { AuthControls } from "@/components/auth/auth-controls";
 import { Mail, Lock, ArrowLeft, Loader2, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -70,6 +71,7 @@ export default function StudentLoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 px-4">
+      <AuthControls />
       <div className="w-full max-w-md">
         <Link
           href="/login"

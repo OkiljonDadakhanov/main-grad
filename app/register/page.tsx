@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { AuthControls } from "@/components/auth/auth-controls";
 import { GraduationCap, University } from 'lucide-react';
 
 export default function RegisterPage() {
@@ -16,7 +17,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-tr from-purple-700 via-purple-800 to-purple-900 flex flex-col items-center justify-center px-4 py-20 text-white">
+    <section className="min-h-screen bg-gradient-to-tr from-purple-700 via-purple-800 to-purple-900 flex flex-col items-center justify-center px-4 py-20 text-white relative">
+      <AuthControls />
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold mb-4">Choose Your Path</h1>
         <p className="text-lg md:text-xl opacity-90 max-w-xl mx-auto">
