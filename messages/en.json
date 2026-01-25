@@ -486,7 +486,8 @@
     "google": {
       "loginError": "Error signing in with Google.",
       "loginSuccess": "Successfully signed in with Google.",
-      "loading": "Loading..."
+      "loading": "Loading...",
+      "continueWith": "Continue with Google"
     }
   }
 }

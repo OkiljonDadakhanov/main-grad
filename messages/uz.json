@@ -486,7 +486,8 @@
     "google": {
       "loginError": "Google orqali kirishda xatolik yuz berdi.",
       "loginSuccess": "Google orqali muvaffaqiyatli kirdingiz.",
-      "loading": "Yuklanmoqda..."
+      "loading": "Yuklanmoqda...",
+      "continueWith": "Google orqali kirish"
     }
   }
 }

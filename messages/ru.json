@@ -486,7 +486,8 @@
     "google": {
       "loginError": "Ошибка входа через Google.",
       "loginSuccess": "Вы успешно вошли через Google.",
-      "loading": "Загрузка..."
+      "loading": "Загрузка...",
+      "continueWith": "Войти через Google"
     }
   }
 }
