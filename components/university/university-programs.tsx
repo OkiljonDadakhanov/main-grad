@@ -284,9 +284,6 @@ export function UniversityPrograms({
                               Not Available
                             </Button>
                           )}
-                          {!isExpanded && (
-                            <Button variant="outline" className="flex-1 lg:flex-none" onClick={() => setExpandedProgramId(program.id)}>Details</Button>
-                          )}
                         </div>
                       </div>
 
