@@ -482,6 +482,11 @@
     "resetConfirm": {
       "title": "이메일을 확인하세요!",
       "description": "비밀번호 재설정 링크를 이메일로 보냈습니다. 받은 편지함을 확인하세요."
+    },
+    "google": {
+      "loginError": "Google 로그인 중 오류가 발생했습니다.",
+      "loginSuccess": "Google로 성공적으로 로그인했습니다.",
+      "loading": "로딩 중..."
     }
   }
 }

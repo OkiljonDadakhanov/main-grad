@@ -482,6 +482,11 @@
     "resetConfirm": {
       "title": "Iltimos, emailingizni tekshiring!",
       "description": "Biz parolni tiklash havolasini emailingizga yubordik. Kirish qutingizni tekshiring."
+    },
+    "google": {
+      "loginError": "Google orqali kirishda xatolik yuz berdi.",
+      "loginSuccess": "Google orqali muvaffaqiyatli kirdingiz.",
+      "loading": "Yuklanmoqda..."
     }
   }
 }

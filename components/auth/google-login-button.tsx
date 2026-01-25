@@ -5,6 +5,7 @@ import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 import { useCustomToast } from "@/components/custom-toast";
 import { authenticateWithGoogle } from "@/lib/google-auth";
+import { useI18n } from "@/lib/i18n";
 
 interface GoogleLoginButtonProps {
   onSuccess?: () => void;
@@ -19,6 +20,7 @@ export function GoogleLoginButton({
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { success, error } = useCustomToast();
+  const { t } = useI18n();
 
   useEffect(() => {
     setMounted(true);
@@ -26,18 +28,18 @@ export function GoogleLoginButton({
 
   const handleGoogleSuccess = async (response: CredentialResponse) => {
     if (!response.credential) {
-      error("Google bilan kirishda xatolik yuz berdi.");
+      error(t("auth.google.loginError"));
       return;
     }
 
     setLoading(true);
     try {
       await authenticateWithGoogle(response.credential);
-      success("Google orqali muvaffaqiyatli kirdingiz.");
+      success(t("auth.google.loginSuccess"));
       onSuccess?.();
       router.push(redirectTo);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Google bilan kirishda xatolik.";
+      const message = err instanceof Error ? err.message : t("auth.google.loginError");
       error(message);
     } finally {
       setLoading(false);
@@ -45,7 +47,7 @@ export function GoogleLoginButton({
   };
 
   const handleGoogleError = () => {
-    error("Google bilan kirishda xatolik yuz berdi.");
+    error(t("auth.google.loginError"));
   };
 
   // Don't render during SSR/SSG
@@ -61,7 +63,7 @@ export function GoogleLoginButton({
     return (
       <div className="w-full flex justify-center py-2">
         <div className="animate-pulse text-gray-500 text-sm">
-          Yuklanmoqda...
+          {t("auth.google.loading")}
         </div>
       </div>
     );

@@ -482,6 +482,11 @@
     "resetConfirm": {
       "title": "Please, check your email!",
       "description": "We've sent a password reset link to your email. Please check your inbox."
+    },
+    "google": {
+      "loginError": "Error signing in with Google.",
+      "loginSuccess": "Successfully signed in with Google.",
+      "loading": "Loading..."
     }
   }
 }
