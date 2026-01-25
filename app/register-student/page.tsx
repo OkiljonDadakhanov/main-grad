@@ -10,6 +10,7 @@ import { useCustomToast } from "@/components/custom-toast";
 import { BASE_URL, saveAuthToStorage } from "@/lib/auth";
 import { GoogleLoginButton } from "@/components/auth/google-login-button";
 import { AuthControls } from "@/components/auth/auth-controls";
+import { useI18n } from "@/lib/i18n";
 
 interface RegisterForm {
   first_name: string;
@@ -22,6 +23,7 @@ interface RegisterForm {
 export default function RegisterStudentPage() {
   const router = useRouter();
   const { success, error } = useCustomToast();
+  const { t } = useI18n();
   const [form, setForm] = useState<RegisterForm>({
     first_name: "",
     last_name: "",
@@ -37,11 +39,11 @@ export default function RegisterStudentPage() {
 
   const handleSubmit = async () => {
     if (!form.first_name || !form.last_name || !form.email || !form.password) {
-      error("Iltimos, barcha majburiy maydonlarni to'ldiring.");
+      error(t("auth.studentRegister.fillAllFields"));
       return;
     }
     if (!/\S+@\S+\.\S+/.test(form.email)) {
-      error("Email noto'g'ri formatda.");
+      error(t("auth.studentRegister.invalidEmail"));
       return;
     }
 
@@ -54,17 +56,16 @@ export default function RegisterStudentPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        const msg = typeof data?.detail === "string" ? data.detail : "Ro'yxatdan o'tishda xatolik.";
+        const msg = typeof data?.detail === "string" ? data.detail : t("auth.studentRegister.registerError");
         error(msg);
         return;
       }
 
-      // Token saqlash (agar backend yuborsa)
       saveAuthToStorage(data);
-      success("Muvaffaqiyatli ro'yxatdan o'tdingiz. Kirish sahifasiga yo'naltirilmoqda...");
+      success(t("auth.studentRegister.registerSuccess"));
       router.push("/login/student");
     } catch {
-      error("Server xatosi. Keyinroq urinib ko'ring.");
+      error(t("auth.studentRegister.serverError"));
     } finally {
       setLoading(false);
     }
@@ -74,52 +75,52 @@ export default function RegisterStudentPage() {
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-700 to-purple-900 text-white px-4 py-16 relative">
       <AuthControls />
       <div className="max-w-md w-full">
-        <Card className="bg-white text-black shadow-lg">
+        <Card className="bg-white dark:bg-slate-800 text-black dark:text-white shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Talaba ro'yxatdan o'tish</CardTitle>
+            <CardTitle className="text-2xl font-bold">{t("auth.studentRegister.title")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <Input
-              placeholder="Ism"
+              placeholder={t("auth.studentRegister.firstName")}
               value={form.first_name}
               onChange={(e) => handleChange("first_name", e.target.value)}
             />
             <Input
-              placeholder="Familiya"
+              placeholder={t("auth.studentRegister.lastName")}
               value={form.last_name}
               onChange={(e) => handleChange("last_name", e.target.value)}
             />
             <Input
-              placeholder="Telefon (+998...)"
+              placeholder={t("auth.studentRegister.phone")}
               value={form.phone}
               onChange={(e) => handleChange("phone", e.target.value)}
             />
             <Input
-              placeholder="Email"
+              placeholder={t("auth.studentRegister.email")}
               type="email"
               value={form.email}
               onChange={(e) => handleChange("email", e.target.value)}
             />
             <Input
-              placeholder="Parol"
+              placeholder={t("auth.studentRegister.password")}
               type="password"
               value={form.password}
               onChange={(e) => handleChange("password", e.target.value)}
             />
             <Button disabled={loading} onClick={handleSubmit} className="w-full">
-              {loading ? "Yuborilmoqda..." : "Ro'yxatdan o'tish"}
+              {loading ? t("auth.studentRegister.registering") : t("auth.studentRegister.register")}
             </Button>
 
-            <div className="text-center text-gray-600 text-sm">or</div>
+            <div className="text-center text-gray-600 dark:text-gray-400 text-sm">{t("auth.studentRegister.or")}</div>
             <GoogleLoginButton />
 
-            <p className="text-center text-sm text-gray-600 mt-4">
-              Hisobingiz bormi?{" "}
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-4">
+              {t("auth.studentRegister.haveAccount")}{" "}
               <Link
                 href="/login/student"
-                className="text-purple-700 font-medium hover:underline"
+                className="text-purple-700 dark:text-purple-400 font-medium hover:underline"
               >
-                Kirish
+                {t("auth.studentRegister.login")}
               </Link>
             </p>
           </CardContent>

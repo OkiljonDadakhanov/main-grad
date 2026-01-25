@@ -4,10 +4,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { GraduationCap, Building2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { AuthControls } from "@/components/auth/auth-controls";
+import { useI18n } from "@/lib/i18n";
 
 export default function LoginRoleSelector() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useI18n();
 
   const redirectParam = searchParams.get("redirect");
   const redirectQuery = redirectParam
@@ -25,10 +27,10 @@ export default function LoginRoleSelector() {
             </h1>
           </Link>
           <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
-            Welcome back
+            {t("auth.login.title")}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mt-2">
-            Choose how you want to sign in
+            {t("auth.login.subtitle")}
           </p>
         </div>
 
@@ -42,10 +44,10 @@ export default function LoginRoleSelector() {
             </div>
             <div className="flex-1 text-left">
               <h3 className="font-semibold text-slate-900 dark:text-white">
-                Student
+                {t("auth.login.student")}
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Access your applications and profile
+                {t("auth.login.studentDesc")}
               </p>
             </div>
             <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
@@ -60,10 +62,10 @@ export default function LoginRoleSelector() {
             </div>
             <div className="flex-1 text-left">
               <h3 className="font-semibold text-slate-900 dark:text-white">
-                University
+                {t("auth.login.university")}
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Manage programs and applications
+                {t("auth.login.universityDesc")}
               </p>
             </div>
             <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300" />
@@ -71,12 +73,12 @@ export default function LoginRoleSelector() {
         </div>
 
         <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-8">
-          Don&apos;t have an account?{" "}
+          {t("auth.login.noAccount")}{" "}
           <Link
             href="/register"
             className="text-primary hover:underline font-medium"
           >
-            Create one
+            {t("auth.login.createOne")}
           </Link>
         </p>
       </div>

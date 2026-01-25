@@ -404,5 +404,84 @@
     "password": "Password",
     "notifications": "Notifications",
     "language": "Language"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Choose how you want to sign in",
+      "student": "Student",
+      "studentDesc": "Access your applications and profile",
+      "university": "University",
+      "universityDesc": "Manage programs and applications",
+      "noAccount": "Don't have an account?",
+      "createOne": "Create one",
+      "backToOptions": "Back to login options"
+    },
+    "studentLogin": {
+      "title": "Student Login",
+      "subtitle": "Sign in to access your account",
+      "email": "Email",
+      "emailPlaceholder": "student@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "signIn": "Sign in",
+      "signingIn": "Signing in...",
+      "orContinueWith": "or continue with",
+      "oneIdLogin": "Sign in with ONE ID",
+      "noAccount": "Don't have an account?",
+      "registerNow": "Register now",
+      "enterEmailPassword": "Please enter email and password.",
+      "loginSuccess": "Successfully logged in.",
+      "loginError": "Login error.",
+      "serverError": "Server error. Please try again later."
+    },
+    "universityLogin": {
+      "title": "University Login",
+      "subtitle": "Sign in to manage your institution",
+      "email": "Email",
+      "emailPlaceholder": "university@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot password?",
+      "signIn": "Sign in",
+      "signingIn": "Signing in...",
+      "wantToList": "Want to list your university?",
+      "registerHere": "Register here",
+      "resetPassword": "Reset Password",
+      "resetDescription": "Enter your email and we'll send you a reset link.",
+      "sendResetLink": "Send Reset Link",
+      "sending": "Sending..."
+    },
+    "register": {
+      "title": "Choose Your Path",
+      "subtitle": "Are you a student looking to study abroad or a university aiming to collaborate?",
+      "student": "Student Account",
+      "studentDesc": "Start your journey toward international education with personalized support and guidance.",
+      "university": "University Account",
+      "universityDesc": "Partner with us to reach thousands of talented students seeking global opportunities.",
+      "continue": "Continue"
+    },
+    "studentRegister": {
+      "title": "Student Registration",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "phone": "Phone (+998...)",
+      "email": "Email",
+      "password": "Password",
+      "register": "Register",
+      "registering": "Registering...",
+      "or": "or",
+      "haveAccount": "Already have an account?",
+      "login": "Log in",
+      "fillAllFields": "Please fill in all required fields.",
+      "invalidEmail": "Invalid email format.",
+      "registerSuccess": "Successfully registered. Redirecting to login...",
+      "registerError": "Registration error.",
+      "serverError": "Server error. Please try again later."
+    },
+    "resetConfirm": {
+      "title": "Please, check your email!",
+      "description": "We've sent a password reset link to your email. Please check your inbox."
+    }
   }
 }

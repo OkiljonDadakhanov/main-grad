@@ -404,5 +404,84 @@
     "password": "Пароль",
     "notifications": "Уведомления",
     "language": "Язык"
+  },
+  "auth": {
+    "login": {
+      "title": "С возвращением",
+      "subtitle": "Выберите способ входа",
+      "student": "Студент",
+      "studentDesc": "Доступ к заявкам и профилю",
+      "university": "Университет",
+      "universityDesc": "Управление программами и заявками",
+      "noAccount": "Нет аккаунта?",
+      "createOne": "Создать",
+      "backToOptions": "Назад к вариантам входа"
+    },
+    "studentLogin": {
+      "title": "Вход для студентов",
+      "subtitle": "Войдите в свой аккаунт",
+      "email": "Email",
+      "emailPlaceholder": "student@example.com",
+      "password": "Пароль",
+      "passwordPlaceholder": "Введите пароль",
+      "signIn": "Войти",
+      "signingIn": "Вход...",
+      "orContinueWith": "или продолжить с",
+      "oneIdLogin": "Войти через ONE ID",
+      "noAccount": "Нет аккаунта?",
+      "registerNow": "Зарегистрироваться",
+      "enterEmailPassword": "Введите email и пароль.",
+      "loginSuccess": "Успешный вход.",
+      "loginError": "Ошибка входа.",
+      "serverError": "Ошибка сервера. Попробуйте позже."
+    },
+    "universityLogin": {
+      "title": "Вход для университетов",
+      "subtitle": "Войдите для управления учреждением",
+      "email": "Email",
+      "emailPlaceholder": "university@example.com",
+      "password": "Пароль",
+      "passwordPlaceholder": "Введите пароль",
+      "forgotPassword": "Забыли пароль?",
+      "signIn": "Войти",
+      "signingIn": "Вход...",
+      "wantToList": "Хотите добавить университет?",
+      "registerHere": "Зарегистрируйтесь здесь",
+      "resetPassword": "Сброс пароля",
+      "resetDescription": "Введите email и мы отправим ссылку для сброса.",
+      "sendResetLink": "Отправить ссылку",
+      "sending": "Отправка..."
+    },
+    "register": {
+      "title": "Выберите свой путь",
+      "subtitle": "Вы студент, желающий учиться за рубежом, или университет для сотрудничества?",
+      "student": "Аккаунт студента",
+      "studentDesc": "Начните путь к международному образованию с персональной поддержкой.",
+      "university": "Аккаунт университета",
+      "universityDesc": "Сотрудничайте с нами и привлекайте талантливых студентов со всего мира.",
+      "continue": "Продолжить"
+    },
+    "studentRegister": {
+      "title": "Регистрация студента",
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "phone": "Телефон (+998...)",
+      "email": "Email",
+      "password": "Пароль",
+      "register": "Зарегистрироваться",
+      "registering": "Регистрация...",
+      "or": "или",
+      "haveAccount": "Уже есть аккаунт?",
+      "login": "Войти",
+      "fillAllFields": "Пожалуйста, заполните все обязательные поля.",
+      "invalidEmail": "Неверный формат email.",
+      "registerSuccess": "Успешная регистрация. Перенаправление на страницу входа...",
+      "registerError": "Ошибка регистрации.",
+      "serverError": "Ошибка сервера. Попробуйте позже."
+    },
+    "resetConfirm": {
+      "title": "Проверьте вашу почту!",
+      "description": "Мы отправили ссылку для сброса пароля на вашу почту. Проверьте входящие."
+    }
   }
 }

@@ -404,5 +404,84 @@
     "password": "Parol",
     "notifications": "Bildirishnomalar",
     "language": "Til"
+  },
+  "auth": {
+    "login": {
+      "title": "Xush kelibsiz",
+      "subtitle": "Kirish usulini tanlang",
+      "student": "Talaba",
+      "studentDesc": "Arizalar va profilga kirish",
+      "university": "Universitet",
+      "universityDesc": "Dasturlar va arizalarni boshqarish",
+      "noAccount": "Hisobingiz yo'qmi?",
+      "createOne": "Yarating",
+      "backToOptions": "Kirish variantlariga qaytish"
+    },
+    "studentLogin": {
+      "title": "Talaba kirishi",
+      "subtitle": "Hisobingizga kirish",
+      "email": "Email",
+      "emailPlaceholder": "talaba@example.com",
+      "password": "Parol",
+      "passwordPlaceholder": "Parolingizni kiriting",
+      "signIn": "Kirish",
+      "signingIn": "Kirilmoqda...",
+      "orContinueWith": "yoki davom eting",
+      "oneIdLogin": "ONE ID orqali kirish",
+      "noAccount": "Hisobingiz yo'qmi?",
+      "registerNow": "Ro'yxatdan o'ting",
+      "enterEmailPassword": "Email va parolni kiriting.",
+      "loginSuccess": "Muvaffaqiyatli kirdingiz.",
+      "loginError": "Kirishda xatolik.",
+      "serverError": "Server xatosi. Keyinroq urinib ko'ring."
+    },
+    "universityLogin": {
+      "title": "Universitet kirishi",
+      "subtitle": "Muassasangizni boshqarish uchun kiring",
+      "email": "Email",
+      "emailPlaceholder": "universitet@example.com",
+      "password": "Parol",
+      "passwordPlaceholder": "Parolingizni kiriting",
+      "forgotPassword": "Parolni unutdingizmi?",
+      "signIn": "Kirish",
+      "signingIn": "Kirilmoqda...",
+      "wantToList": "Universitetingizni ro'yxatga olmoqchimisiz?",
+      "registerHere": "Bu yerda ro'yxatdan o'ting",
+      "resetPassword": "Parolni tiklash",
+      "resetDescription": "Emailingizni kiriting va biz sizga tiklash havolasini yuboramiz.",
+      "sendResetLink": "Tiklash havolasini yuborish",
+      "sending": "Yuborilmoqda..."
+    },
+    "register": {
+      "title": "Yo'lingizni tanlang",
+      "subtitle": "Siz chet elda o'qimoqchi bo'lgan talabamisiz yoki hamkorlik qilmoqchi bo'lgan universitetmisiz?",
+      "student": "Talaba hisobi",
+      "studentDesc": "Shaxsiy yordam va qo'llab-quvvatlash bilan xalqaro ta'limga sayohatni boshlang.",
+      "university": "Universitet hisobi",
+      "universityDesc": "Biz bilan hamkorlik qiling va global imkoniyatlar izlayotgan minglab iste'dodli talabalarga yetib boring.",
+      "continue": "Davom etish"
+    },
+    "studentRegister": {
+      "title": "Talaba ro'yxatdan o'tishi",
+      "firstName": "Ism",
+      "lastName": "Familiya",
+      "phone": "Telefon (+998...)",
+      "email": "Email",
+      "password": "Parol",
+      "register": "Ro'yxatdan o'tish",
+      "registering": "Ro'yxatdan o'tilmoqda...",
+      "or": "yoki",
+      "haveAccount": "Hisobingiz bormi?",
+      "login": "Kirish",
+      "fillAllFields": "Iltimos, barcha majburiy maydonlarni to'ldiring.",
+      "invalidEmail": "Email noto'g'ri formatda.",
+      "registerSuccess": "Muvaffaqiyatli ro'yxatdan o'tdingiz. Kirish sahifasiga yo'naltirilmoqda...",
+      "registerError": "Ro'yxatdan o'tishda xatolik.",
+      "serverError": "Server xatosi. Keyinroq urinib ko'ring."
+    },
+    "resetConfirm": {
+      "title": "Iltimos, emailingizni tekshiring!",
+      "description": "Biz parolni tiklash havolasini emailingizga yubordik. Kirish qutingizni tekshiring."
+    }
   }
 }
