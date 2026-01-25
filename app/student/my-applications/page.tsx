@@ -203,10 +203,10 @@ export default function MyApplicationsPage() {
           { value: "under_review", label: "Under Review" },
           { value: "interview", label: "Interview" },
           { value: "accepted", label: "Accepted" },
-          { value: "studying", label: "Studying" },
-          { value: "resend", label: "Resend" },
           { value: "rejected", label: "Rejected" },
+          { value: "resend", label: "Resend" },
           { value: "waitlisted", label: "Waitlisted" },
+          { value: "studying", label: "Studying" },
         ].map((status) => {
           const count = getStatusCount(status.value)
           const isActive = activeTab === status.value
