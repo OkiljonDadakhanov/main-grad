@@ -72,8 +72,16 @@ export default function RegisterStudentPage() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-700 to-purple-900 text-white px-4 py-16 relative">
+    <section className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-purple-700 to-purple-900 text-white px-4 py-16 relative">
       <AuthControls />
+
+      {/* Header with logo */}
+      <Link href="/" className="mb-8">
+        <h1 className="text-3xl font-bold text-white">
+          Grad<span className="text-purple-200">Abroad</span>
+        </h1>
+      </Link>
+
       <div className="max-w-md w-full">
         <Card className="bg-white dark:bg-slate-800 text-black dark:text-white shadow-lg">
           <CardHeader className="text-center">

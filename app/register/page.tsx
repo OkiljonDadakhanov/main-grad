@@ -2,13 +2,16 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AuthControls } from "@/components/auth/auth-controls";
+import { useI18n } from "@/lib/i18n";
 import { GraduationCap, University } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [selected, setSelected] = useState<'student' | 'university' | null>(null);
 
   const handleNext = () => {
@@ -19,10 +22,18 @@ export default function RegisterPage() {
   return (
     <section className="min-h-screen bg-gradient-to-tr from-purple-700 via-purple-800 to-purple-900 flex flex-col items-center justify-center px-4 py-20 text-white relative">
       <AuthControls />
+
+      {/* Header with logo */}
+      <Link href="/" className="mb-8">
+        <h1 className="text-3xl font-bold text-white">
+          Grad<span className="text-purple-200">Abroad</span>
+        </h1>
+      </Link>
+
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-4">Choose Your Path</h1>
+        <h2 className="text-4xl md:text-5xl font-extrabold mb-4">{t("auth.register.title")}</h2>
         <p className="text-lg md:text-xl opacity-90 max-w-xl mx-auto">
-          Are you a student looking to study abroad or a university aiming to collaborate?
+          {t("auth.register.subtitle")}
         </p>
       </div>
 
@@ -34,9 +45,9 @@ export default function RegisterPage() {
           }`}
         >
           <GraduationCap size={48} />
-          <h3 className="text-2xl font-semibold">Student Account</h3>
+          <h3 className="text-2xl font-semibold">{t("auth.register.student")}</h3>
           <p className="text-sm max-w-sm">
-            Start your journey toward international education with personalized support and guidance.
+            {t("auth.register.studentDesc")}
           </p>
         </Card>
 
@@ -47,9 +58,9 @@ export default function RegisterPage() {
           }`}
         >
           <University size={48} />
-          <h3 className="text-2xl font-semibold">University Account</h3>
+          <h3 className="text-2xl font-semibold">{t("auth.register.university")}</h3>
           <p className="text-sm max-w-sm">
-            Partner with us to reach thousands of talented students seeking global opportunities.
+            {t("auth.register.universityDesc")}
           </p>
         </Card>
       </div>
@@ -59,7 +70,7 @@ export default function RegisterPage() {
         onClick={handleNext}
         className="bg-white text-purple-800 font-semibold px-10 py-4 rounded-xl text-lg hover:bg-gray-100 transition-all disabled:opacity-50"
       >
-        Continue
+        {t("auth.register.continue")}
       </Button>
     </section>
   );
