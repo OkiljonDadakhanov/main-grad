@@ -20,7 +20,7 @@ export function GoogleLoginButton({
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { success, error } = useCustomToast();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   useEffect(() => {
     setMounted(true);
@@ -80,6 +80,7 @@ export function GoogleLoginButton({
         width="100%"
         text="continue_with"
         shape="rectangular"
+        locale={locale}
       />
     </div>
   );
