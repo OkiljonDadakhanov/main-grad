@@ -70,7 +70,7 @@ export default function UniversityRegisterForm() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
 
-  const handleChange = (key: keyof FormData, value: any) => {
+  const handleChange = (key: string, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (key === "university_admission_email_address") setEmailError("");
     setFieldErrors((prev) => ({ ...prev, [key]: "" }));

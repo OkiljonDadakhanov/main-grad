@@ -29,7 +29,7 @@ const applicationSchema = z.object({
   programName: z.string().min(1, "Program name is required"),
   applicationDate: z.string().min(1, "Application date is required"),
   status: z
-    .enum(["Submitted", "Under Review", "Accepted", "Rejected", "Waitlisted", "Offer Received"])
+    .enum(["Submitted", "Under Review", "Accepted", "Rejected", "Waitlisted", "Offer Received", "Studying", "Interview", "Resend"])
     .default("Submitted"),
   applicationId: z.string().optional(),
   remarks: z.string().optional(),

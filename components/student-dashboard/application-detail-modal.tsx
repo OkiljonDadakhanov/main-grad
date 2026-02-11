@@ -338,7 +338,7 @@ export default function ApplicationDetailModal({ isOpen, onClose, application }:
       {/* Chat Modal */}
       {canChat && (
         <ChatModal
-          applicationId={application.applicationId!}
+          applicationId={Number(application.applicationId!)}
           universityName={application.universityName}
           programName={application.programName}
           open={chatModalOpen}

@@ -89,7 +89,7 @@ export function PasswordChangeForm() {
       toast({
         title: "Password updated",
         description: "Your password has been successfully updated.",
-        variant: "success",
+        variant: "default",
       })
 
       setFormData({

@@ -28,7 +28,7 @@ export function NotificationSettings() {
     toast({
       title: "Settings saved",
       description: "Your notification settings have been updated.",
-      variant: "success",
+      variant: "default",
     })
   }
 

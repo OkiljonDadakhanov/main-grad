@@ -261,7 +261,7 @@ export function ChatContainer({
         <ChatInput
           onSend={sendMessage}
           onTyping={sendTyping}
-          disabled={chatNotInitiated || (threadStatus && !threadStatus.can_send)}
+          disabled={!!chatNotInitiated || !!(threadStatus && !threadStatus.can_send)}
           placeholder={
             chatNotInitiated
               ? "Waiting for university to start chat..."

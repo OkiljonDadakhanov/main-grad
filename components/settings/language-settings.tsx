@@ -15,7 +15,7 @@ export function LanguageSettings() {
     toast({
       title: t("common.success"),
       description: t("profile.saveSuccess"),
-      variant: "success",
+      variant: "default",
     })
   }
 

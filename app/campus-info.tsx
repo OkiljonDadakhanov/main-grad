@@ -43,12 +43,12 @@ Beyond its academic offerings, New Uzbekistan University is committed to becomin
     setIsEditModalOpen(true)
   }
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData({ ...formData, [name]: value })
   }
 
-  const handleAboutChange = (value) => {
+  const handleAboutChange = (value: string) => {
     setFormData({
       ...formData,
       aboutUniversity: {
@@ -323,7 +323,7 @@ Beyond its academic offerings, New Uzbekistan University is committed to becomin
                 id="hasDormitories"
                 checked={formData.hasDormitories}
                 onCheckedChange={(checked) => {
-                  setFormData({ ...formData, hasDormitories: checked })
+                  setFormData({ ...formData, hasDormitories: checked === true })
                 }}
               />
               <Label htmlFor="hasDormitories">Does the university have dormitories</Label>
