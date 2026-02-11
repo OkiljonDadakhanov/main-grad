@@ -1,14 +1,23 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+const validCategories = ["engineering", "business", "arts-humanities", "science", "medicine"];
 
 interface CategoryPageProps {
   params: { slug: string };
 }
 
+export function generateMetadata({ params }: CategoryPageProps): Metadata {
+  const name = params.slug.replace(/-/g, " ");
+  const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
+  return {
+    title: `${capitalized} Programs - GradAbroad`,
+    description: `Explore ${capitalized} programs at Korean universities for Uzbek students.`,
+  };
+}
+
 export default function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = params;
-
-  // Example: define known categories
-  const validCategories = ["engineering", "business", "arts-humanities", "science", "medicine"];
 
   // Show 404 if the slug is invalid
   if (!validCategories.includes(slug.toLowerCase())) {

@@ -91,7 +91,7 @@ const addFamilyMember = async (member: Omit<FamilyMember, "id">): Promise<Family
 };
 
 const updateFamilyMember = async (member: FamilyMember): Promise<FamilyMember> => {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("accessToken") || localStorage.getItem("access_token");
 
   if (member.passportFile) {
     const formData = new FormData();
@@ -136,7 +136,7 @@ const updateFamilyMember = async (member: FamilyMember): Promise<FamilyMember> =
 
 // ✅ NEW: DELETE function
 const deleteFamilyMember = async (id: string): Promise<void> => {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("accessToken") || localStorage.getItem("access_token");
   const response = await fetch(`${BASE_URL}/api/family/${id}/`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },

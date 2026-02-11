@@ -75,6 +75,7 @@ export default function ApplyToUniversityPage({
       }
     }
     fetchUniversity()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [universityId])
 
   // 🧩 Fetch student-readiness data (includes requirements)
@@ -121,6 +122,7 @@ export default function ApplyToUniversityPage({
     }
 
     fetchReadiness()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProgram])
 
   // 📂 Handle Upload

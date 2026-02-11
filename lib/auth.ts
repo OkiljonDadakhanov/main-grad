@@ -32,10 +32,12 @@ export function saveAuthToStorage(payload: AuthPayloadLike): void {
     const accessToken = extractAccessToken(payload);
     const refreshToken = extractRefreshToken(payload);
     if (accessToken) {
-      localStorage.setItem("access_token", accessToken);
+      localStorage.setItem("accessToken", accessToken);
+      // Also set as cookie so Next.js middleware can read it
+      document.cookie = `access_token=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
     }
     if (refreshToken) {
-      localStorage.setItem("refresh_token", refreshToken);
+      localStorage.setItem("refreshToken", refreshToken);
     }
     if (payload.user !== undefined) {
       localStorage.setItem("user", JSON.stringify(payload.user));
@@ -48,7 +50,7 @@ export function saveAuthToStorage(payload: AuthPayloadLike): void {
 export function getAccessTokenFromStorage(): string | null {
   if (typeof window === "undefined") return null;
   try {
-    return localStorage.getItem("access_token");
+    return localStorage.getItem("accessToken") || localStorage.getItem("access_token");
   } catch {
     return null;
   }
@@ -57,7 +59,7 @@ export function getAccessTokenFromStorage(): string | null {
 export function getRefreshTokenFromStorage(): string | null {
   if (typeof window === "undefined") return null;
   try {
-    return localStorage.getItem("refresh_token");
+    return localStorage.getItem("refreshToken") || localStorage.getItem("refresh_token");
   } catch {
     return null;
   }
@@ -76,9 +78,13 @@ export function getUserFromStorage<T = unknown>(): T | null {
 export function clearAuthStorage(): void {
   if (typeof window === "undefined") return;
   try {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
+    // Clear auth cookie
+    document.cookie = "access_token=; path=/; max-age=0";
   } catch {
     // ignore
   }
@@ -103,11 +109,12 @@ async function refreshAccessToken(): Promise<string | null> {
     const data = await res.json();
     const newAccessToken = extractAccessToken(data);
     if (newAccessToken) {
-      localStorage.setItem("access_token", newAccessToken);
+      localStorage.setItem("accessToken", newAccessToken);
+      document.cookie = `access_token=${newAccessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
       // Update refresh token if provided
       const newRefreshToken = extractRefreshToken(data);
       if (newRefreshToken) {
-        localStorage.setItem("refresh_token", newRefreshToken);
+        localStorage.setItem("refreshToken", newRefreshToken);
       }
       return newAccessToken;
     }

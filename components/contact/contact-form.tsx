@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { BASE_URL } from "@/lib/auth"
 
 export function ContactForm() {
   const { toast } = useToast()
@@ -27,23 +28,47 @@ export function ContactForm() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const res = await fetch(`${BASE_URL}/api/contact/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+          inquiry_type: formData.inquiryType,
+        }),
+      })
 
-    toast({
-      title: "Message Sent!",
-      description: "We'll get back to you within 24 hours.",
-    })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data?.detail || "Failed to send message")
+      }
 
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-      inquiryType: "",
-    })
-    setIsSubmitting(false)
+      toast({
+        title: "Message Sent!",
+        description: "We'll get back to you within 24 hours.",
+      })
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+        inquiryType: "",
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to send message. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (field: string, value: string) => {
@@ -80,9 +105,9 @@ export function ContactForm() {
               <Input id="phone" value={formData.phone} onChange={(e) => handleChange("phone", e.target.value)} />
             </div>
             <div>
-              <Label>Inquiry Type *</Label>
+              <Label htmlFor="inquiryType">Inquiry Type *</Label>
               <Select value={formData.inquiryType} onValueChange={(value) => handleChange("inquiryType", value)}>
-                <SelectTrigger>
+                <SelectTrigger id="inquiryType">
                   <SelectValue placeholder="Select inquiry type" />
                 </SelectTrigger>
                 <SelectContent>

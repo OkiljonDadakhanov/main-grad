@@ -31,48 +31,6 @@ export interface ApplicationEntry {
   acceptanceLetterUrl?: string | null
 }
 
-const mockApplications: ApplicationEntry[] = [
-  {
-    id: "app1",
-    universityName: "Seoul National University",
-    programName: "MSc in Artificial Intelligence",
-    applicationDate: "2024-03-15",
-    status: "Interview",
-    statusDate: "2024-04-01",
-    applicationId: "SNU2024AI001",
-    remarks: "Interview scheduled for April 15, 2024 at 10:00 AM KST.",
-  },
-  {
-    id: "app2",
-    universityName: "KAIST (Korea Advanced Institute of Science and Technology)",
-    programName: "PhD in Robotics",
-    applicationDate: "2024-02-20",
-    status: "Accepted",
-    statusDate: "2024-05-10",
-    applicationId: "KAIST2024ROB005",
-    remarks: "Congratulations! Your application has been accepted.",
-  },
-  {
-    id: "app3",
-    universityName: "Yonsei University",
-    programName: "MBA (Global)",
-    applicationDate: "2024-04-01",
-    status: "Submitted",
-    statusDate: "2024-04-01",
-    applicationId: "YONSEI2024MBA012",
-  },
-  {
-    id: "app4",
-    universityName: "Korea University",
-    programName: "MSc in Data Science",
-    applicationDate: "2024-03-10",
-    status: "Resend",
-    statusDate: "2024-04-05",
-    applicationId: "KU2024DS003",
-    remarks: "Additional documents required: Updated transcript and language certificate.",
-  },
-]
-
 export default function MyApplicationsPage() {
   const { error } = useCustomToast()
   const [applications, setApplications] = useState<ApplicationEntry[]>([])
@@ -214,6 +172,7 @@ export default function MyApplicationsPage() {
             <button
               key={status.value}
               onClick={() => setActiveTab(status.value)}
+              aria-pressed={isActive}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 isActive
                   ? "bg-purple-600 text-white shadow-md"

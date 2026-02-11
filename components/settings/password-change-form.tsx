@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { authFetch, BASE_URL } from "@/lib/auth"
 
 export function PasswordChangeForm() {
   const { toast } = useToast()
@@ -20,6 +21,7 @@ export function PasswordChangeForm() {
   const [showOldPassword, setShowOldPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -54,23 +56,55 @@ export function PasswordChangeForm() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (validateForm()) {
-      // In a real app, this would call an API to change the password
+    if (!validateForm()) return
+
+    setLoading(true)
+    try {
+      const res = await authFetch(`${BASE_URL}/api/auth/change-password/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          old_password: formData.oldPassword,
+          new_password: formData.newPassword,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        const msg =
+          typeof data?.detail === "string"
+            ? data.detail
+            : data?.old_password?.[0] || "Failed to change password."
+        toast({
+          title: "Error",
+          description: msg,
+          variant: "destructive",
+        })
+        return
+      }
+
       toast({
         title: "Password updated",
         description: "Your password has been successfully updated.",
         variant: "success",
       })
 
-      // Reset form
       setFormData({
         oldPassword: "",
         newPassword: "",
         confirmPassword: "",
       })
+    } catch {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -91,11 +125,13 @@ export function PasswordChangeForm() {
               value={formData.oldPassword}
               onChange={handleChange}
               className="mt-1 pr-10"
+              disabled={loading}
             />
             <button
               type="button"
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
               onClick={() => setShowOldPassword(!showOldPassword)}
+              aria-label={showOldPassword ? "Hide old password" : "Show old password"}
             >
               {showOldPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -115,11 +151,13 @@ export function PasswordChangeForm() {
               value={formData.newPassword}
               onChange={handleChange}
               className="mt-1 pr-10"
+              disabled={loading}
             />
             <button
               type="button"
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
               onClick={() => setShowNewPassword(!showNewPassword)}
+              aria-label={showNewPassword ? "Hide new password" : "Show new password"}
             >
               {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -139,11 +177,13 @@ export function PasswordChangeForm() {
               value={formData.confirmPassword}
               onChange={handleChange}
               className="mt-1 pr-10"
+              disabled={loading}
             />
             <button
               type="button"
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
             >
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -151,8 +191,15 @@ export function PasswordChangeForm() {
           {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
         </div>
 
-        <Button type="submit" className="bg-purple-900 hover:bg-purple-800">
-          Save
+        <Button type="submit" className="bg-purple-900 hover:bg-purple-800" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              Saving...
+            </>
+          ) : (
+            "Save"
+          )}
         </Button>
       </form>
     </div>

@@ -130,6 +130,17 @@
       "copyright": "Barcha huquqlar himoyalangan."
     }
   },
+  "errorPage": {
+    "title": "Xatolik yuz berdi!",
+    "description": "Kutilmagan xatolik yuz berdi. Qaytadan urinib ko'ring.",
+    "tryAgain": "Qaytadan urinish",
+    "goHome": "Bosh sahifaga"
+  },
+  "notFoundPage": {
+    "title": "404 - Sahifa topilmadi",
+    "description": "Kechirasiz, siz izlayotgan sahifa mavjud emas yoki ko'chirilgan.",
+    "goHome": "Bosh sahifaga"
+  },
   "common": {
     "save": "Saqlash",
     "saveChanges": "O'zgarishlarni saqlash",

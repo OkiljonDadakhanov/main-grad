@@ -137,114 +137,12 @@ body {
   color: #d1d5db; /* gray-300 */
 }
 
-/* Dark mode overrides for hardcoded bg-white elements */
-.dark .bg-white {
-  background-color: hsl(222 47% 11%) !important;
-}
-
-.dark .border-gray-200 {
-  border-color: hsl(222 30% 18%) !important;
-}
-
-.dark .border-gray-100 {
-  border-color: hsl(222 30% 16%) !important;
-}
-
-.dark .text-gray-900 {
-  color: hsl(220 10% 75%) !important;
-}
-
-.dark .text-gray-800 {
-  color: hsl(220 10% 72%) !important;
-}
-
-.dark .text-gray-700 {
-  color: hsl(220 8% 65%) !important;
-}
-
-.dark .text-gray-600 {
-  color: hsl(220 8% 60%) !important;
-}
-
-.dark .text-gray-500 {
-  color: hsl(220 8% 55%) !important;
-}
-
-/* Fix table backgrounds */
-.dark table,
-.dark thead,
-.dark tbody,
-.dark tr {
-  background-color: transparent;
-}
-
-.dark th {
-  background-color: hsl(222 25% 16%);
-  color: hsl(220 10% 72%);
-}
-
-.dark td {
-  border-color: hsl(222 30% 16%);
-}
-
-/* Fix input backgrounds */
-.dark input,
-.dark textarea,
-.dark select {
-  background-color: hsl(222 25% 14%);
-  border-color: hsl(222 25% 22%);
-  color: hsl(220 10% 75%);
-}
-
-.dark input::placeholder,
-.dark textarea::placeholder {
-  color: hsl(220 8% 50%);
-}
-
-/* Fix select dropdown */
-.dark select option {
-  background-color: hsl(222 35% 13%);
-}
-
-/* Fix purple backgrounds in dark mode */
-.dark .bg-purple-50 {
-  background-color: hsl(263 30% 15%) !important;
-}
-
-.dark .bg-purple-100 {
-  background-color: hsl(263 30% 18%) !important;
-}
-
-.dark .bg-purple-200 {
-  background-color: hsl(263 35% 25%) !important;
-}
-
-.dark .text-purple-900 {
-  color: hsl(263 50% 70%) !important;
-}
-
-.dark .text-purple-800 {
-  color: hsl(263 50% 68%) !important;
-}
-
-.dark .text-purple-700 {
-  color: hsl(263 45% 65%) !important;
-}
-
-/* Fix gray backgrounds in dark mode */
-.dark .bg-gray-50 {
-  background-color: hsl(222 25% 14%) !important;
-}
-
-.dark .bg-gray-100 {
-  background-color: hsl(222 25% 16%) !important;
-}
-
-/* Fix blue backgrounds in dark mode */
-.dark .bg-blue-50 {
-  background-color: hsl(220 30% 15%) !important;
-}
-
-.dark .bg-blue-100 {
-  background-color: hsl(220 30% 18%) !important;
-}
+/*
+ * Dark mode: use semantic tokens (bg-background, text-foreground, bg-card,
+ * bg-muted, text-muted-foreground) in components instead of hardcoded
+ * Tailwind color classes. The CSS variables in :root / .dark above handle
+ * the actual color switching.
+ *
+ * If a third-party component injects hardcoded colors, override it here
+ * only as a last resort.
+ */

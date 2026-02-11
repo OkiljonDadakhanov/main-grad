@@ -44,7 +44,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
           setLocaleState(savedLocale);
         }
 
-        const token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("accessToken") || localStorage.getItem("access_token");
         if (!token) {
           setIsLoading(false);
           return;
@@ -77,7 +77,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("preferred_language", newLocale);
 
     // Save to API if authenticated
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem("accessToken") || localStorage.getItem("access_token");
     if (token) {
       try {
         await authFetch(`${BASE_URL}/api/settings/language/`, {
