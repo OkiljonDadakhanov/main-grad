@@ -88,7 +88,7 @@ export function UniversityPrograms({
   const degrees = [
     "All",
     ...Array.from(
-      new Set(safePrograms.map((p) => p.degreeType).filter(Boolean))
+      new Set(safePrograms.map((p) => p.degree_type).filter(Boolean))
     ),
   ];
 
@@ -99,7 +99,7 @@ export function UniversityPrograms({
     const matchesCategory =
       selectedCategory === "All" || program.field_of_study === selectedCategory;
     const matchesDegree =
-      selectedDegree === "All" || program.degreeType === selectedDegree;
+      selectedDegree === "All" || program.degree_type === selectedDegree;
     return matchesSearch && matchesCategory && matchesDegree;
   });
 
@@ -239,7 +239,7 @@ export function UniversityPrograms({
                               {program.field_of_study}
                             </Badge>
                             <Badge variant="outline" className="dark:border-gray-600">
-                              {program.degreeType}
+                              {program.degree_type}
                             </Badge>
                             {isAlreadyApplied && (
                               <Badge className="bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300">
@@ -324,7 +324,7 @@ export function UniversityPrograms({
                           <div>
                             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Tuition Fee</p>
                             <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                              ${program.contractPrice?.toLocaleString() || "TBA"}
+                              ${program.contract_price?.toLocaleString() || "TBA"}
                             </p>
                           </div>
                         </div>

@@ -218,10 +218,10 @@ export function FormSection({
           <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
           <Input
             className="pl-10"
-            value={form.university_admission_representetive_name}
+            value={form.university_admission_representative_name}
             onChange={(e) =>
               handleChange(
-                "university_admission_representetive_name",
+                "university_admission_representative_name",
                 e.target.value
               )
             }
@@ -237,10 +237,10 @@ export function FormSection({
           <Input
             className="pl-10"
             type="email"
-            value={form.university_admission_representetive_email}
+            value={form.university_admission_representative_email}
             onChange={(e) =>
               handleChange(
-                "university_admission_representetive_email",
+                "university_admission_representative_email",
                 e.target.value
               )
             }

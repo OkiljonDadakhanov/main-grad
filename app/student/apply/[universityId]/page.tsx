@@ -333,8 +333,8 @@ export default function ApplyToUniversityPage({
   )
 
   // Check if program has application fee
-  const hasFee = selectedProgramObj?.platformApplicationFee &&
-    parseFloat(selectedProgramObj.platformApplicationFee) > 0
+  const hasFee = selectedProgramObj?.platform_application_fee &&
+    parseFloat(selectedProgramObj.platform_application_fee) > 0
 
   const activePrograms = university?.programmes?.filter((p: any) => p.active) || []
 
@@ -411,15 +411,15 @@ export default function ApplyToUniversityPage({
                               {selectedProgramObj.field_of_study}
                             </Badge>
                             <Badge variant="outline">
-                              {selectedProgramObj.degreeType}
+                              {selectedProgramObj.degree_type}
                             </Badge>
                           </div>
                         </div>
-                        {selectedProgramObj.contractPrice && (
+                        {selectedProgramObj.contract_price && (
                           <div className="text-right">
                             <p className="text-sm text-gray-600">Contract Price</p>
                             <p className="text-2xl font-bold text-purple-600">
-                              ${parseFloat(selectedProgramObj.contractPrice).toLocaleString()}
+                              ${parseFloat(selectedProgramObj.contract_price).toLocaleString()}
                             </p>
                           </div>
                         )}
@@ -432,7 +432,7 @@ export default function ApplyToUniversityPage({
                   <Card>
                     <CardContent className="p-6">
                       <PaymentReceiptUpload
-                        feeAmount={parseFloat(selectedProgramObj.platformApplicationFee).toFixed(2)}
+                        feeAmount={parseFloat(selectedProgramObj.platform_application_fee).toFixed(2)}
                         paymentInstructions={selectedProgramObj.payment_instructions || ""}
                         receiptFile={paymentReceipt}
                         onFileChange={setPaymentReceipt}

@@ -26,8 +26,8 @@ interface FormData {
   university_admission_email_address: string;
   password: string;
   website: string;
-  university_admission_representetive_name: string;
-  university_admission_representetive_email: string;
+  university_admission_representative_name: string;
+  university_admission_representative_email: string;
   types_of_schools: string;
   classification: string;
   address: string;
@@ -49,8 +49,8 @@ export default function UniversityRegisterForm() {
     university_admission_email_address: "",
     password: "",
     website: "",
-    university_admission_representetive_name: "",
-    university_admission_representetive_email: "",
+    university_admission_representative_name: "",
+    university_admission_representative_email: "",
     types_of_schools: "",
     classification: "",
     address: "",
@@ -91,8 +91,8 @@ export default function UniversityRegisterForm() {
       return false;
     }
     if (
-      !form.university_admission_representetive_name ||
-      !form.university_admission_representetive_email ||
+      !form.university_admission_representative_name ||
+      !form.university_admission_representative_email ||
       !form.university_office_phone
     ) {
       error("Please fill in all required fields.");
@@ -125,8 +125,8 @@ export default function UniversityRegisterForm() {
     const profileFields: (keyof FormData)[] = [
       "university_name",
       "website",
-      "university_admission_representetive_name",
-      "university_admission_representetive_email",
+      "university_admission_representative_name",
+      "university_admission_representative_email",
       "types_of_schools",
       "classification",
       "university_admission_email_address",

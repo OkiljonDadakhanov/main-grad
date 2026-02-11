@@ -2,10 +2,10 @@ export interface AcademicProgram {
   id: number;
   name: string;
   field_of_study: string;
-  degreeType: string;
+  degree_type: string;
   about_program: string;
-  contractPrice: string;
-  platformApplicationFee: string;
+  contract_price: string;
+  platform_application_fee: string;
   start_date: string;
   end_date: string;
   results_announcement_date?: string;
