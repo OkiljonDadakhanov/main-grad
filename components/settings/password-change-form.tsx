@@ -63,12 +63,13 @@ export function PasswordChangeForm() {
 
     setLoading(true)
     try {
-      const res = await authFetch(`${BASE_URL}/api/auth/change-password/`, {
-        method: "POST",
+      const res = await authFetch(`${BASE_URL}/api/settings/password/`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           old_password: formData.oldPassword,
           new_password: formData.newPassword,
+          confirm_password: formData.confirmPassword,
         }),
       })
 
