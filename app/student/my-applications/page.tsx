@@ -2,29 +2,19 @@
 
 import ApplicationStatusCard from "@/components/student-dashboard/application-status-card"
 import ApplicationDetailModal from "@/components/student-dashboard/application-detail-modal"
-import AddApplicationModal from "@/components/student-dashboard/add-application-modal"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { PlusCircle } from "lucide-react"
 import React, { useState, useEffect } from "react"
 import { authFetch, BASE_URL } from "@/lib/auth"
 import { useCustomToast } from "@/components/custom-toast"
+import { useI18n } from "@/lib/i18n"
+import { STATUS_ORDER, getStatusLabel } from "@/lib/applicationStatus"
 
 export interface ApplicationEntry {
   id: string
   universityName: string
   programName: string
   applicationDate: string
-  status:
-    | "Submitted"
-    | "Under Review"
-    | "Accepted"
-    | "Rejected"
-    | "Waitlisted"
-    | "Offer Received"
-    | "Resend"
-    | "Interview"
-    | "Studying"
+  status: string
   statusDate: string
   remarks?: string
   applicationId?: string
@@ -75,25 +65,16 @@ const mockApplications: ApplicationEntry[] = [
 
 export default function MyApplicationsPage() {
   const { error } = useCustomToast()
+  const { t } = useI18n()
   const [applications, setApplications] = useState<ApplicationEntry[]>([])
   const [selectedApplication, setSelectedApplication] = useState<ApplicationEntry | null>(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<string>("all")
   const [loading, setLoading] = useState<boolean>(true)
 
   const handleViewDetails = (application: ApplicationEntry) => {
     setSelectedApplication(application)
     setIsDetailModalOpen(true)
-  }
-
-  const handleAddApplication = (newAppData: Omit<ApplicationEntry, "id" | "statusDate">) => {
-    const newApplication: ApplicationEntry = {
-      ...newAppData,
-      id: `app${Date.now()}`,
-      statusDate: new Date().toISOString().split("T")[0],
-    }
-    setApplications((prev) => [newApplication, ...prev])
   }
 
   const fetchMyApplications = async (showLoading = true) => {
@@ -185,28 +166,18 @@ export default function MyApplicationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">My Applications</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Track and manage your university applications</p>
-        </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Application
-        </Button>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">My Applications</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Track and manage your university applications</p>
       </div>
 
       {/* Status Filter */}
       <div className="flex flex-wrap gap-2">
         {[
-          { value: "all", label: "All" },
-          { value: "submitted", label: "Submitted" },
-          { value: "under_review", label: "Under Review" },
-          { value: "interview", label: "Interview" },
-          { value: "accepted", label: "Accepted" },
-          { value: "rejected", label: "Rejected" },
-          { value: "resend", label: "Resend" },
-          { value: "waitlisted", label: "Waitlisted" },
-          { value: "studying", label: "Studying" },
+          { value: "all", label: t("common.all") || "All" },
+          ...STATUS_ORDER
+            .filter((s) => s !== "document_saved")
+            .map((s) => ({ value: s, label: getStatusLabel(t, s) })),
         ].map((status) => {
           const count = getStatusCount(status.value)
           const isActive = activeTab === status.value
@@ -247,7 +218,7 @@ export default function MyApplicationsPage() {
           <CardContent className="pt-6">
             <p className="text-center text-gray-500 dark:text-gray-400">
               {activeTab === "all"
-                ? "You haven't added any applications to track yet. Click 'Add Application' to get started."
+                ? "You haven't applied to any universities yet. Browse universities to get started."
                 : `No applications with status "${activeTab}".`}
             </p>
           </CardContent>
@@ -258,11 +229,6 @@ export default function MyApplicationsPage() {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         application={selectedApplication}
-      />
-      <AddApplicationModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAddApplication={handleAddApplication}
       />
     </div>
   )

@@ -1,35 +1,146 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { useToast } from "@/hooks/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
+import { useCustomToast } from "@/components/custom-toast"
+import { authFetch, BASE_URL } from "@/lib/auth"
+import { AlertCircle } from "lucide-react"
+
+type NotificationField =
+  | "email"
+  | "app_updates"
+  | "payments"
+  | "marketing"
+  | "system"
+
+type NotificationState = Record<NotificationField, boolean>
+
+const DEFAULT_STATE: NotificationState = {
+  email: true,
+  app_updates: true,
+  payments: true,
+  marketing: false,
+  system: true,
+}
+
+const TOGGLES: {
+  field: NotificationField
+  id: string
+  title: string
+  description: string
+}[] = [
+  {
+    field: "email",
+    id: "emailNotifications",
+    title: "Email Notifications",
+    description: "Receive email notifications",
+  },
+  {
+    field: "app_updates",
+    id: "applicationUpdates",
+    title: "Application Updates",
+    description: "Get notified about application status changes",
+  },
+  {
+    field: "payments",
+    id: "paymentReminders",
+    title: "Payment Reminders",
+    description: "Receive reminders about upcoming payments",
+  },
+  {
+    field: "marketing",
+    id: "marketingEmails",
+    title: "Marketing Emails",
+    description: "Receive promotional emails and newsletters",
+  },
+  {
+    field: "system",
+    id: "systemUpdates",
+    title: "System Updates",
+    description: "Get notified about system updates and maintenance",
+  },
+]
+
+function extractErrorMessage(body: unknown): string | null {
+  if (!body || typeof body !== "object") return null
+  const record = body as Record<string, unknown>
+  if (typeof record.detail === "string") return record.detail
+  for (const value of Object.values(record)) {
+    if (typeof value === "string") return value
+    if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string") {
+      return value[0] as string
+    }
+  }
+  return null
+}
 
 export function NotificationSettings() {
-  const { toast } = useToast()
-  const [settings, setSettings] = useState({
-    emailNotifications: true,
-    applicationUpdates: true,
-    paymentReminders: true,
-    marketingEmails: false,
-    systemUpdates: true,
-  })
+  const { error: errorToast } = useCustomToast()
+  const [settings, setSettings] = useState<NotificationState>(DEFAULT_STATE)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [pendingField, setPendingField] = useState<NotificationField | null>(null)
 
-  const handleToggle = (setting: keyof typeof settings) => {
-    setSettings({
-      ...settings,
-      [setting]: !settings[setting],
-    })
+  const loadSettings = async () => {
+    setLoading(true)
+    setLoadError(false)
+    try {
+      const response = await authFetch(`${BASE_URL}/api/settings/notifications/`)
+      if (!response.ok) throw new Error("Failed to load")
+      const data = (await response.json()) as Partial<NotificationState>
+      setSettings({
+        email: Boolean(data.email),
+        app_updates: Boolean(data.app_updates),
+        payments: Boolean(data.payments),
+        marketing: Boolean(data.marketing),
+        system: Boolean(data.system),
+      })
+    } catch {
+      setLoadError(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleSave = () => {
-    // In a real app, this would call an API to save the settings
-    toast({
-      title: "Settings saved",
-      description: "Your notification settings have been updated.",
-      variant: "success",
-    })
+  useEffect(() => {
+    loadSettings()
+  }, [])
+
+  const handleToggle = async (field: NotificationField) => {
+    const previous = settings[field]
+    const next = !previous
+    setSettings((prev) => ({ ...prev, [field]: next }))
+    setPendingField(field)
+
+    try {
+      const response = await authFetch(`${BASE_URL}/api/settings/notifications/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: next }),
+      })
+
+      if (!response.ok) {
+        let body: unknown = null
+        try {
+          body = await response.json()
+        } catch {
+          body = null
+        }
+        setSettings((prev) => ({ ...prev, [field]: previous }))
+        errorToast(
+          "Failed to update settings",
+          extractErrorMessage(body) ?? undefined,
+        )
+      }
+    } catch {
+      setSettings((prev) => ({ ...prev, [field]: previous }))
+      errorToast("Failed to update settings")
+    } finally {
+      setPendingField(null)
+    }
   }
 
   return (
@@ -37,81 +148,58 @@ export function NotificationSettings() {
       <h3 className="text-xl font-semibold mb-4">Notification Settings</h3>
 
       <div className="space-y-6 max-w-md">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="emailNotifications" className="text-base font-medium">
-                Email Notifications
-              </Label>
-              <p className="text-sm text-gray-500">Receive email notifications</p>
-            </div>
-            <Switch
-              id="emailNotifications"
-              checked={settings.emailNotifications}
-              onCheckedChange={() => handleToggle("emailNotifications")}
-            />
+        {loading ? (
+          <div className="space-y-4">
+            {TOGGLES.map((t) => (
+              <div key={t.id} className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-56" />
+                </div>
+                <Skeleton className="h-6 w-11 rounded-full" />
+              </div>
+            ))}
           </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="applicationUpdates" className="text-base font-medium">
-                Application Updates
-              </Label>
-              <p className="text-sm text-gray-500">Get notified about application status changes</p>
+        ) : loadError ? (
+          <div className="flex flex-col items-start gap-3 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>
+                Couldn&apos;t load your notification settings. Please try again.
+              </span>
             </div>
-            <Switch
-              id="applicationUpdates"
-              checked={settings.applicationUpdates}
-              onCheckedChange={() => handleToggle("applicationUpdates")}
-            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadSettings}
+              className="border-red-300 text-red-700 hover:bg-red-100"
+            >
+              Try again
+            </Button>
           </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="paymentReminders" className="text-base font-medium">
-                Payment Reminders
-              </Label>
-              <p className="text-sm text-gray-500">Receive reminders about upcoming payments</p>
-            </div>
-            <Switch
-              id="paymentReminders"
-              checked={settings.paymentReminders}
-              onCheckedChange={() => handleToggle("paymentReminders")}
-            />
+        ) : (
+          <div className="space-y-4">
+            {TOGGLES.map((toggle) => (
+              <div
+                key={toggle.id}
+                className="flex items-center justify-between"
+              >
+                <div>
+                  <Label htmlFor={toggle.id} className="text-base font-medium">
+                    {toggle.title}
+                  </Label>
+                  <p className="text-sm text-gray-500">{toggle.description}</p>
+                </div>
+                <Switch
+                  id={toggle.id}
+                  checked={settings[toggle.field]}
+                  disabled={pendingField === toggle.field}
+                  onCheckedChange={() => handleToggle(toggle.field)}
+                />
+              </div>
+            ))}
           </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="marketingEmails" className="text-base font-medium">
-                Marketing Emails
-              </Label>
-              <p className="text-sm text-gray-500">Receive promotional emails and newsletters</p>
-            </div>
-            <Switch
-              id="marketingEmails"
-              checked={settings.marketingEmails}
-              onCheckedChange={() => handleToggle("marketingEmails")}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="systemUpdates" className="text-base font-medium">
-                System Updates
-              </Label>
-              <p className="text-sm text-gray-500">Get notified about system updates and maintenance</p>
-            </div>
-            <Switch
-              id="systemUpdates"
-              checked={settings.systemUpdates}
-              onCheckedChange={() => handleToggle("systemUpdates")}
-            />
-          </div>
-        </div>
-
-        <Button onClick={handleSave} className="bg-purple-900 hover:bg-purple-800">
-          Save Changes
-        </Button>
+        )}
       </div>
     </div>
   )

@@ -10,40 +10,82 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import { authFetch, BASE_URL } from "@/lib/auth"
+
+const EMPTY_FORM = {
+  name: "",
+  email: "",
+  phone: "",
+  subject: "",
+  message: "",
+  inquiryType: "",
+}
+
+function firstErrorMessage(body: unknown): string | null {
+  if (!body || typeof body !== "object") return null
+  const record = body as Record<string, unknown>
+  if (typeof record.detail === "string") return record.detail
+  for (const value of Object.values(record)) {
+    if (typeof value === "string") return value
+    if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string") {
+      return value[0] as string
+    }
+  }
+  return null
+}
 
 export function ContactForm() {
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: "",
-    inquiryType: "",
-  })
+  const [formData, setFormData] = useState(EMPTY_FORM)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const response = await authFetch(`${BASE_URL}/api/contact-support/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+          inquiry_type: formData.inquiryType,
+        }),
+      })
 
-    toast({
-      title: "Message Sent!",
-      description: "We'll get back to you within 24 hours.",
-    })
+      if (response.ok) {
+        toast({
+          title: "Message Sent!",
+          description: "We'll get back to you within 24 hours.",
+        })
+        setFormData(EMPTY_FORM)
+        return
+      }
 
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-      inquiryType: "",
-    })
-    setIsSubmitting(false)
+      let body: unknown = null
+      try {
+        body = await response.json()
+      } catch {
+        body = null
+      }
+      toast({
+        title: "Couldn't send message",
+        description: firstErrorMessage(body) ?? "Please try again.",
+        variant: "destructive",
+      })
+    } catch {
+      toast({
+        title: "Couldn't send message",
+        description: "Please check your connection and try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (field: string, value: string) => {

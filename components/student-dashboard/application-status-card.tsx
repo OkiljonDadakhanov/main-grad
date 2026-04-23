@@ -5,31 +5,14 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { ApplicationEntry } from "@/app/student/my-applications/page"
 import { cn } from "@/lib/utils"
-import { ExternalLink, FileText, Calendar, Clock, Video, Download } from "lucide-react"
+import { ExternalLink, FileText, Calendar, Clock, Video, Download, FolderOpen } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useI18n } from "@/lib/i18n"
+import { getStatusColorClass, getStatusLabel, normalizeStatus } from "@/lib/applicationStatus"
 
 interface ApplicationStatusCardProps {
   application: ApplicationEntry
   onViewDetails: (application: ApplicationEntry) => void
-}
-
-const statusColors: Record<string, string> = {
-  Submitted: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  submitted: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  "Under Review": "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
-  under_review: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
-  Accepted: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  accepted: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  "Offer Received": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
-  Rejected: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-  rejected: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-  Waitlisted: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
-  Interview: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
-  interview: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
-  Resend: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-  resend: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-  Studying: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
-  studying: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
 }
 
 // Parse interview details from remarks
@@ -62,8 +45,10 @@ function parseInterviewDetails(remarks: string) {
 
 export default function ApplicationStatusCard({ application, onViewDetails }: ApplicationStatusCardProps) {
   const { t } = useI18n()
-  const isInterview = application.status.toLowerCase() === "interview"
-  const isAccepted = ["accepted", "confirmed", "visa_taken", "studying"].includes(application.status.toLowerCase())
+  const router = useRouter()
+  const status = normalizeStatus(application.status)
+  const isInterview = status === "interview"
+  const isAccepted = status !== null && ["accepted", "confirmed", "visa_taken", "studying"].includes(status)
   const hasAcceptanceLetter = isAccepted && !!application.acceptanceLetterUrl
   const interviewDetails = isInterview && application.remarks ? parseInterviewDetails(application.remarks) : null
 
@@ -83,9 +68,23 @@ export default function ApplicationStatusCard({ application, onViewDetails }: Ap
               <CardDescription>{application.programName}</CardDescription>
             </div>
           </div>
-          <Badge className={cn("text-xs", statusColors[application.status] || "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300")}>
-            {application.status}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={(e) => {
+                e.stopPropagation()
+                router.push(`/student/my-applications/${application.id}/documents`)
+              }}
+            >
+              <FolderOpen className="h-4 w-4 mr-1" />
+              Documents
+            </Button>
+            <Badge className={cn("text-xs", getStatusColorClass(application.status))}>
+              {getStatusLabel(t, application.status)}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
