@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils"
 import { Calendar, ExternalLink, Video, Copy, Check, Download, FileText, Loader2, Clock, MessageSquare } from "lucide-react"
 import { authFetch, BASE_URL } from "@/lib/auth"
 import { ChatModal } from "@/components/chat/chat-modal"
+import { useI18n } from "@/lib/i18n"
+import { getStatusColorClass, getStatusLabel, normalizeStatus } from "@/lib/applicationStatus"
 
 // Helper to safely format dates
 const formatDate = (dateStr: string | null | undefined): string | null => {
@@ -31,24 +33,6 @@ interface ApplicationDetailModalProps {
   application: ApplicationEntry | null
 }
 
-const statusColors: Record<string, string> = {
-  Submitted: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  submitted: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  "Under Review": "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
-  under_review: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
-  Accepted: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  accepted: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  "Offer Received": "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
-  Rejected: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-  rejected: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-  Waitlisted: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
-  Interview: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
-  interview: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
-  Resend: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-  resend: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-  Studying: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
-  studying: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
-}
 
 // Parse interview details from remarks
 function parseInterviewDetails(remarks: string) {
@@ -107,16 +91,18 @@ function parseInterviewDetails(remarks: string) {
 }
 
 export default function ApplicationDetailModal({ isOpen, onClose, application }: ApplicationDetailModalProps) {
+  const { t } = useI18n()
   const [copied, setCopied] = useState(false)
   const [downloadingAcceptanceLetter, setDownloadingAcceptanceLetter] = useState(false)
   const [chatModalOpen, setChatModalOpen] = useState(false)
 
   if (!application) return null
 
-  const isInterview = application.status.toLowerCase() === "interview"
-  const isAccepted = ["accepted", "confirmed", "visa_taken", "studying"].includes(application.status.toLowerCase())
+  const status = normalizeStatus(application.status)
+  const isInterview = status === "interview"
+  const isAccepted = status !== null && ["accepted", "confirmed", "visa_taken", "studying"].includes(status)
   // Chat is available for submitted applications (not draft or document_saved)
-  const canChat = application.applicationId && !["draft", "document_saved"].includes(application.status.toLowerCase())
+  const canChat = application.applicationId && status !== "document_saved"
   const interviewDetails = isInterview && application.remarks ? parseInterviewDetails(application.remarks) : null
 
   const handleCopyLink = (link: string) => {
@@ -164,8 +150,8 @@ export default function ApplicationDetailModal({ isOpen, onClose, application }:
         <div className="py-4 space-y-3 text-sm">
           <div className="flex justify-between items-center">
             <span className="font-medium text-gray-700 dark:text-gray-300">Status:</span>
-            <Badge className={cn("text-xs font-semibold", statusColors[application.status] || "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300")}>
-              {application.status}
+            <Badge className={cn("text-xs font-semibold", getStatusColorClass(application.status))}>
+              {getStatusLabel(t, application.status)}
             </Badge>
           </div>
           <p>

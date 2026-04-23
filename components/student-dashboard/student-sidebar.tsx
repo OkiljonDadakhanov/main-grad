@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import ContactSupportModal from "./contact-support-modal"
 import { useSidebar } from "./sidebar-context"
-import { useIsMobile } from "@/hooks/use-mobile"
 import {
   CreditCard,
   FileText,
@@ -42,7 +41,6 @@ export default function StudentSidebar() {
   const [fullName, setFullName] = useState<string>("")
   const [isContactModalOpen, setIsContactModalOpen] = useState(false)
   const { t } = useI18n()
-  const isMobile = useIsMobile()
   const { isOpen, close } = useSidebar()
 
   const handleLogout = () => {
@@ -69,12 +67,10 @@ export default function StudentSidebar() {
     load()
   }, [])
 
-  // Close sidebar on navigation (mobile)
+  // Keep the mobile drawer closed after navigation changes.
   useEffect(() => {
-    if (isMobile) {
-      close()
-    }
-  }, [pathname, isMobile, close])
+    close()
+  }, [pathname, close])
 
   const sidebarContent = (
     <>
@@ -158,21 +154,19 @@ export default function StudentSidebar() {
     </>
   )
 
-  // Mobile: render as Sheet drawer
-  if (isMobile) {
-    return (
-      <Sheet open={isOpen} onOpenChange={(open) => !open && close()}>
-        <SheetContent side="left" className="w-64 p-0 flex flex-col">
-          {sidebarContent}
-        </SheetContent>
-      </Sheet>
-    )
-  }
-
-  // Desktop: render as fixed sidebar
   return (
-    <aside className="hidden md:flex fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-gray-950/50 flex-col z-50">
-      {sidebarContent}
-    </aside>
+    <>
+      <div className="lg:hidden">
+        <Sheet open={isOpen} onOpenChange={(open) => !open && close()}>
+          <SheetContent side="left" className="w-64 p-0 flex flex-col">
+            {sidebarContent}
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      <aside className="hidden lg:flex fixed top-0 left-0 h-screen w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-gray-950/50 flex-col z-50">
+        {sidebarContent}
+      </aside>
+    </>
   )
 }

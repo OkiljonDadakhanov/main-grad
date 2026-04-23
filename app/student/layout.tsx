@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,10 +17,7 @@ function StudentDashboardContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-950">
-      {/* Desktop Sidebar - hidden on mobile */}
-      <div className="hidden lg:block">
-        <StudentSidebar />
-      </div>
+      <StudentSidebar />
 
       {/* Main content - full width on mobile, shifted on desktop */}
       <div className="flex-1 lg:pl-64">
@@ -71,6 +69,25 @@ export default function StudentDashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  const [authState, setAuthState] = useState<"checking" | "authed">("checking")
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token")
+    if (!token) {
+      const current =
+        typeof window !== "undefined"
+          ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+          : "/student"
+      window.location.replace(`/login/student?redirect=${encodeURIComponent(current)}`)
+      return
+    }
+    setAuthState("authed")
+  }, [])
+
+  if (authState === "checking") {
+    return <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950" />
+  }
+
   return (
     <SidebarProvider>
       <StudentDashboardContent>{children}</StudentDashboardContent>

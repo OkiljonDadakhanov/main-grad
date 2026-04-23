@@ -350,14 +350,17 @@
     "interviewScheduled": "Suhbat rejalashtirilgan",
     "joinInterview": "Suhbatga qo'shilish",
     "statuses": {
+      "documentSaved": "Qoralama",
       "submitted": "Yuborilgan",
       "underReview": "Ko'rib chiqilmoqda",
+      "resend": "Qayta yuborish so'ralgan",
+      "interview": "Suhbat",
       "accepted": "Qabul qilingan",
+      "confirmed": "Tasdiqlangan",
+      "visaTaken": "Viza tasdiqlangan",
+      "studying": "O'qiyotgan",
       "rejected": "Rad etilgan",
       "waitlisted": "Kutish ro'yxatida",
-      "interview": "Suhbat",
-      "resend": "Qayta yuborish",
-      "studying": "O'qiyotgan",
       "offerReceived": "Taklif olindi"
     }
   },

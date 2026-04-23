@@ -350,14 +350,17 @@
     "interviewScheduled": "면접 예정",
     "joinInterview": "면접 참가",
     "statuses": {
+      "documentSaved": "임시저장",
       "submitted": "제출됨",
       "underReview": "검토 중",
+      "resend": "재제출 요청",
+      "interview": "면접",
       "accepted": "합격",
+      "confirmed": "등록 확정",
+      "visaTaken": "비자 승인",
+      "studying": "재학 중",
       "rejected": "불합격",
       "waitlisted": "대기",
-      "interview": "면접",
-      "resend": "재전송",
-      "studying": "재학 중",
       "offerReceived": "합격 통보"
     }
   },

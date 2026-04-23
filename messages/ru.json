@@ -350,14 +350,17 @@
     "interviewScheduled": "Собеседование назначено",
     "joinInterview": "Присоединиться",
     "statuses": {
+      "documentSaved": "Черновик",
       "submitted": "Подана",
       "underReview": "На рассмотрении",
+      "resend": "Требуется повторная отправка",
+      "interview": "Собеседование",
       "accepted": "Принята",
+      "confirmed": "Подтверждена",
+      "visaTaken": "Виза одобрена",
+      "studying": "Обучение",
       "rejected": "Отклонена",
       "waitlisted": "В листе ожидания",
-      "interview": "Собеседование",
-      "resend": "Повторная отправка",
-      "studying": "Обучение",
       "offerReceived": "Получено предложение"
     }
   },

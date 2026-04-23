@@ -350,14 +350,17 @@
     "interviewScheduled": "Interview Scheduled",
     "joinInterview": "Join Interview",
     "statuses": {
+      "documentSaved": "Draft",
       "submitted": "Submitted",
       "underReview": "Under Review",
+      "resend": "Resubmit Requested",
+      "interview": "Interview",
       "accepted": "Accepted",
+      "confirmed": "Confirmed",
+      "visaTaken": "Visa Approved",
+      "studying": "Studying",
       "rejected": "Rejected",
       "waitlisted": "Waitlisted",
-      "interview": "Interview",
-      "resend": "Resend",
-      "studying": "Studying",
       "offerReceived": "Offer Received"
     }
   },
