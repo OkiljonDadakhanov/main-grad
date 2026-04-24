@@ -66,9 +66,9 @@ export function HeroSection() {
             </div>
 
             {/* Title */}
-            <h1 className="mx-auto max-w-4xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
-              {t("landing.hero.title")}
-              <span className="block mt-2 bg-gradient-to-r from-purple-300 via-pink-300 to-blue-300 bg-clip-text text-transparent">
+            <h1 className="mx-auto max-w-4xl text-balance text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.05] tracking-tight">
+              {t("landing.hero.title")}{" "}
+              <span className="italic text-purple-200/90">
                 {t("landing.hero.titleHighlight")}
               </span>
             </h1>
