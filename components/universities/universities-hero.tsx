@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, GraduationCap, Users } from "lucide-react";
+import { Search } from "lucide-react";
 
 interface UniversitiesHeroProps {
   onSearch: (query: string) => void;
@@ -50,7 +50,7 @@ export function UniversitiesHero({ onSearch }: UniversitiesHeroProps) {
           </p>
 
           {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-12">
+          <div className="max-w-2xl mx-auto">
             <div className="flex flex-col sm:flex-row gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/60 h-5 w-5" />
@@ -70,31 +70,6 @@ export function UniversitiesHero({ onSearch }: UniversitiesHeroProps) {
               >
                 Search
               </Button>
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-colors">
-              <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <GraduationCap className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-white">50+</div>
-              <div className="text-sm text-white/70">Universities</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-colors">
-              <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <MapPin className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-white">8</div>
-              <div className="text-sm text-white/70">Major Cities</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-colors">
-              <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-3xl font-bold text-white">500+</div>
-              <div className="text-sm text-white/70">Programs</div>
             </div>
           </div>
         </div>

@@ -1,56 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { UniversitiesHero } from "@/components/universities/universities-hero";
 import { UniversitiesFilter } from "@/components/universities/universities-filter";
 import { UniversitiesGrid } from "@/components/universities/universities-grid";
 import { UniversitiesPagination } from "@/components/universities/universities-pagination";
+import { Button } from "@/components/ui/button";
 import { BASE_URL } from "@/lib/auth";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import type { University } from "@/types/university";
+
+// Cards per page in the grid. The list endpoint is unpaginated, so we paginate client-side.
+const PAGE_SIZE = 6;
 
 export default function UniversitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const [programFeatures, setProgramFeatures] = useState<string[]>([]);
-  const [universities, setUniversities] = useState<any[]>([]);
-  const [filteredUniversities, setFilteredUniversities] = useState<any[]>([]);
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [filteredUniversities, setFilteredUniversities] = useState<University[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch all universities
-  useEffect(() => {
-    let cancelled = false;
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`${BASE_URL}/api/auth/universities/`);
-        if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        if (!cancelled) {
-          setUniversities(data);
-          setFilteredUniversities(data);
-        }
-      } catch (error) {
-        console.error("Error fetching universities:", error);
-        if (!cancelled) {
-          setUniversities([]);
-          setFilteredUniversities([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-    fetchData();
-    return () => {
-      cancelled = true;
-    };
+  const fetchUniversities = useCallback(async (signal?: AbortSignal) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${BASE_URL}/api/auth/universities/`, { signal });
+      if (!res.ok) throw new Error(`Failed to load universities (${res.status})`);
+      const data: University[] = await res.json();
+      const list = Array.isArray(data) ? data : [];
+      setUniversities(list);
+      setFilteredUniversities(list);
+    } catch (err) {
+      if ((err as { name?: string })?.name === "AbortError") return;
+      console.error("Error fetching universities:", err);
+      setError("We couldn't load universities. Please try again.");
+      setUniversities([]);
+      setFilteredUniversities([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Apply filtering logic with debouncing for search
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchUniversities(controller.signal);
+    return () => controller.abort();
+  }, [fetchUniversities]);
+
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const filtered = universities.filter((uni) => {
@@ -66,21 +67,17 @@ export default function UniversitiesPage() {
 
         const matchesFeatures = programFeatures.every((feature) => {
           if (feature === "english") {
-            return uni.programmes?.some((p: any) =>
-              p?.requirements?.some((r: any) => r?.requirementType === "english")
+            return uni.programmes?.some((p) =>
+              p?.requirements?.some((r) => r?.requirementType === "english"),
             );
           }
           if (feature === "scholarship") {
-            return uni.scholarships?.length > 0;
+            return (uni.scholarships?.length ?? 0) > 0;
           }
           if (feature === "dormitory") {
             return (
-              uni.campus_information?.dormitory_available?.toLowerCase() ===
-              "yes"
+              uni.campus_information?.dormitory_available?.toLowerCase() === "yes"
             );
-          }
-          if (feature === "exchange") {
-            return uni.programmes?.length > 1;
           }
           return true;
         });
@@ -118,7 +115,6 @@ export default function UniversitiesPage() {
 
         <div className="container mx-auto px-4 py-10">
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filters Sidebar */}
             <div className="lg:w-72 flex-shrink-0">
               <UniversitiesFilter
                 onFilterChange={handleFilterChange}
@@ -127,7 +123,6 @@ export default function UniversitiesPage() {
               />
             </div>
 
-            {/* Universities Grid */}
             <div className="flex-1 min-w-0">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
@@ -136,16 +131,30 @@ export default function UniversitiesPage() {
                     Loading universities...
                   </p>
                 </div>
+              ) : error ? (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-4">
+                    <AlertCircle className="w-8 h-8 text-red-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                    Couldn&apos;t load universities
+                  </h3>
+                  <p className="text-slate-500 dark:text-slate-400 max-w-md mb-4">
+                    {error}
+                  </p>
+                  <Button onClick={() => fetchUniversities()}>Try again</Button>
+                </div>
               ) : (
                 <>
                   <UniversitiesGrid
                     universities={filteredUniversities}
                     currentPage={currentPage}
+                    pageSize={PAGE_SIZE}
                   />
 
                   <UniversitiesPagination
                     currentPage={currentPage}
-                    totalPages={Math.ceil(filteredUniversities.length / 6)}
+                    totalPages={Math.ceil(filteredUniversities.length / PAGE_SIZE)}
                     onPageChange={setCurrentPage}
                   />
                 </>

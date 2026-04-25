@@ -6,38 +6,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, GraduationCap, Building2, Globe, BookOpen } from "lucide-react";
 import Image from "next/image";
-
-interface University {
-  id: number;
-  university_name: string;
-  city?: string;
-  logo_url?: string;
-  types_of_schools?: string;
-  classification?: string;
-  campus_information?: {
-    dormitory_available?: string;
-    graduates_total?: number | string;
-  };
-  programmes?: any[];
-  scholarships?: any[];
-}
+import { InitialChip } from "@/components/ui/initial-chip";
+import type { University } from "@/types/university";
 
 interface UniversitiesGridProps {
   universities: University[];
   currentPage: number;
+  pageSize: number;
 }
-
-const ITEMS_PER_PAGE = 6;
 
 export function UniversitiesGrid({
   universities,
   currentPage,
+  pageSize,
 }: UniversitiesGridProps) {
   const router = useRouter();
 
-  // Calculate paginated universities
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
   const paginatedUniversities = universities.slice(startIndex, endIndex);
 
   if (universities.length === 0) {
@@ -78,12 +64,19 @@ export function UniversitiesGrid({
           >
             <div className="relative h-40 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-white/80 dark:from-slate-800/80 to-transparent z-10" />
-              <Image
-                src={university.logo_url || "/placeholder.svg"}
-                alt={university.university_name}
-                fill
-                className="object-contain p-6 group-hover:scale-105 transition-transform duration-300"
-              />
+              {university.logo_url ? (
+                <Image
+                  src={university.logo_url}
+                  alt={university.university_name}
+                  fill
+                  className="object-contain p-6 group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : (
+                <InitialChip
+                  name={university.university_name}
+                  className="w-20 h-20 text-3xl z-20"
+                />
+              )}
             </div>
             <CardContent className="p-5">
               <div className="mb-3">

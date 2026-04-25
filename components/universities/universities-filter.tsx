@@ -48,7 +48,6 @@ const FEATURES = [
   { value: "english", label: "English Programs", description: "Courses taught in English" },
   { value: "scholarship", label: "Scholarships Available", description: "Financial aid options" },
   { value: "dormitory", label: "Dormitory Available", description: "On-campus housing" },
-  { value: "exchange", label: "Exchange Programs", description: "International opportunities" },
 ];
 
 export function UniversitiesFilter({
