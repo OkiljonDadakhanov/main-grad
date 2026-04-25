@@ -41,7 +41,7 @@ export function UniversityScholarships({
       router.push(`/student/apply/${universityId}`);
     } else {
       const returnUrl = encodeURIComponent(`/student/apply/${universityId}`);
-      router.push(`/login?redirect=${returnUrl}`);
+      router.push(`/login/student?redirect=${returnUrl}`);
     }
   };
 

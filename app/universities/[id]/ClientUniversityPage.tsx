@@ -37,9 +37,8 @@ export function ClientUniversityPage({
       // User is logged in, go to apply page
       router.push(`/student/apply/${universityId}`);
     } else {
-      // User is not logged in, go to login with redirect
       const returnUrl = encodeURIComponent(`/student/apply/${universityId}`);
-      router.push(`/login?redirect=${returnUrl}`);
+      router.push(`/login/student?redirect=${returnUrl}`);
     }
   };
 
