@@ -29,7 +29,7 @@ export default function ProgramSelector({ university, selectedProgram, setSelect
           <SelectContent>
             {university.programmes.filter((p: any) => p.active).map((p: any) => (
               <SelectItem key={p.id} value={String(p.id)}>
-                {p.name} ({p.degreeType})
+                {p.name} ({p.degree_type})
               </SelectItem>
             ))}
           </SelectContent>
@@ -38,11 +38,11 @@ export default function ProgramSelector({ university, selectedProgram, setSelect
         {selectedProgramObj && (
           <>
             {renderDescription(selectedProgramObj.about_program)}
-            {selectedProgramObj.contractPrice && (
+            {selectedProgramObj.contract_price && (
               <div className="mt-4 p-3 bg-purple-50 rounded-lg">
                 <p className="text-sm font-semibold text-purple-900">Contract Price</p>
                 <p className="text-lg font-bold text-purple-600">
-                  ${parseFloat(selectedProgramObj.contractPrice).toLocaleString()}
+                  ${parseFloat(selectedProgramObj.contract_price).toLocaleString()}
                 </p>
               </div>
             )}

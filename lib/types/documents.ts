@@ -71,10 +71,10 @@ export interface Programme {
   id: number
   university_id: number
   field_of_study: string
-  degreeType: string
+  degree_type: string
   name: string
-  contractPrice: string
-  platformApplicationFee: string
+  contract_price: string
+  platform_application_fee: string
   about_program: string | null
   application_guide_url: string | null
   application_form_url: string | null

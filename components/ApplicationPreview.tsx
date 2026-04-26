@@ -19,8 +19,8 @@ export default function ApplicationPreview({
   paymentReceipt
 }: ApplicationPreviewProps) {
   // Check if program has application fee
-  const hasFee = program?.platformApplicationFee &&
-    parseFloat(program.platformApplicationFee) > 0
+  const hasFee = program?.platform_application_fee &&
+    parseFloat(program.platform_application_fee) > 0
   // Get all requirements that need file uploads during application
   const applicationRequirements = readinessData?.requirements?.filter((req: any) => {
     const status = req.status?.toLowerCase() || ""
@@ -67,7 +67,7 @@ export default function ApplicationPreview({
                   <>
                     <AlertCircle className="h-4 w-4 text-amber-600" />
                     <span className="text-amber-600">
-                      Payment Receipt - Not uploaded (${parseFloat(program.platformApplicationFee).toFixed(2)} required)
+                      Payment Receipt - Not uploaded (${parseFloat(program.platform_application_fee).toFixed(2)} required)
                     </span>
                   </>
                 )}

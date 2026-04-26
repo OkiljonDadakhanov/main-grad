@@ -1,6 +1,6 @@
 export interface Scholarship {
   id: string
-  degreeType: string
+  degree_type: string
   academicProgram: string
   description: {
     english: string
