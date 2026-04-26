@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import DOMPurify from "dompurify"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -222,7 +223,7 @@ Beyond its academic offerings, New Uzbekistan University is committed to becomin
           <Card className="overflow-hidden">
             <div className="p-4">
               <div className="prose max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: campusData.aboutUniversity.english.replace(/\n/g, "<br/>") }} />
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(campusData.aboutUniversity.english.replace(/\n/g, "<br/>")) }} />
               </div>
             </div>
           </Card>
