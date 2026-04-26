@@ -122,9 +122,9 @@ export function ContactForm() {
               <Input id="phone" value={formData.phone} onChange={(e) => handleChange("phone", e.target.value)} />
             </div>
             <div>
-              <Label>Inquiry Type *</Label>
+              <Label htmlFor="inquiryType">Inquiry Type *</Label>
               <Select value={formData.inquiryType} onValueChange={(value) => handleChange("inquiryType", value)}>
-                <SelectTrigger>
+                <SelectTrigger id="inquiryType">
                   <SelectValue placeholder="Select inquiry type" />
                 </SelectTrigger>
                 <SelectContent>

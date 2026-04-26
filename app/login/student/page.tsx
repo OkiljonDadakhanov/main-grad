@@ -100,12 +100,13 @@ export default function StudentLoginPage() {
 
           <form onSubmit={handleEmailLogin} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label htmlFor="login-email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 {t("auth.studentLogin.email")}
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" aria-hidden="true" />
                 <Input
+                  id="login-email"
                   placeholder={t("auth.studentLogin.emailPlaceholder")}
                   type="email"
                   value={email}
@@ -117,12 +118,13 @@ export default function StudentLoginPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label htmlFor="login-password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 {t("auth.studentLogin.password")}
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" aria-hidden="true" />
                 <Input
+                  id="login-password"
                   placeholder={t("auth.studentLogin.passwordPlaceholder")}
                   type="password"
                   value={password}

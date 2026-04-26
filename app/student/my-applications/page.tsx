@@ -185,6 +185,7 @@ export default function MyApplicationsPage() {
             <button
               key={status.value}
               onClick={() => setActiveTab(status.value)}
+              aria-pressed={isActive}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 isActive
                   ? "bg-purple-600 text-white shadow-md"

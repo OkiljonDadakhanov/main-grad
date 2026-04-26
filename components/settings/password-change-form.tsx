@@ -123,6 +123,7 @@ export function PasswordChangeForm() {
               type="button"
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
               onClick={() => setShowOldPassword(!showOldPassword)}
+              aria-label={showOldPassword ? "Hide old password" : "Show old password"}
             >
               {showOldPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -147,6 +148,7 @@ export function PasswordChangeForm() {
               type="button"
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
               onClick={() => setShowNewPassword(!showNewPassword)}
+              aria-label={showNewPassword ? "Hide new password" : "Show new password"}
             >
               {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -171,6 +173,7 @@ export function PasswordChangeForm() {
               type="button"
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
             >
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
