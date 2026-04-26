@@ -1,5 +1,7 @@
 "use client";
 
+// Reads NEXT_PUBLIC_SITE_URL from .env.local for the OneID OAuth callback
+// (falls back to https://gradabroad.net in production).
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -59,8 +61,9 @@ export default function StudentLoginPage() {
 
   const handleOneIdLogin = () => {
     const clientId = "gradabroadltd";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://gradabroad.net";
     const redirectUri = encodeURIComponent(
-      "https://gradabroad.net/login/oneid/callback"
+      `${siteUrl}/login/oneid/callback`
     );
     const state = encodeURIComponent("random_state_string");
     const scope = encodeURIComponent("openid profile email");
