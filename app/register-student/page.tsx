@@ -113,12 +113,13 @@ export default function RegisterStudentPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label htmlFor="reg-first-name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {t("auth.studentRegister.firstName")}
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" aria-hidden="true" />
                   <Input
+                    id="reg-first-name"
                     placeholder={t("auth.studentRegister.firstName")}
                     value={form.first_name}
                     onChange={(e) => handleChange("first_name", e.target.value)}
@@ -128,12 +129,13 @@ export default function RegisterStudentPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label htmlFor="reg-last-name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {t("auth.studentRegister.lastName")}
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" aria-hidden="true" />
                   <Input
+                    id="reg-last-name"
                     placeholder={t("auth.studentRegister.lastName")}
                     value={form.last_name}
                     onChange={(e) => handleChange("last_name", e.target.value)}
@@ -145,12 +147,13 @@ export default function RegisterStudentPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label htmlFor="reg-phone" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 {t("auth.studentRegister.phone")}
               </label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" aria-hidden="true" />
                 <Input
+                  id="reg-phone"
                   placeholder={t("auth.studentRegister.phone")}
                   value={form.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
@@ -161,12 +164,13 @@ export default function RegisterStudentPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label htmlFor="reg-email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 {t("auth.studentRegister.email")}
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" aria-hidden="true" />
                 <Input
+                  id="reg-email"
                   placeholder={t("auth.studentRegister.emailPlaceholder")}
                   type="email"
                   value={form.email}
@@ -178,12 +182,13 @@ export default function RegisterStudentPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label htmlFor="reg-password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 {t("auth.studentRegister.password")}
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" aria-hidden="true" />
                 <Input
+                  id="reg-password"
                   placeholder={t("auth.studentRegister.passwordPlaceholder")}
                   type="password"
                   value={form.password}

@@ -495,5 +495,16 @@
       "loading": "Loading...",
       "continueWith": "Continue with Google"
     }
+  },
+  "errorPage": {
+    "title": "Something went wrong!",
+    "description": "An unexpected error occurred. Please try again.",
+    "tryAgain": "Try again",
+    "goHome": "Go home"
+  },
+  "notFoundPage": {
+    "title": "404 - Page Not Found",
+    "description": "Sorry, the page you are looking for doesn't exist or has been moved.",
+    "goHome": "Go Home"
   }
 }

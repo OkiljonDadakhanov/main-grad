@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 interface CategoryPageProps {
   params: { slug: string };
+}
+
+export function generateMetadata({ params }: CategoryPageProps): Metadata {
+  const name = params.slug.replace(/-/g, " ");
+  const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
+  return {
+    title: `${capitalized} Programs - GradAbroad`,
+    description: `Explore ${capitalized} programs at Korean universities for Uzbek students.`,
+  };
 }
 
 export default function CategoryPage({ params }: CategoryPageProps) {

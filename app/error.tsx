@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import logger from "@/lib/logger"
+import { useI18n } from "@/lib/i18n"
 
 export default function Error({
   error,
@@ -11,19 +12,22 @@ export default function Error({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const { t } = useI18n()
+
   useEffect(() => {
     logger.error("Application error:", error)
   }, [error])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="max-w-md w-full bg-card shadow-lg rounded-lg p-8 text-center">
         <div className="mb-6">
           <svg
             className="mx-auto h-16 w-16 text-red-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -33,21 +37,21 @@ export default function Error({
             />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Something went wrong!
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          {t("errorPage.title")}
         </h2>
-        <p className="text-gray-600 mb-6">
-          An unexpected error occurred. Please try again.
+        <p className="text-muted-foreground mb-6">
+          {t("errorPage.description")}
         </p>
         <div className="space-x-4">
           <Button onClick={() => reset()} variant="default">
-            Try again
+            {t("errorPage.tryAgain")}
           </Button>
           <Button
             onClick={() => (window.location.href = "/")}
             variant="outline"
           >
-            Go home
+            {t("errorPage.goHome")}
           </Button>
         </div>
       </div>
