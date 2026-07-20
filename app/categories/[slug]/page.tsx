@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 interface CategoryPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export function generateMetadata({ params }: CategoryPageProps): Metadata {
-  const name = params.slug.replace(/-/g, " ");
+export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const name = slug.replace(/-/g, " ");
   const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
   return {
     title: `${capitalized} Programs - GradAbroad`,
@@ -14,8 +15,8 @@ export function generateMetadata({ params }: CategoryPageProps): Metadata {
   };
 }
 
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const { slug } = params;
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const { slug } = await params;
 
   // Example: define known categories
   const validCategories = ["engineering", "business", "arts-humanities", "science", "medicine"];

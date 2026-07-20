@@ -4,7 +4,7 @@ import { BASE_URL } from '@/lib/auth'
 // DELETE /api/personal-documents/[id] - Delete a specific personal document
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization')
@@ -13,7 +13,7 @@ export async function DELETE(
     }
     const token = authHeader.substring(7) // Remove 'Bearer ' prefix
 
-    const { id } = params
+    const { id } = await params
 
     const response = await fetch(`${BASE_URL}/api/personal-documents/${id}/`, {
       method: 'DELETE',
@@ -44,7 +44,7 @@ export async function DELETE(
 // GET /api/personal-documents/[id] - Get a specific personal document
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization')
@@ -53,7 +53,7 @@ export async function GET(
     }
     const token = authHeader.substring(7) // Remove 'Bearer ' prefix
 
-    const { id } = params
+    const { id } = await params
 
     const response = await fetch(`${BASE_URL}/api/personal-documents/${id}/`, {
       method: 'GET',
